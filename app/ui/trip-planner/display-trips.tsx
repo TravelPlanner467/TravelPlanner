@@ -46,29 +46,29 @@ export default function DisplayTrips() {
 
     return (
             <div className="flex flex-wrap flex-shrink-0 justify-center items-start gap-4">
-                {trips.map((trip) => (
-                    <div
-                        key={`calculation-${trip.id}`}
-                        className="flex-shrink-0 w-52 min-w-52 border border-gray-200 rounded-lg shadow-md">
-                        {/* Card Header */}
-                        <div className="flex flex-row justify-between items-center
-                                        bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg"
-                        >
-                            <div className="flex flex-col justify-start items-start">
-                                <h3 className="text-md text-gray-900">
-                                    {Object.values(trip.details)[0]?.location}
-                                </h3>
-                                <p className="text-xs text-gray-500">
-                                    tripID:{trip.id}
-                                </p>
-                            </div>
-                            <DeleteTrip
-                                tripID={trip.id.toString()}
-                                onDeleteSuccess={handleDeleteSuccess}
-                            />
-                        </div>
-                    </div>
-                ))}
+                {/*{trips.map((trip) => (*/}
+                {/*    <div*/}
+                {/*        key={`calculation-${trip.id}`}*/}
+                {/*        className="flex-shrink-0 w-52 min-w-52 border border-gray-200 rounded-lg shadow-md">*/}
+                {/*        /!* Card Header *!/*/}
+                {/*        <div className="flex flex-row justify-between items-center*/}
+                {/*                        bg-gray-50 px-4 py-3 border-b border-gray-200 rounded-t-lg"*/}
+                {/*        >*/}
+                {/*            <div className="flex flex-col justify-start items-start">*/}
+                {/*                <h3 className="text-md text-gray-900">*/}
+                {/*                    {Object.values(trip.details)[0]?.location}*/}
+                {/*                </h3>*/}
+                {/*                <p className="text-xs text-gray-500">*/}
+                {/*                    tripID:{trip.id}*/}
+                {/*                </p>*/}
+                {/*            </div>*/}
+                {/*            <DeleteTrip*/}
+                {/*                tripID={trip.id.toString()}*/}
+                {/*                onDeleteSuccess={handleDeleteSuccess}*/}
+                {/*            />*/}
+                {/*        </div>*/}
+                {/*    </div>*/}
+                {/*))}*/}
             </div>
     );
 
