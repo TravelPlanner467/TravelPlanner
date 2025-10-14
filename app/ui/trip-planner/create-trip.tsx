@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from "react";
-import { sendToTripServer } from "@/app/ui/trip-planner/trip-planner-actions";
+import { uploadTrip } from "@/app/ui/trip-planner/trip-planner-actions";
 
 interface CreateCalculationProps {
     isOpen: boolean;
@@ -10,11 +10,7 @@ interface CreateCalculationProps {
 
 interface TripData {
     title: string;
-    startDate: string;
-    endDate: string;
     description: string;
-    location: string;
-    budget: string;
 }
 
 export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
@@ -22,11 +18,7 @@ export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
     const [uploadStatus, setUploadStatus] = useState<string>('');
     const [tripData, setTripData] = useState<TripData>({
         title: '',
-        startDate: '',
-        endDate: '',
         description: '',
-        location: '',
-        budget: ''
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -42,12 +34,9 @@ export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
         setIsUploading(true);
 
         try {
-            // Upload to backend
-            await sendToTripServer(tripData);
+            await uploadTrip(tripData);
             setUploadStatus('Trip created successfully!');
-
-            // Close after successful submission
-            // setTimeout(() => onClose(), 2000);
+            window.location.reload();
         } catch (error) {
             setUploadStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
         } finally {
@@ -55,7 +44,7 @@ export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
         }
     };
 
-    // If the modal is not open, don't render anything
+    // Keep popup closed if isOpen is false
     if (!isOpen) return null;
 
     return (
@@ -90,55 +79,7 @@ export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
                             onChange={handleInputChange}
                             required
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            placeholder="Summer Vacation 2023"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
-                                Start Date
-                            </label>
-                            <input
-                                type="date"
-                                id="startDate"
-                                name="startDate"
-                                value={tripData.startDate}
-                                onChange={handleInputChange}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
-                                End Date
-                            </label>
-                            <input
-                                type="date"
-                                id="endDate"
-                                name="endDate"
-                                value={tripData.endDate}
-                                onChange={handleInputChange}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                            Destination
-                        </label>
-                        <input
-                            type="text"
-                            id="location"
-                            name="location"
-                            value={tripData.location}
-                            onChange={handleInputChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            placeholder="Paris, France"
+                            placeholder="Trip Title"
                         />
                     </div>
 
@@ -153,7 +94,7 @@ export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
                             value={tripData.description}
                             onChange={handleInputChange}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            placeholder="Describe your trip plans, activities, and notes..."
+                            placeholder="Describe your trip plans..."
                         />
                     </div>
 
@@ -183,15 +124,6 @@ export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
                     </div>
                 </form>
 
-                {/* Submit preview */}
-                {uploadStatus.includes('✅') && (
-                    <div className="bg-gray-100 p-4 rounded-lg mt-6">
-                        <h3 className="text-lg font-semibold mb-3">Trip Details:</h3>
-                        <pre className="bg-white p-4 rounded border overflow-auto text-sm">
-                          {JSON.stringify(tripData, null, 2)}
-                        </pre>
-                    </div>
-                )}
             </div>
         </div>
     );

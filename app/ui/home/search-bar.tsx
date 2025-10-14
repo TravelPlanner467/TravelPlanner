@@ -1,67 +1,45 @@
-'use client'
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
-type NameIdMap = Record<string, number>;
+'use client'
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 export default function SearchBar() {
-    const [data, setData] = useState<NameIdMap>({});
     const [query, setQuery] = useState('');
-    const [suggestions, setSuggestions] = useState<string[]>([]);
     const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setQuery(value);
-
-        if (value.length === 0) {
-            setSuggestions([]);
-            return;
-        }
-
-        const matches = Object.keys(data).filter(name =>
-            name.toLowerCase().includes(value.toLowerCase())
-        );
-        setSuggestions(matches.slice(0, 10));
     };
 
-    const handleSelect = (name: string) => {
-        const experienceID = data[name];
-        if (experienceID) {
-            // Navigate to market page with the selected item ID
-            router.push(`/experience?id=${experienceID}`);
-        }
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!query.trim()) return;
+
+        // Navigate to results
+        router.push(`/experience/search?q=${encodeURIComponent(query.trim())}`);
     };
 
     return (
-        <div className="flex justify-center  max-w-[900px] min-w-[500px]  my-12">
-            {/*SEARCH BAR*/}
-            <input
-                className="w-full rounded-md border-gray-300 focus:ring-1 focus:ring-gray-800"
-                type="text"
-                placeholder="Search For Experience..."
-                value={query}
-                onChange={handleChange}
-            />
-            {suggestions.length > 0 && (
-                <ul className="absolute top-full left-0 right-0 mt-1
-                            bg-white border border-gray-300 rounded-lg shadow-lg
-                            z-10 max-h-48 overflow-y-auto"
+        <div className="relative w-full max-w-[900px] min-w-[500px] my-12">
+            <form onSubmit={handleSubmit} className="relative">
+                <input
+                    className="w-full p-4 pl-12 rounded-lg border border-gray-300 shadow-sm focus:ring-2"
+                    type="text"
+                    placeholder="Search for experiences..."
+                    value={query}
+                    onChange={handleChange}
+                />
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <button
+                    type="submit"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    disabled={!query.trim()}
                 >
-                    {suggestions.map(name => (
-                        <li
-                            key={name}
-                            onClick={() => handleSelect(name)}
-                            style={{
-                                padding: '8px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            {name}
-                        </li>
-                    ))}
-                </ul>
-            )}
+                    Search
+                </button>
+            </form>
         </div>
     );
 }

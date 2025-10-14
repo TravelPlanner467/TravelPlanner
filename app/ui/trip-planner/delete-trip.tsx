@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { TrashIcon } from '@heroicons/react/24/outline';
 
-import {deleteTrips} from "@/app/ui/trip-planner/trip-planner-actions";
+import {deleteTrip} from "@/app/ui/trip-planner/trip-planner-actions";
 
 interface DeleteButtonProps {
     tripID: string;
@@ -14,15 +14,15 @@ export function DeleteTrip({ tripID, onDeleteSuccess }: DeleteButtonProps) {
     const [error, setError] = useState<string | null>(null);
 
     const handleDelete = async () => {
-        // Confirm deletion
+        // Confirmation Window
         if (!window.confirm(`Are you sure you want to delete trip #${tripID}? This action cannot be undone.`)) {
             return;
         }
-
         setIsDeleting(true);
         setError(null);
         try {
-            const result = await deleteTrips(tripID);
+            let deletionID = {"id": tripID}
+            const result = await deleteTrip(deletionID);
 
             if (result.success) {
                 // Call the callback function if it exists
