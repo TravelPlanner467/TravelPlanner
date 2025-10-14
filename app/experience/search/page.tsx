@@ -1,10 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import {Suspense, useEffect, useState} from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { MagnifyingGlassIcon, TagIcon } from '@heroicons/react/24/outline';
-import ExperienceCard from '@/app/ui/experience/experience-card';
 
 interface Experience {
     id: string | number;
@@ -15,7 +13,7 @@ interface Experience {
     imageUrl?: string;
 }
 
-export default function SearchResultsPage() {
+function SearchResultContent() {
     const searchParams = useSearchParams();
     const query = searchParams.get('q') || '';
     const [results, setResults] = useState<Experience[]>([]);
@@ -64,5 +62,13 @@ export default function SearchResultsPage() {
                 </Link>
             </div>
         </main>
+    );
+}
+
+export default function SearchResultsPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SearchResultContent />
+        </Suspense>
     );
 }
