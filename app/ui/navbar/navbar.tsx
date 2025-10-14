@@ -1,12 +1,12 @@
+'use client'
+
 import Link from 'next/link';
-import {BookOpenIcon, CalculatorIcon, UserCircleIcon} from "@heroicons/react/24/outline";
+import {BookOpenIcon, UserCircleIcon, PlusCircleIcon} from "@heroicons/react/24/outline";
+import {auth} from "@/lib/auth";
 
-const links = [
-    { name: 'Trip Planner', href: '/trip-planner', icon: BookOpenIcon },
-    { name: 'Login', href: '/login', icon: UserCircleIcon },
-];
+type Session = typeof auth.$Infer.Session;
 
-export default function Navbar() {
+export default function Navbar({ session }: { session: Session | null }) {
   return (
     <div className="flex flex-row w-full h-[55px] bg-gray-50 ">
       <Link
@@ -19,19 +19,50 @@ export default function Navbar() {
       </Link>
 
       <div className="flex grow flex-row justify-end md:flex-row">
-          {links.map((link) => {
-              const LinkIcon = link.icon;
-              return (
-                  <Link
-                      key={link.name}
-                      href={link.href}
-                      className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
-                  >
-                      <LinkIcon className="w-6" />
-                      <p className="hidden md:block">{link.name}</p>
-                  </Link>
-              );
-          })}
+          {session && (
+              <Link
+                  key="New Experience"
+                  href="/experience/create"
+                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
+              >
+                  <PlusCircleIcon className="w-6" />
+                  <p className="hidden md:block">New Experience</p>
+              </Link>
+          )}
+
+          {session && (
+              <Link
+                  key="Trip Planner"
+                  href="/trip-planner"
+                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
+              >
+                  <BookOpenIcon className="w-6" />
+                  <p className="hidden md:block">Trip Planner</p>
+              </Link>
+          )}
+
+          {session && (
+              <Link
+                  key="profile"
+                  href="/profile"
+                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
+              >
+                  <UserCircleIcon className="w-6" />
+                  <p className="hidden md:block">User Profile</p>
+              </Link>
+          )}
+          {!session && (
+              <Link
+                  key="Login"
+                  href="/login"
+                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
+              >
+                  <UserCircleIcon className="w-6" />
+                  <p className="hidden md:block">Login</p>
+              </Link>
+          )}
+
+
       </div>
     </div>
   );

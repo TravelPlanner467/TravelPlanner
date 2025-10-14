@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { TrashIcon } from '@heroicons/react/24/outline';
 
-import {deleteTrip} from "@/app/ui/trip-planner/trip-planner-actions";
+import {deleteTrip} from "@/lib/actions/trip-planner-actions";
 
 interface DeleteButtonProps {
     tripID: string;

@@ -17,7 +17,8 @@ function ExperienceDetailsContent() {
                 </p>
             </div>
 
-            TODO: DISPLAY DETAILS ABOUT SELECTED EXPERIENCE
+            TODO: DISPLAY DETAILED VIEW ABOUT SELECTED EXPERIENCE
+            TODO: USE TEMPORARY JSON FILE UNTIL EXPERIENCES DATABASE IS READY
 
             <div className="mt-8 flex justify-center">
                 <Link href="/"

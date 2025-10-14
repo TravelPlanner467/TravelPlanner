@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from "react";
-import { uploadTrip } from "@/app/ui/trip-planner/trip-planner-actions";
+import { uploadTrip } from "@/lib/actions/trip-planner-actions";
 
 interface CreateCalculationProps {
     isOpen: boolean;

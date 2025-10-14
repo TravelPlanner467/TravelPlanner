@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useEffect, useState} from "react";
-import {getUserTrips} from "@/app/ui/trip-planner/trip-planner-actions";
+import {getUserTrips} from "@/lib/actions/trip-planner-actions";
 import {DeleteTrip} from "@/app/ui/trip-planner/delete-trip";
 
 interface Trip {

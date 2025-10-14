@@ -4,7 +4,7 @@ import postgres from 'postgres';
 import {
   crafting_methods,
   ItemData
-} from '@/app/lib/types';
+} from '@/lib/types';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 

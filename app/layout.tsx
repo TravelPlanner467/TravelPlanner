@@ -1,21 +1,27 @@
 import '@/app/ui/global.css'
 import { inter } from '@/app/ui/fonts';
 import Navbar from "@/app/ui/navbar/navbar";
+import {auth} from "@/lib/auth";
+import {headers} from "next/headers";
 
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
+
+    const session = await auth.api.getSession(
+        {headers: await headers()}
+    );
+
+    return (
     <html lang="en">
       <body suppressHydrationWarning className={`${inter.className} antialiased`}>
-          <Navbar />
+          <Navbar session={session}/>
           {children}
       </body>
     </html>
-  );
+);
 }
 
 

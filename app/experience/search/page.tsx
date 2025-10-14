@@ -32,6 +32,7 @@ function SearchResultContent() {
                 setLoading(true);
 
                 // TODO: FETCH DATA AND RETURN RESULTS
+                // TODO: USE TEMPORARY JSON FILE UNTIL EXPERIENCES DATA IS READY
 
 
             } catch (err) {
