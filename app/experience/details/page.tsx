@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import {useSearchParams} from "next/navigation";
+import {Suspense} from "react";
 
-export default function ExperienceDetailsPage() {
+function ExperienceDetailsContent() {
     const searchParams = useSearchParams();
     const query = searchParams.get('q') || '';
 
@@ -26,4 +27,13 @@ export default function ExperienceDetailsPage() {
             </div>
         </main>
     )
+}
+
+
+export default function ExperienceDetailsPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ExperienceDetailsContent />
+        </Suspense>
+    );
 }
