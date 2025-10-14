@@ -5,12 +5,6 @@ import {useState} from "react";
 import {LoadScript, Autocomplete} from "@react-google-maps/api";
 import {useRef} from "react";
 
-import * as process from "node:process";
-
-interface Props {
-    onPlaceSelect: (place: google.maps.places.Place | null) => void;
-}
-
 type Trip = {
     id: number;
     title: string;
