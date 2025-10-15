@@ -1,4 +1,4 @@
-import SearchBar from "@/app/ui/navigation/search-bar";
+import SearchBar from "@/app/ui/search/search-bar";
 
 export default function Page() {
   return (

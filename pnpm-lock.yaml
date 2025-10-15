@@ -32,6 +32,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      components:
+        specifier: link:@/components
+        version: link:@/components
       google-maps:
         specifier: ^4.3.3
         version: 4.3.3

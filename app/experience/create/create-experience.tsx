@@ -93,32 +93,31 @@ export default function CreateExperience({ session }: { session: Session | null 
                         required
                     />
                 </div>
-                <LoadScript
-                    googleMapsApiKey={process.env.GOOGLE_MAPS_API_KEY || ''}
-                    libraries={libraries as any}
-                >
-                    {/* Address autocomplete input */}
-                    <div className="">
-                        <label htmlFor="address" className="text-sm font-medium text-gray-700">
-                            Search for an address
-                        </label>
-                        <Autocomplete
-                            onLoad={onAutocompleteLoad}
-                            onPlaceChanged={onPlaceChanged}
-                            options={{ fields: ['formatted_address', 'geometry', 'name'] }}
-                        >
-                            <input
-                                id="address"
-                                type="text"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="Enter an address or place name"
-                            />
-                        </Autocomplete>
-                    </div>
-
-                </LoadScript>
+                {/*<LoadScript*/}
+                {/*    googleMapsApiKey={process.env.GOOGLE_MAPS_API_KEY || ''}*/}
+                {/*    libraries={libraries as any}*/}
+                {/*>*/}
+                {/*    /!* Address autocomplete input *!/*/}
+                {/*    <div className="">*/}
+                {/*        <label htmlFor="address" className="text-sm font-medium text-gray-700">*/}
+                {/*            Search for an address*/}
+                {/*        </label>*/}
+                {/*        <Autocomplete*/}
+                {/*            onLoad={onAutocompleteLoad}*/}
+                {/*            onPlaceChanged={onPlaceChanged}*/}
+                {/*            options={{ fields: ['formatted_address', 'geometry', 'name'] }}*/}
+                {/*        >*/}
+                {/*            <input*/}
+                {/*                id="address"*/}
+                {/*                type="text"*/}
+                {/*                value={address}*/}
+                {/*                onChange={(e) => setAddress(e.target.value)}*/}
+                {/*                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"*/}
+                {/*                placeholder="Enter an address or place name"*/}
+                {/*            />*/}
+                {/*        </Autocomplete>*/}
+                {/*    </div>*/}
+                {/*</LoadScript>*/}
 
                 <div className="flex flex-row gap-2 items-center">
                     <label htmlFor="description" className="block text-sm font-medium text-gray-700">

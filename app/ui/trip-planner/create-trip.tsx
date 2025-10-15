@@ -3,17 +3,12 @@
 import React, { useState } from "react";
 import { uploadTrip } from "@/lib/actions/trip-planner-actions";
 
-interface CreateCalculationProps {
-    isOpen: boolean;
-    onClose: () => void;
-}
-
 interface TripData {
     title: string;
     description: string;
 }
 
-export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
+export function CreateTrip() {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<string>('');
     const [tripData, setTripData] = useState<TripData>({
@@ -44,24 +39,21 @@ export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
         }
     };
 
-    // Keep popup closed if isOpen is false
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="">
             <div
-                className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto relative"
+                className=""
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close Button */}
-                <button
-                    type="button"
-                    onClick={() => onClose()}
-                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
-                    aria-label="Close"
-                >
-                    <span className="text-2xl">×</span>
-                </button>
+                {/*<button*/}
+                {/*    type="button"*/}
+                {/*    onClick={() => onClose()}*/}
+                {/*    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"*/}
+                {/*    aria-label="Close"*/}
+                {/*>*/}
+                {/*    <span className="text-2xl">×</span>*/}
+                {/*</button>*/}
 
                 <h2 className="text-2xl font-bold mb-6">Create a Trip</h2>
 
@@ -107,13 +99,13 @@ export function CreateTrip({ isOpen, onClose }: CreateCalculationProps) {
 
                     {/* Submit and Cancel Buttons */}
                     <div className="flex justify-end space-x-3">
-                        <button
-                            type="button"
-                            onClick={() => onClose()}
-                            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                            Cancel
-                        </button>
+                        {/*<button*/}
+                        {/*    type="button"*/}
+                        {/*    onClick={() => onClose()}*/}
+                        {/*    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"*/}
+                        {/*>*/}
+                        {/*    Cancel*/}
+                        {/*</button>*/}
                         <button
                             type="submit"
                             disabled={isUploading}

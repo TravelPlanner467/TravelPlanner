@@ -1,0 +1,106 @@
+[
+  {
+    "id": 1,
+    "title": "Pacific Northwest Road Trip",
+    "dates": {
+      "start": "2025-11-15T00:00:00Z",
+      "end": "2025-11-22T00:00:00Z"
+    },
+    "description": "Week-long adventure exploring the stunning landscapes of Washington and Oregon, from Seattle's urban attractions to Portland's food scene and the natural beauty of the Pacific coast.",
+    "userID": "user_002",
+    "experiences": [2, 6, 14]
+  },
+  {
+    "id": 2,
+    "title": "Southwest National Parks Tour",
+    "dates": {
+      "start": "2025-12-05T00:00:00Z",
+      "end": "2025-12-12T00:00:00Z"
+    },
+    "description": "Epic journey through the most spectacular national parks in the Southwest. Challenging hikes, breathtaking canyons, and unforgettable desert landscapes.",
+    "userID": "user_001",
+    "experiences": [3, 7, 13]
+  },
+  {
+    "id": 3,
+    "title": "Southern Music & History",
+    "dates": {
+      "start": "2026-02-14T00:00:00Z",
+      "end": "2026-02-17T00:00:00Z"
+    },
+    "description": "Valentine's weekend exploring the rich musical heritage and mysterious history of the American South.",
+    "userID": "user_003",
+    "experiences": [4, 20]
+  },
+  {
+    "id": 4,
+    "title": "California Wine Country Escape",
+    "dates": {
+      "start": "2025-11-20T00:00:00Z",
+      "end": "2025-11-20T00:00:00Z"
+    },
+    "description": null,
+    "userID": "user_007",
+    "experiences": [9]
+  },
+  {
+    "id": 5,
+    "title": "East Coast City Tour",
+    "dates": {
+      "start": "2026-03-10T00:00:00Z",
+      "end": "2026-03-17T00:00:00Z"
+    },
+    "description": "Comprehensive tour of America's historic East Coast cities, combining art, culture, history, and urban exploration.",
+    "userID": "user_006",
+    "experiences": [15, 11, 8]
+  },
+  {
+    "id": 6,
+    "title": "Alaska Adventure",
+    "dates": null,
+    "description": "Planning an incredible wilderness expedition to explore Alaska's glaciers, wildlife, and pristine natural beauty. Dates to be determined based on best season for wildlife viewing.",
+    "userID": "user_004",
+    "experiences": [5]
+  },
+  {
+    "id": 7,
+    "title": "Texas BBQ Weekend",
+    "dates": {
+      "start": "2025-11-08T00:00:00Z",
+      "end": "2025-11-10T00:00:00Z"
+    },
+    "description": "Ultimate food lover's pilgrimage to Austin for authentic Texas BBQ and live music scene.",
+    "userID": "user_013",
+    "experiences": [18]
+  },
+  {
+    "id": 8,
+    "title": "Desert Stargazing Retreat",
+    "dates": {
+      "start": "2025-12-28T00:00:00Z",
+      "end": "2025-12-30T00:00:00Z"
+    },
+    "description": "New Year's retreat under the darkest skies in North America. Perfect for astrophotography and peaceful reflection.",
+    "userID": "user_014",
+    "experiences": [19]
+  },
+  {
+    "id": 9,
+    "title": "Florida Keys Getaway",
+    "dates": {
+      "start": "2026-01-15T00:00:00Z",
+      "end": "2026-01-18T00:00:00Z"
+    },
+    "description": "Winter escape to tropical paradise with snorkeling, beach time, and fresh seafood.",
+    "userID": "user_008",
+    "experiences": [10]
+  },
+  {
+    "id": 10,
+    "title": "Future Trip Ideas",
+    "dates": null,
+    "description": null,
+    "userID": "user_001",
+    "experiences": []
+  }
+]
