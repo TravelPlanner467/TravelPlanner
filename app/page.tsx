@@ -1,4 +1,4 @@
-import SearchBar from "@/app/ui/search/search-bar";
+import SearchBar from "@/app/ui/experience/search-bar";
 
 export default function Page() {
   return (
@@ -13,7 +13,7 @@ export default function Page() {
         </div>
 
         <div className="flex flex-col items-center">
-            <SearchBar />
+            <SearchBar/>
         </div>
 
         <div className="flex flex-col items-center">

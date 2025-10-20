@@ -1,39 +1,9 @@
-'use client'
-
-import Link from "next/link";
-import {useSearchParams} from "next/navigation";
-import {Suspense} from "react";
-
-function ExperienceDetailsContent() {
-    const searchParams = useSearchParams();
-    const query = searchParams.get('q') || '';
-
-    return (
-        <main className="flex flex-col p-4 mt-10 gap-8 min-w-fit min-h-fit">
-            <div className="flex flex-col w-full text-center items-center">
-                <h1 className="text-3xl font-bold mb-2">Experience</h1>
-                <p className="text-gray-600">
-                    {query ? `Showing results for "${query}"` : 'Enter a search term to find experiences'}
-                </p>
-            </div>
-
-            TODO: DISPLAY DETAILED VIEW ABOUT SELECTED EXPERIENCE
-            TODO: USE TEMPORARY JSON FILE UNTIL EXPERIENCES DATABASE IS READY
-
-            <div className="mt-8 flex justify-center">
-                <Link href="/"
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                    Back to Search (TODO)
-                </Link>
-            </div>
-        </main>
-    )
-}
-
+import { Suspense } from 'react';
+import {ExperienceDetailsContent} from "@/app/ui/experience/experience-details";
 
 export default function ExperienceDetailsPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
             <ExperienceDetailsContent />
         </Suspense>
     );

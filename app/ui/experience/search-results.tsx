@@ -1,20 +1,20 @@
 'use client'
 import { useState } from 'react';
 import ExperienceCard from "@/app/ui/experience/experience-card";
-import Pagination from "@/app/ui/search/pagination";
-import experiencesData from '@/public/experiences.json';
+import Pagination from "@/app/ui/components/pagination";
 import {Experience} from "@/app/experience/search/page";
 
 interface SearchResultsProps {
     query: string;
+    experienceData: any
 }
 
 const ITEMS_PER_PAGE = 6;
 
-export function SearchResults({ query }: SearchResultsProps) {
+export function SearchResults({ query, experienceData }: SearchResultsProps) {
     const [currentPage, setCurrentPage] = useState(1);
     // @ts-ignore
-    const experiences: Experience[] = experiencesData;
+    const experiences: Experience[] = experienceData
 
     const totalPages = Math.ceil(experiences.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;

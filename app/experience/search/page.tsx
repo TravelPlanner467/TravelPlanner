@@ -1,9 +1,5 @@
-'use client'
-
-import {Suspense, useEffect, useState} from 'react';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import {SearchResults} from "@/app/ui/search/search-results";
+import {demoGetExperience} from "@/lib/actions/experience-actions";
+import {SearchResults} from "@/app/ui/experience/search-results";
 
 export interface Experience {
     id: string;
@@ -21,50 +17,17 @@ export interface Experience {
     photos: string[];
 }
 
-function SearchResultContent() {
-    const searchParams = useSearchParams();
-    const query = searchParams.get('q') || '';
-    // const [results, setResults] = useState<Experience[]>([]);
-    // const [loading, setLoading] = useState(true);
-    // const [error, setError] = useState<string | null>(null);
 
-    // useEffect(() => {
-    //     async function searchExperiences() {
-    //         if (!query) {
-    //             setResults([]);
-    //             setLoading(false);
-    //             return;
-    //         }
-    //
-    //         try {
-    //             setLoading(true);
-    //
-    //             // TODO: FETCH DATA AND RETURN RESULTS
-    //             // TODO: USE TEMPORARY JSON FILE UNTIL EXPERIENCES DATA IS READY
-    //
-    //
-    //         } catch (err) {
-    //             setError('Failed to perform search. Please try again later.');
-    //             console.error('Error searching experiences:', err);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     }
-    //     searchExperiences();
-    // }, [query]);
+// TODO: FETCH DATA AND RETURN RESULTS
+// TODO: USE TEMPORARY JSON FILE UNTIL EXPERIENCES DATA IS READY
 
+export default async function SearchResultsPage({searchParams}: {searchParams?: {q?: string}}) {
+    const query = searchParams?.q || '';
+    const experiences: Experience[] = await demoGetExperience();
 
     return (
         <main className="flex flex-col min-w-fit min-h-fit">
-            <SearchResults query={query} />
+            <SearchResults query={query} experienceData={experiences}/>
         </main>
-    );
-}
-
-export default function SearchResultsPage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <SearchResultContent />
-        </Suspense>
     );
 }

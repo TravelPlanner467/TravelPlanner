@@ -2,6 +2,7 @@
 import {Experience} from "@/app/experience/search/page";
 import { useRouter } from 'next/navigation';
 import {MapPinIcon, PhotoIcon } from "@heroicons/react/16/solid";
+import {demoGetExperience} from "@/lib/actions/experience-actions";
 
 interface ExperienceCardProps {
     experience: Experience;
@@ -18,6 +19,7 @@ export default function ExperienceCard({ experience }: ExperienceCardProps) {
     const handleClick = () => {
         router.push(`/experience/details?q=${experience.id}`);
     };
+
 
     return (
         <div
@@ -45,11 +47,11 @@ export default function ExperienceCard({ experience }: ExperienceCardProps) {
             {/*Keywords*/}
             <div className="flex flex-wrap my-2 gap-2">
                 {experience.keywords.map((keyword, index) => (
-                    <span key={index}
+                    <p key={index}
                           className="px-2 py-1 bg-blue-100 text-xs font-medium"
                     >
                         {keyword}
-                    </span>
+                    </p>
                 ))}
             </div>
 

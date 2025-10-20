@@ -1,5 +1,13 @@
 'use server'
 
+import trips from "@/public/trips.json"
+import {Trip} from "@/app/trip-planner/page";
+
+export async function demoGetTrips() {
+    return trips as unknown as Trip[];
+}
+
+
 export async function getUserTrips() {
     const url = 'http://localhost:8000/load'
     try {
