@@ -1,5 +1,5 @@
 'use client'
-import { Trip } from "@/app/trip-planner/page"
+import { Trip } from "@/app/trips/page"
 import { useRouter } from 'next/navigation';
 import {MapPinIcon} from "@heroicons/react/16/solid";
 

@@ -17,10 +17,6 @@ export interface Experience {
     photos: string[];
 }
 
-
-// TODO: FETCH DATA AND RETURN RESULTS
-// TODO: USE TEMPORARY JSON FILE UNTIL EXPERIENCES DATA IS READY
-
 export default async function SearchResultsPage(
     props: { searchParams?: Promise<{ q?: string }> }
 ) {

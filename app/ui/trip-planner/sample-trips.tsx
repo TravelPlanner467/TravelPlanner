@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import TripCard from "@/app/ui/trip-planner/trip-card";
 import Pagination from "@/app/ui/components/pagination";
-import {Trip} from "@/app/trip-planner/page";
+import {Trip} from "@/app/trips/page";
 
 interface TripDataProps {
     tripsData: any

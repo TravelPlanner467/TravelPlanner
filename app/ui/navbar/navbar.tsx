@@ -33,7 +33,7 @@ export default function Navbar({ session }: { session: Session | null }) {
           {session && (
               <Link
                   key="Trip Planner"
-                  href="/trip-planner"
+                  href="/trips"
                   className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
               >
                   <BookOpenIcon className="w-6" />

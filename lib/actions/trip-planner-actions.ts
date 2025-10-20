@@ -1,7 +1,7 @@
 'use server'
 
 import trips from "@/public/trips.json"
-import {Trip} from "@/app/trip-planner/page";
+import {Trip} from "@/app/trips/page";
 
 export async function demoGetTrips() {
     return trips as unknown as Trip[];
