@@ -16,8 +16,11 @@ export interface Trip {
     experiences: number[];
 }
 
-export default async function Page({searchParams}: {searchParams?: {q?: string}}) {
-    // const query = searchParams?.q || '';
+export default async function Page(
+    props: { searchParams?: Promise<{ q?: string }> }
+) {
+    const searchParams = await props.searchParams;
+    const query = searchParams?.q || '';
     const trips: Trip[] = await demoGetTrips();
 
     return (
