@@ -21,7 +21,10 @@ export interface Experience {
 // TODO: FETCH DATA AND RETURN RESULTS
 // TODO: USE TEMPORARY JSON FILE UNTIL EXPERIENCES DATA IS READY
 
-export default async function SearchResultsPage({searchParams}: {searchParams?: {q?: string}}) {
+export default async function SearchResultsPage(
+    props: { searchParams?: Promise<{ q?: string }> }
+) {
+    const searchParams = await props.searchParams;
     const query = searchParams?.q || '';
     const experiences: Experience[] = await demoGetExperience();
 
