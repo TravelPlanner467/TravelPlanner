@@ -12,6 +12,6 @@
    >BETTER_AUTH_URL=http://localhost:3000
 
 4. Run:
-   >npm run dev
+   >pnpm run dev
 
 5. View dev environment @ http://localhost:3000/
