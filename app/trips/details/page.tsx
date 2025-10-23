@@ -1,5 +1,5 @@
 import {TripDetails} from "@/app/ui/trips/trip-details";
-import {demoGetTripByID, demoGetTripExperiences, demoGetTrips} from "@/lib/actions/trips-actions";
+import {demoGetTripByID, demoGetTripExperiences} from "@/lib/actions/trips-actions";
 import {ErrorResponse, Experience, Trip} from "@/lib/types";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
@@ -7,7 +7,7 @@ import {headers} from "next/headers";
 export default async function Page(
     props: { searchParams?: Promise<{ q?: string }> }
 ) {
-    // GET USER SESSIONS DATA
+    // GET USER SESSION DATA
     const session = await auth.api.getSession(
         {headers: await headers()}
     );

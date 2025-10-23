@@ -8,6 +8,8 @@ export default async function CreateExperiencePage() {
         {headers: await headers()}
     );
 
+    const userID = session.user.id;
+
     if ( !session ) {
         redirect('/');
     }
@@ -17,7 +19,7 @@ export default async function CreateExperiencePage() {
             <div className='text-4xl font-bold'>
                 Create Experience
             </div>
-            <CreateExperience session={session}/>
+            <CreateExperience userID={userID}/>
         </div>
     )
 }
