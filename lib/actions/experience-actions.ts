@@ -1,7 +1,34 @@
 'use server'
 import experiences from "@/public/experiences.json"
-import {Experience} from "@/app/experience/search/page";
+import {Experience, ErrorResponse } from "@/lib/types";
 
-export async function demoGetExperience() {
-    return experiences as unknown as Experience[];
+export async function demoGetExperiences(): Promise<Experience[] | ErrorResponse> {
+    if (!experiences) {
+        return {
+            error: "ExperiencesNotFound",
+            message: `No Experiences Found`,
+        };
+    }
+
+    return experiences as Experience[];
+}
+
+export async function demoGetExperienceByID(experienceID: string): Promise<Experience | ErrorResponse> {
+    const experiences = await demoGetExperiences();
+    if ("error" in experiences) {
+        return {
+            error: "ExperiencesNotFound",
+            message: `No Experiences Found`,
+        };
+    }
+
+    const experience = experiences.find((exp: { experienceID: string; }) => exp.experienceID === experienceID);
+    if (!experience) {
+        return {
+            error: "ExperienceNotFound",
+            message: `No experience found with ID: ${experienceID}`,
+        };
+    }
+
+    return experience as Experience;
 }

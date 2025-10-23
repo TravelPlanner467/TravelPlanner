@@ -1,14 +1,14 @@
 'use client'
-import {Experience} from "@/app/experience/search/page";
+
 import { useRouter } from 'next/navigation';
 import {MapPinIcon, PhotoIcon } from "@heroicons/react/16/solid";
-import {demoGetExperience} from "@/lib/actions/experience-actions";
+import {Experience} from "@/lib/types";
 
 interface ExperienceCardProps {
     experience: Experience;
 }
 
-export default function ExperienceCard({ experience }: ExperienceCardProps) {
+export default function SearchResultsCard({ experience }: ExperienceCardProps) {
     const router = useRouter();
     const experienceDate = new Date(experience.experience_date).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -17,7 +17,7 @@ export default function ExperienceCard({ experience }: ExperienceCardProps) {
     });
 
     const handleClick = () => {
-        router.push(`/experience/details?q=${experience.id}`);
+        router.push(`/experience/details?q=${experience.experienceID}`);
     };
 
 

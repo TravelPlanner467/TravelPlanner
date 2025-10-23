@@ -69,7 +69,7 @@ export default function LoginForm() {
                     <a href="#" className="text-blue-600 hover:underline">Forgot password?</a>
                 </div>
                 <div className="text-sm text-gray-500 mt-2">
-                    Don't have an account? <a href="/signup" className="text-blue-600 hover:underline">Sign up</a>
+                    Don't have an account? <a href="/account/signup" className="text-blue-600 hover:underline">Sign up</a>
                 </div>
             </form>
         </div>

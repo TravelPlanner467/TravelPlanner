@@ -1,10 +1,9 @@
 'use client';
 
 import { signOut } from "@/lib/actions/auth-actions";
-import { auth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import { Session } from  "@/lib/types";
 
-type Session = typeof auth.$Infer.Session;
 
 export default function ProfileFeatures({ session }: { session: Session | null }) {
     const router = useRouter();

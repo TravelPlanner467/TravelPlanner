@@ -1,32 +1,17 @@
-import {demoGetExperience} from "@/lib/actions/experience-actions";
+import {demoGetExperiences} from "@/lib/actions/experience-actions";
 import {SearchResults} from "@/app/ui/experience/search-results";
-
-export interface Experience {
-    id: string;
-    title: string;
-    create_date: string;
-    experience_date: string;
-    description: string;
-    userID: string;
-    address: string;
-    coordinates: {
-        latitude: number;
-        longitude: number;
-    };
-    keywords: string[];
-    photos: string[];
-}
+import {ErrorResponse, Experience} from "@/lib/types";
 
 export default async function SearchResultsPage(
     props: { searchParams?: Promise<{ q?: string }> }
 ) {
     const searchParams = await props.searchParams;
     const query = searchParams?.q || '';
-    const experiences: Experience[] = await demoGetExperience();
+    const experiences: Experience[] | ErrorResponse = await demoGetExperiences();
 
     return (
         <main className="flex flex-col min-w-fit min-h-fit">
-            <SearchResults query={query} experienceData={experiences}/>
+            <SearchResults query={query} experiences={experiences}/>
         </main>
     );
 }

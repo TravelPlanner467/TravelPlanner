@@ -1,10 +1,69 @@
 'use server'
 
 import trips from "@/public/trips.json"
-import {Trip} from "@/app/trips/page";
+import experiences from "@/public/experiences.json";
+import {Trip, ErrorResponse, Experience, DeleteTripsProps} from "@/lib/types";
+import {demoGetExperienceByID} from "@/lib/actions/experience-actions";
 
-export async function demoGetTrips() {
-    return trips as unknown as Trip[];
+export async function demoGetTrips(userID: string): Promise<Trip[] | ErrorResponse>  {
+    if (!experiences) {
+        return {
+            error: "TripsNotFound",
+            message: `User Trips Not Found`,
+        };
+    }
+
+    // Filter Trips by userID
+    const userTrips = trips.filter((trip) => trip.userID === userID);
+
+    // Return an error message if no results found
+    if (userTrips.length === 0) {
+        return {
+            error: "TripsNotFound",
+            message: `No trips found for userID: ${userID}`,
+        };
+    }
+
+    return userTrips;
+}
+
+export async function demoGetTripByID(tripID: string, userID: string): Promise<Trip | ErrorResponse>  {
+    const trips = await demoGetTrips(userID)
+    if ("error" in trips) {
+        return trips;
+    }
+
+    const trip = trips.find((trip) => trip.tripID === tripID);
+    if (!trip) {
+        return {
+            error: "TripNotFound",
+            message: `No Trip Found with ID: ${tripID}`,
+        };
+    }
+
+    return trip as Trip;
+}
+
+export async function demoGetTripExperiences(experienceIDs: string[]): Promise<Experience[] | ErrorResponse>  {
+    const tripExperiences: Experience[] = []
+
+    for (const expID of experienceIDs) {
+        const exp = await demoGetExperienceByID(expID);
+        // Handle errors
+        if (!exp || "error" in exp) {
+            return {
+                error: "ExperienceFetchFailed",
+                message: `Failed to load experience with ID: ${expID}`,
+            };
+        }
+        tripExperiences.push(exp);
+    }
+
+    return tripExperiences as Experience[];
+}
+
+export async function demoDeleteTrip() {
+
 }
 
 
@@ -55,14 +114,14 @@ export const uploadTrip = async (jsonData: any) => {
     }
 };
 
-export const deleteTrip = async (jsonData: any) => {
+export const deleteTrip = async (deleteData: DeleteTripsProps) => {
     try {
         const response = await fetch('http://localhost:8000/delete', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(jsonData)
+            body: JSON.stringify(deleteData)
         });
 
         if (!response.ok) {

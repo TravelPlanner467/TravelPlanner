@@ -1,24 +1,21 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation';
 import Link from "next/link";
-import { Experience } from "@/app/experience/search/page";
-import experiencesData from '@/public/experiences.json';
+import {Experience, ErrorResponse} from "@/lib/types";
 import {MapPinIcon} from "@heroicons/react/16/solid";
 
-export function ExperienceDetailsContent() {
-    const searchParams = useSearchParams();
-    const experienceId = Number(searchParams.get('q'));
+interface ExperienceDetailsProps {
+    experience: Experience | ErrorResponse;
+}
 
-    // @ts-ignore
-    const experiences: Experience[] = experiencesData;
-    const experience = experiences[experienceId - 1];
-
-    if (!experience) {
+export function ExperienceDetailsContent({ experience }: ExperienceDetailsProps) {
+    if ("error" in experience) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">Experience Not Found</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-4">
+                        TODO: Create "No Experience Found" component
+                    </h1>
                     <Link
                         href={`/`}
                         className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
@@ -30,6 +27,7 @@ export function ExperienceDetailsContent() {
         );
     }
 
+    // Convert date string to displayable date
     const experienceDate = new Date(experience.experience_date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',

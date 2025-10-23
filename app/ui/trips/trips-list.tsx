@@ -1,18 +1,23 @@
 'use client'
 import { useState } from 'react';
-import TripCard from "@/app/ui/trip-planner/trip-card";
+import TripsListCard from "@/app/ui/trips/trips-list-card";
 import Pagination from "@/app/ui/components/pagination";
-import {Trip} from "@/app/trips/page";
+import {ErrorResponse, Trip} from "@/lib/types";
 
 interface TripDataProps {
-    tripsData: any
+    trips: Trip[] | ErrorResponse
 }
 
 const ITEMS_PER_PAGE = 5;
 
-export default function SampleTrips({ tripsData }: TripDataProps) {
-    // @ts-ignore
-    const trips: Trip[] = tripsData;
+export default function DisplayTrips({ trips }: TripDataProps) {
+    if ("error" in trips) {
+        return (
+            <div>
+                TODO: IMPLEMENT NO TRIPS FOUND ERROR CARD
+            </div>
+        )
+    }
 
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(trips.length / ITEMS_PER_PAGE);
@@ -38,7 +43,7 @@ export default function SampleTrips({ tripsData }: TripDataProps) {
             {/*My Trips Display List*/}
             <div className="space-y-6">
                 {currentTrips.map((trip) => (
-                    <TripCard key={trip.id} trip={trip} />
+                    <TripsListCard key={trip.tripID} trip={trip} />
                 ))}
             </div>
 

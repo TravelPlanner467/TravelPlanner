@@ -79,7 +79,7 @@ export default function SignupForm() {
                 </button>
                 {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
                 <div className="text-sm text-gray-500 mt-2">
-                    Already have an account? <a href="/login" className="text-blue-600 hover:underline">Log in now</a>
+                    Already have an account? <a href="/account/login" className="text-blue-600 hover:underline">Log in now</a>
                 </div>
             </form>
         </div>

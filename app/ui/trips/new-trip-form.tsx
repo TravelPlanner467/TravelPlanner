@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState } from "react";
-import { uploadTrip } from "@/lib/actions/trip-planner-actions";
+import { uploadTrip } from "@/lib/actions/trips-actions";
 
 interface TripData {
     title: string;
     description: string;
 }
 
-export function CreateTrip() {
+export function NewTripForm() {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<string>('');
     const [tripData, setTripData] = useState<TripData>({

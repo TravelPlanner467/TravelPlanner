@@ -1,242 +1,484 @@
 [
   {
-    "id": 1,
+    "experienceID": "1",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Sunset at Golden Gate Bridge",
-    "create_date": "2025-10-14T17:04:00Z",
-    "experience_date": "2025-10-01T19:30:00Z",
+    "create_date": "2025-10-20T12:00:00Z",
+    "experience_date": "2025-09-25T10:00:00Z",
     "description": "Watched an incredible sunset from Battery Spencer viewpoint. The orange sky perfectly framed the iconic bridge. Perfect spot for photography!",
-    "userID": "user_001",
     "address": "Battery Spencer, Sausalito, CA 94965",
-    "coordinates": { "latitude": 37.8272, "longitude": -122.4816 },
-    "keywords": ["sunset", "photography", "landmark", "bridge", "viewpoint"],
-    "photos": ["https://example.com/photos/golden-gate-1.jpg", "https://example.com/photos/golden-gate-2.jpg"]
+    "coordinates": {
+      "latitude": 37.8272,
+      "longitude": -122.4816
+    },
+    "keywords": [
+      "sunset",
+      "photography",
+      "landmark",
+      "bridge",
+      "viewpoint"
+    ],
+    "photos": [
+      "https://example.com/photos/golden-gate-1.jpg",
+      "https://example.com/photos/golden-gate-2.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 2,
+    "experienceID": "2",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Exploring Pike Place Market",
-    "create_date": "2025-10-13T10:15:00Z",
-    "experience_date": "2025-09-28T11:00:00Z",
+    "create_date": "2025-10-19T12:01:00Z",
+    "experience_date": "2025-09-24T10:00:00Z",
     "description": "Amazing local market with fresh seafood, handmade crafts, and the original Starbucks. The fish throwing show was entertaining!",
-    "userID": "user_002",
     "address": "85 Pike St, Seattle, WA 98101",
-    "coordinates": { "latitude": 47.6097, "longitude": -122.3425 },
-    "keywords": ["market", "food", "shopping", "local", "seafood"],
-    "photos": ["https://example.com/photos/pike-place-1.jpg"]
+    "coordinates": {
+      "latitude": 47.6097,
+      "longitude": -122.3425
+    },
+    "keywords": [
+      "market",
+      "food",
+      "shopping",
+      "local",
+      "seafood"
+    ],
+    "photos": [
+      "https://example.com/photos/pike-place-1.jpg"
+    ],
+    "rating": 4
   },
   {
-    "id": 3,
+    "experienceID": "3",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Hiking Angels Landing",
-    "create_date": "2025-10-12T14:22:00Z",
-    "experience_date": "2025-09-15T07:00:00Z",
+    "create_date": "2025-10-18T12:02:00Z",
+    "experience_date": "2025-09-23T10:00:00Z",
     "description": "Challenging but rewarding hike in Zion National Park. The chain section was thrilling and the 360-degree views from the summit were breathtaking.",
-    "userID": "user_001",
     "address": "Zion National Park, Springdale, UT 84767",
-    "coordinates": { "latitude": 37.2690, "longitude": -112.9472 },
-    "keywords": ["hiking", "adventure", "national park", "nature", "challenging"],
-    "photos": ["https://example.com/photos/angels-landing-1.jpg", "https://example.com/photos/angels-landing-2.jpg", "https://example.com/photos/angels-landing-3.jpg"]
+    "coordinates": {
+      "latitude": 37.269,
+      "longitude": -112.9472
+    },
+    "keywords": [
+      "hiking",
+      "adventure",
+      "national park",
+      "nature",
+      "challenging"
+    ],
+    "photos": [
+      "https://example.com/photos/angels-landing-1.jpg",
+      "https://example.com/photos/angels-landing-2.jpg"
+    ],
+    "rating": 3.5
   },
   {
-    "id": 4,
+    "experienceID": "4",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Jazz Night in New Orleans",
-    "create_date": "2025-10-11T20:45:00Z",
-    "experience_date": "2025-10-05T21:00:00Z",
+    "create_date": "2025-10-17T12:03:00Z",
+    "experience_date": "2025-09-22T10:00:00Z",
     "description": "Incredible live jazz performance at Preservation Hall. The intimate venue and talented musicians made for an unforgettable evening.",
-    "userID": "user_003",
     "address": "726 St Peter St, New Orleans, LA 70116",
-    "coordinates": { "latitude": 29.9584, "longitude": -90.0644 },
-    "keywords": ["music", "jazz", "nightlife", "culture", "live performance"],
-    "photos": ["https://example.com/photos/jazz-hall-1.jpg"]
+    "coordinates": {
+      "latitude": 29.9584,
+      "longitude": -90.0644
+    },
+    "keywords": [
+      "music",
+      "jazz",
+      "nightlife",
+      "culture",
+      "live performance"
+    ],
+    "photos": [
+      "https://example.com/photos/jazz-hall-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 5,
+    "experienceID": "5",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Kayaking in Glacier Bay",
-    "create_date": "2025-10-10T08:30:00Z",
-    "experience_date": "2025-08-22T09:00:00Z",
+    "create_date": "2025-10-16T12:04:00Z",
+    "experience_date": "2025-09-21T10:00:00Z",
     "description": "Paddled among icebergs and spotted sea otters, seals, and even a humpback whale in the distance. The glacier calving was spectacular!",
-    "userID": "user_004",
     "address": "Glacier Bay National Park, AK 99826",
-    "coordinates": { "latitude": 58.6650, "longitude": -136.9000 },
-    "keywords": ["kayaking", "wildlife", "glacier", "adventure", "alaska"],
-    "photos": ["https://example.com/photos/glacier-bay-1.jpg", "https://example.com/photos/glacier-bay-2.jpg"]
+    "coordinates": {
+      "latitude": 58.665,
+      "longitude": -136.9
+    },
+    "keywords": [
+      "kayaking",
+      "wildlife",
+      "glacier",
+      "adventure",
+      "alaska"
+    ],
+    "photos": [
+      "https://example.com/photos/glacier-bay-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 6,
+    "experienceID": "6",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Food Tour in Portland",
-    "create_date": "2025-10-09T16:18:00Z",
-    "experience_date": "2025-09-30T12:00:00Z",
+    "create_date": "2025-10-15T12:05:00Z",
+    "experience_date": "2025-09-20T10:00:00Z",
     "description": "Sampled the best food carts Portland has to offer. From Korean BBQ to artisan donuts, every stop was delicious. Highly recommend!",
-    "userID": "user_002",
     "address": "SW 10th Ave & SW Alder St, Portland, OR 97205",
-    "coordinates": { "latitude": 45.5202, "longitude": -122.6812 },
-    "keywords": ["food", "street food", "culinary", "local", "food cart"],
-    "photos": ["https://example.com/photos/portland-food-1.jpg", "https://example.com/photos/portland-food-2.jpg", "https://example.com/photos/portland-food-3.jpg"]
+    "coordinates": {
+      "latitude": 45.5202,
+      "longitude": -122.6812
+    },
+    "keywords": [
+      "food",
+      "street food",
+      "culinary",
+      "local",
+      "food cart"
+    ],
+    "photos": [
+      "https://example.com/photos/portland-food-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 7,
+    "experienceID": "7",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Sunrise at Grand Canyon",
-    "create_date": "2025-10-08T05:42:00Z",
-    "experience_date": "2025-09-10T06:15:00Z",
+    "create_date": "2025-10-14T12:06:00Z",
+    "experience_date": "2025-09-19T10:00:00Z",
     "description": "Woke up early for sunrise at Mather Point. Watching the canyon light up with orange and red hues was worth the early alarm. Absolutely stunning!",
-    "userID": "user_005",
     "address": "Mather Point, Grand Canyon Village, AZ 86023",
-    "coordinates": { "latitude": 36.0544, "longitude": -112.0840 },
-    "keywords": ["sunrise", "national park", "photography", "scenic", "nature"],
-    "photos": ["https://example.com/photos/grand-canyon-sunrise-1.jpg"]
+    "coordinates": {
+      "latitude": 36.0544,
+      "longitude": -112.084
+    },
+    "keywords": [
+      "sunrise",
+      "national park",
+      "photography",
+      "scenic",
+      "nature"
+    ],
+    "photos": [
+      "https://example.com/photos/grand-canyon-sunrise-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 8,
+    "experienceID": "8",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Cycling the Brooklyn Bridge",
-    "create_date": "2025-10-07T11:25:00Z",
-    "experience_date": "2025-10-03T10:00:00Z",
+    "create_date": "2025-10-13T12:07:00Z",
+    "experience_date": "2025-09-18T10:00:00Z",
     "description": "Rented a bike and crossed the iconic Brooklyn Bridge. Great views of Manhattan skyline and lots of photo opportunities along the way.",
-    "userID": "user_006",
     "address": "Brooklyn Bridge, New York, NY 10038",
-    "coordinates": { "latitude": 40.7061, "longitude": -73.9969 },
-    "keywords": ["cycling", "bridge", "cityscape", "exercise", "landmark"],
-    "photos": ["https://example.com/photos/brooklyn-bridge-1.jpg", "https://example.com/photos/brooklyn-bridge-2.jpg"]
+    "coordinates": {
+      "latitude": 40.7061,
+      "longitude": -73.9969
+    },
+    "keywords": [
+      "cycling",
+      "bridge",
+      "cityscape",
+      "exercise",
+      "landmark"
+    ],
+    "photos": [
+      "https://example.com/photos/brooklyn-bridge-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 9,
+    "experienceID": "9",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Wine Tasting in Napa Valley",
-    "create_date": "2025-10-06T15:33:00Z",
-    "experience_date": "2025-09-25T14:00:00Z",
-    "description": "Visited three wineries and learned about the wine-making process. The Cabernet Sauvignon at Stag's Leap was exceptional. Beautiful vineyard views!",
-    "userID": "user_007",
+    "create_date": "2025-10-12T12:08:00Z",
+    "experience_date": "2025-09-17T10:00:00Z",
+    "description": "Visited three wineries and learned about the wine-making process. The Cabernet Sauvignon was exceptional. Beautiful vineyard views!",
     "address": "6150 Silverado Trail, Napa, CA 94558",
-    "coordinates": { "latitude": 38.4103, "longitude": -122.3477 },
-    "keywords": ["wine", "tasting", "vineyard", "culinary", "relaxation"],
-    "photos": ["https://example.com/photos/napa-1.jpg", "https://example.com/photos/napa-2.jpg", "https://example.com/photos/napa-3.jpg"]
+    "coordinates": {
+      "latitude": 38.4103,
+      "longitude": -122.3477
+    },
+    "keywords": [
+      "wine",
+      "tasting",
+      "vineyard",
+      "culinary",
+      "relaxation"
+    ],
+    "photos": [
+      "https://example.com/photos/napa-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 10,
+    "experienceID": "10",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Snorkeling in Key West",
-    "create_date": "2025-10-05T13:17:00Z",
-    "experience_date": "2025-09-18T11:30:00Z",
+    "create_date": "2025-10-11T12:09:00Z",
+    "experience_date": "2025-09-16T10:00:00Z",
     "description": "Crystal clear water and vibrant coral reefs. Saw tropical fish, sea turtles, and even a small reef shark. Best snorkeling of my life!",
-    "userID": "user_008",
     "address": "Fort Zachary Taylor State Park, Key West, FL 33040",
-    "coordinates": { "latitude": 24.5465, "longitude": -81.8077 },
-    "keywords": ["snorkeling", "beach", "marine life", "adventure", "tropical"],
-    "photos": ["https://example.com/photos/key-west-snorkel-1.jpg"]
+    "coordinates": {
+      "latitude": 24.5465,
+      "longitude": -81.8077
+    },
+    "keywords": [
+      "snorkeling",
+      "beach",
+      "marine life",
+      "adventure",
+      "tropical"
+    ],
+    "photos": [
+      "https://example.com/photos/key-west-snorkel-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 11,
+    "experienceID": "11",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Art Institute of Chicago",
-    "create_date": "2025-10-04T09:52:00Z",
-    "experience_date": "2025-10-02T13:00:00Z",
+    "create_date": "2025-10-10T12:10:00Z",
+    "experience_date": "2025-09-15T10:00:00Z",
     "description": "Spent the afternoon exploring world-class art collections. The Impressionist gallery and American Gothic painting were highlights.",
-    "userID": "user_003",
     "address": "111 S Michigan Ave, Chicago, IL 60603",
-    "coordinates": { "latitude": 41.8796, "longitude": -87.6237 },
-    "keywords": ["art", "museum", "culture", "indoor", "education"],
-    "photos": ["https://example.com/photos/art-institute-1.jpg", "https://example.com/photos/art-institute-2.jpg"]
+    "coordinates": {
+      "latitude": 41.8796,
+      "longitude": -87.6237
+    },
+    "keywords": [
+      "art",
+      "museum",
+      "culture",
+      "indoor",
+      "education"
+    ],
+    "photos": [
+      "https://example.com/photos/art-institute-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 12,
+    "experienceID": "12",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Hot Air Balloon in Albuquerque",
-    "create_date": "2025-10-03T06:28:00Z",
-    "experience_date": "2025-09-08T06:00:00Z",
-    "description": "Floated over the Rio Grande Valley at sunrise. The peaceful flight and panoramic views of the Sandia Mountains were magical. Bucket list item checked!",
-    "userID": "user_009",
+    "create_date": "2025-10-09T12:11:00Z",
+    "experience_date": "2025-09-14T10:00:00Z",
+    "description": "Floated over the Rio Grande Valley at sunrise. The peaceful flight and panoramic views of the Sandia Mountains were magical.",
     "address": "Balloon Fiesta Park, Albuquerque, NM 87113",
-    "coordinates": { "latitude": 35.1872, "longitude": -106.5978 },
-    "keywords": ["hot air balloon", "adventure", "sunrise", "aerial view", "bucket list"],
-    "photos": ["https://example.com/photos/balloon-1.jpg", "https://example.com/photos/balloon-2.jpg", "https://example.com/photos/balloon-3.jpg"]
+    "coordinates": {
+      "latitude": 35.1872,
+      "longitude": -106.5978
+    },
+    "keywords": [
+      "hot air balloon",
+      "adventure",
+      "sunrise",
+      "aerial view",
+      "bucket list"
+    ],
+    "photos": [
+      "https://example.com/photos/balloon-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 13,
+    "experienceID": "13",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Exploring Antelope Canyon",
-    "create_date": "2025-10-02T12:41:00Z",
-    "experience_date": "2025-08-30T14:00:00Z",
+    "create_date": "2025-10-08T12:12:00Z",
+    "experience_date": "2025-09-13T10:00:00Z",
     "description": "The light beams filtering through the narrow slot canyon created otherworldly photos. Our Navajo guide shared fascinating stories about the formation.",
-    "userID": "user_005",
     "address": "Antelope Canyon, Page, AZ 86040",
-    "coordinates": { "latitude": 36.8619, "longitude": -111.3743 },
-    "keywords": ["photography", "canyon", "nature", "guided tour", "scenic"],
-    "photos": ["https://example.com/photos/antelope-canyon-1.jpg"]
+    "coordinates": {
+      "latitude": 36.8619,
+      "longitude": -111.3743
+    },
+    "keywords": [
+      "photography",
+      "canyon",
+      "nature",
+      "guided tour",
+      "scenic"
+    ],
+    "photos": [
+      "https://example.com/photos/antelope-canyon-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 14,
+    "experienceID": "14",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Whale Watching in Monterey",
-    "create_date": "2025-10-01T07:55:00Z",
-    "experience_date": "2025-09-20T09:00:00Z",
+    "create_date": "2025-10-07T12:13:00Z",
+    "experience_date": "2025-09-12T10:00:00Z",
     "description": "Saw multiple humpback whales breaching and a pod of dolphins swimming alongside our boat. The marine biologist guide was very knowledgeable.",
-    "userID": "user_010",
     "address": "Fisherman's Wharf, Monterey, CA 93940",
-    "coordinates": { "latitude": 36.6002, "longitude": -121.8947 },
-    "keywords": ["whale watching", "wildlife", "ocean", "boat tour", "nature"],
-    "photos": ["https://example.com/photos/monterey-whales-1.jpg", "https://example.com/photos/monterey-whales-2.jpg"]
+    "coordinates": {
+      "latitude": 36.6002,
+      "longitude": -121.8947
+    },
+    "keywords": [
+      "whale watching",
+      "wildlife",
+      "ocean",
+      "boat tour",
+      "nature"
+    ],
+    "photos": [
+      "https://example.com/photos/monterey-whales-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 15,
+    "experienceID": "15",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Historic Tour of Boston",
-    "create_date": "2025-09-30T14:08:00Z",
-    "experience_date": "2025-09-27T10:00:00Z",
+    "create_date": "2025-10-06T12:14:00Z",
+    "experience_date": "2025-09-11T10:00:00Z",
     "description": "Walked the Freedom Trail and visited historic sites like Paul Revere's House and the Old North Church. Great way to learn American history!",
-    "userID": "user_011",
     "address": "Freedom Trail, Boston, MA 02108",
-    "coordinates": { "latitude": 42.3601, "longitude": -71.0589 },
-    "keywords": ["history", "walking tour", "culture", "education", "landmark"],
-    "photos": ["https://example.com/photos/boston-trail-1.jpg", "https://example.com/photos/boston-trail-2.jpg"]
+    "coordinates": {
+      "latitude": 42.3601,
+      "longitude": -71.0589
+    },
+    "keywords": [
+      "history",
+      "walking tour",
+      "culture",
+      "education",
+      "landmark"
+    ],
+    "photos": [
+      "https://example.com/photos/boston-trail-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 16,
+    "experienceID": "16",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Mountain Biking in Moab",
-    "create_date": "2025-09-29T16:44:00Z",
-    "experience_date": "2025-09-12T08:00:00Z",
+    "create_date": "2025-10-05T12:15:00Z",
+    "experience_date": "2025-09-10T10:00:00Z",
     "description": "Rode the famous Slickrock Trail. Challenging terrain but the red rock landscape and technical riding made it an adrenaline-filled adventure.",
-    "userID": "user_004",
     "address": "Slickrock Trail, Moab, UT 84532",
-    "coordinates": { "latitude": 38.5733, "longitude": -109.5498 },
-    "keywords": ["mountain biking", "adventure", "extreme sport", "desert", "outdoor"],
-    "photos": ["https://example.com/photos/moab-bike-1.jpg"]
+    "coordinates": {
+      "latitude": 38.5733,
+      "longitude": -109.5498
+    },
+    "keywords": [
+      "mountain biking",
+      "adventure",
+      "extreme sport",
+      "desert",
+      "outdoor"
+    ],
+    "photos": [
+      "https://example.com/photos/moab-bike-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 17,
+    "experienceID": "17",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Cherry Blossoms in DC",
-    "create_date": "2025-09-28T11:19:00Z",
-    "experience_date": "2025-03-28T15:00:00Z",
-    "description": "Visited during peak bloom around the Tidal Basin. The pink blossoms against the Jefferson Memorial were picture-perfect. Very crowded but worth it!",
-    "userID": "user_012",
+    "create_date": "2025-10-04T12:16:00Z",
+    "experience_date": "2025-09-09T10:00:00Z",
+    "description": "Visited during peak bloom around the Tidal Basin. The pink blossoms against the Jefferson Memorial were picture-perfect.",
     "address": "Tidal Basin, Washington, DC 20024",
-    "coordinates": { "latitude": 38.8814, "longitude": -77.0365 },
-    "keywords": ["cherry blossoms", "spring", "photography", "nature", "landmark"],
-    "photos": ["https://example.com/photos/dc-blossoms-1.jpg", "https://example.com/photos/dc-blossoms-2.jpg", "https://example.com/photos/dc-blossoms-3.jpg"]
+    "coordinates": {
+      "latitude": 38.8814,
+      "longitude": -77.0365
+    },
+    "keywords": [
+      "cherry blossoms",
+      "spring",
+      "photography",
+      "nature",
+      "landmark"
+    ],
+    "photos": [
+      "https://example.com/photos/dc-blossoms-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 18,
+    "experienceID": "18",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "BBQ Tour in Austin",
-    "create_date": "2025-09-27T18:35:00Z",
-    "experience_date": "2025-09-22T12:00:00Z",
-    "description": "Hit three famous BBQ joints in one day. Franklin Barbecue's brisket was incredible. The wait was long but absolutely worth every minute!",
-    "userID": "user_013",
+    "create_date": "2025-10-03T12:17:00Z",
+    "experience_date": "2025-09-08T10:00:00Z",
+    "description": "Hit three famous BBQ joints in one day. Franklin Barbecue's brisket was incredible.",
     "address": "900 E 11th St, Austin, TX 78702",
-    "coordinates": { "latitude": 30.2672, "longitude": -97.7431 },
-    "keywords": ["BBQ", "food", "culinary", "local", "Texas"],
-    "photos": ["https://example.com/photos/austin-bbq-1.jpg", "https://example.com/photos/austin-bbq-2.jpg"]
+    "coordinates": {
+      "latitude": 30.2672,
+      "longitude": -97.7431
+    },
+    "keywords": [
+      "BBQ",
+      "food",
+      "culinary",
+      "local",
+      "Texas"
+    ],
+    "photos": [
+      "https://example.com/photos/austin-bbq-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 19,
+    "experienceID": "19",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Stargazing in Death Valley",
-    "create_date": "2025-09-26T22:12:00Z",
-    "experience_date": "2025-09-05T21:00:00Z",
-    "description": "One of the darkest skies in North America. Saw the Milky Way clearly and caught a shooting star. The silence and vastness of the desert was humbling.",
-    "userID": "user_014",
+    "create_date": "2025-10-02T12:18:00Z",
+    "experience_date": "2025-09-07T10:00:00Z",
+    "description": "One of the darkest skies in North America. Saw the Milky Way clearly and caught a shooting star.",
     "address": "Death Valley National Park, CA 92328",
-    "coordinates": { "latitude": 36.5323, "longitude": -116.9325 },
-    "keywords": ["stargazing", "astronomy", "night", "desert", "nature"],
-    "photos": ["https://example.com/photos/death-valley-stars-1.jpg"]
+    "coordinates": {
+      "latitude": 36.5323,
+      "longitude": -116.9325
+    },
+    "keywords": [
+      "stargazing",
+      "astronomy",
+      "night",
+      "desert",
+      "nature"
+    ],
+    "photos": [
+      "https://example.com/photos/death-valley-stars-1.jpg"
+    ],
+    "rating": 5
   },
   {
-    "id": 20,
+    "experienceID": "20",
+    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Savannah Ghost Tour",
-    "create_date": "2025-09-25T19:27:00Z",
-    "experience_date": "2025-10-07T20:00:00Z",
-    "description": "Evening walking tour through historic Savannah's most haunted locations. The guide's storytelling was captivating and the Spanish moss-draped squares were atmospheric.",
-    "userID": "user_006",
+    "create_date": "2025-10-01T12:19:00Z",
+    "experience_date": "2025-09-06T10:00:00Z",
+    "description": "Evening walking tour through historic Savannah's most haunted locations.",
     "address": "Reynolds Square, Savannah, GA 31401",
-    "coordinates": { "latitude": 32.0809, "longitude": -81.0912 },
-    "keywords": ["ghost tour", "history", "nightlife", "walking tour", "spooky"],
-    "photos": ["https://example.com/photos/savannah-ghost-1.jpg", "https://example.com/photos/savannah-ghost-2.jpg"]
+    "coordinates": {
+      "latitude": 32.0809,
+      "longitude": -81.0912
+    },
+    "keywords": [
+      "ghost tour",
+      "history",
+      "nightlife",
+      "walking tour",
+      "spooky"
+    ],
+    "photos": [
+      "https://example.com/photos/savannah-ghost-1.jpg"
+    ],
+    "rating": 5
   }
 ]

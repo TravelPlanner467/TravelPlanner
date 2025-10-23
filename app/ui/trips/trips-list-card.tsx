@@ -1,41 +1,50 @@
 'use client'
-import { Trip } from "@/app/trips/page"
+
 import { useRouter } from 'next/navigation';
 import {MapPinIcon} from "@heroicons/react/16/solid";
+import {ErrorResponse, Trip} from "@/lib/types";
 
 interface TripCardProps {
-    trip: Trip;
+    trip: Trip | ErrorResponse;
 }
 
-export default function TripCard({ trip }: TripCardProps) {
+export default function TripsListCard({ trip }: TripCardProps) {
+    if ("error" in trip) {
+        return (
+            <div>
+                TODO: IMPLEMENT NO TRIP FOUND ERROR CARD
+            </div>
+        )
+    }
     const router = useRouter();
 
+    // TRIP DATES HANDLER
     const formatDateRange = () => {
-        if (!trip.dates) {
+        if (!trip.start_date || !trip.end_date) {
             return <span className="text-gray-400 italic">Dates not set</span>;
         }
 
-        const startDate = new Date(trip.dates.start).toLocaleDateString('en-US', {
+        const startDate = new Date(trip.start_date).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
             year: 'numeric'
         });
 
-        const endDate = new Date(trip.dates.end).toLocaleDateString('en-US', {
+        const endDate = new Date(trip.end_date).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
             year: 'numeric'
         });
 
-        if (trip.dates.start === trip.dates.end) {
-            return <span>{startDate}</span>;
+        if (startDate === endDate) {
+            return <div>{startDate}</div>;
         }
 
-        return <span>{startDate} - {endDate}</span>;
+        return <div>{startDate} - {endDate}</div>;
     };
 
     const handleClick = () => {
-        router.push(`/trip-planner/details?q=${trip.id}`);
+        router.push(`/trips/details?q=${trip.tripID}`);
     };
 
     return (

@@ -1,27 +1,21 @@
 'use server'
 
-import NewTripButton from "@/app/ui/trip-planner/new-trip";
-import SampleTrips from "@/app/ui/trip-planner/sample-trips";
-import {demoGetTrips} from "@/lib/actions/trip-planner-actions";
+import NewTripButton from "@/app/ui/trips/buttons/new-trip-button";
+import DisplayTrips from "@/app/ui/trips/trips-list";
+import {demoGetTrips} from "@/lib/actions/trips-actions";
+import {ErrorResponse, Trip} from "@/lib/types";
+import {auth} from "@/lib/auth";
+import {headers} from "next/headers";
 
-export interface Trip {
-    id: number;
-    title: string;
-    dates: {
-        start: string;
-        end: string;
-    } | null;
-    description: string | null;
-    userID: string;
-    experiences: number[];
-}
 
-export default async function Page(
-    props: { searchParams?: Promise<{ q?: string }> }
-) {
-    const searchParams = await props.searchParams;
-    const query = searchParams?.q || '';
-    const trips: Trip[] = await demoGetTrips();
+export default async function Page() {
+    const session = await auth.api.getSession(
+        {headers: await headers()}
+    );
+
+    //@ts-ignore
+    const userID = session.user.id;
+    const trips: Trip[] | ErrorResponse = await demoGetTrips(userID);
 
     return (
         <div className="flex flex-col min-w-fit min-h-fit">
@@ -32,8 +26,7 @@ export default async function Page(
                 </div>
             </div>
             <div>
-                <SampleTrips tripsData={trips}/>
-                {/*<DisplayTrips />*/}
+                <DisplayTrips trips={trips} />
             </div>
         </div>
 

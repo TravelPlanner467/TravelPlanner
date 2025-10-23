@@ -44,7 +44,7 @@ export default function Navbar({ session }: { session: Session | null }) {
           {session && (
               <Link
                   key="profile"
-                  href="/profile"
+                  href="/account/profile"
                   className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
               >
                   <UserCircleIcon className="w-6" />
@@ -54,7 +54,7 @@ export default function Navbar({ session }: { session: Session | null }) {
           {!session && (
               <Link
                   key="Login"
-                  href="/login"
+                  href="/account/login"
                   className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
               >
                   <UserCircleIcon className="w-6" />

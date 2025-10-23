@@ -1,5 +1,5 @@
-import DisplayTrips from "@/app/ui/trip-planner/display-trips";
-import NewTripButton from "@/app/ui/trip-planner/new-trip";
+import DisplayTrips from "@/app/ui/trips/display-trips";
+import NewTripButton from "@/app/ui/trips/buttons/new-trip-button";
 
 export default function Page() {
     return (

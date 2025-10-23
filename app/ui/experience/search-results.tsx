@@ -1,21 +1,26 @@
 'use client'
 import { useState } from 'react';
-import ExperienceCard from "@/app/ui/experience/experience-card";
+import SearchResultsCard from "@/app/ui/experience/search-results-card";
 import Pagination from "@/app/ui/components/pagination";
-import {Experience} from "@/app/experience/search/page";
+import {ErrorResponse, Experience} from "@/lib/types";
 
 interface SearchResultsProps {
     query: string;
-    experienceData: any
+    experiences: Experience[] | ErrorResponse
 }
 
 const ITEMS_PER_PAGE = 6;
 
-export function SearchResults({ query, experienceData }: SearchResultsProps) {
-    const [currentPage, setCurrentPage] = useState(1);
-    // @ts-ignore
-    const experiences: Experience[] = experienceData
+export function SearchResults({ query, experiences }: SearchResultsProps) {
+    if ("error" in experiences) {
+        return (
+            <div>
+                TODO: IMPLEMENT EXPERIENCES FETCH ERROR
+            </div>
+        );
+    }
 
+    const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(experiences.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -39,8 +44,8 @@ export function SearchResults({ query, experienceData }: SearchResultsProps) {
 
             {/*Experience display List*/}
             <div className="space-y-2">
-                {currentExperiences.map((experience) => (
-                    <ExperienceCard key={experience.id} experience={experience} />
+                {currentExperiences.map((exp: Experience) => (
+                    <SearchResultsCard key={exp.experienceID} experience={exp} />
                 ))}
             </div>
 

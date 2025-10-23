@@ -1,4 +1,4 @@
-import CreateExperience from "@/app/experience/create/create-experience";
+import CreateExperience from "@/app/ui/experience/create-experience";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";

@@ -1,4 +1,4 @@
-import {CreateTrip} from "@/app/ui/trip-planner/create-trip";
+import {NewTripForm} from "@/app/ui/trips/new-trip-form";
 
 export default function Page() {
     return (
@@ -8,7 +8,7 @@ export default function Page() {
                     New Trip
                 </h2>
                 <div className="flex flex-col gap-4">
-                    <CreateTrip/>
+                    <NewTripForm/>
                 </div>
             </div>
         </div>

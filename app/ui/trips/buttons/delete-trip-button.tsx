@@ -2,14 +2,14 @@
 import { useState } from 'react';
 import { TrashIcon } from '@heroicons/react/24/outline';
 
-import {deleteTrip} from "@/lib/actions/trip-planner-actions";
+import {deleteTrip} from "@/lib/actions/trips-actions";
 
 interface DeleteButtonProps {
     tripID: string;
     onDeleteSuccess?: () => void;
 }
 
-export function DeleteTrip({ tripID, onDeleteSuccess }: DeleteButtonProps) {
+export function DeleteTripButton({ tripID, onDeleteSuccess }: DeleteButtonProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

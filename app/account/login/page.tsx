@@ -1,4 +1,4 @@
-import LoginForm from "@/app/login/login-form";
+import LoginForm from "@/app/ui/account/login-form";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
