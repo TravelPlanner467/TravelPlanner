@@ -4,7 +4,7 @@
 1. clone repo into a new directory
 2. Navigate to directory and run: 
    >pnpm install
-3. Create and configure .env file
+3. Create and configure .env file (contact Wilson for details)
    >#### User Database (NeonDB)
    >DATABASE_URL="database_url_here"
    >#### BetterAuth
