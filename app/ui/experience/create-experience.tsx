@@ -328,9 +328,10 @@ export default function CreateExperience({ userID }: { userID: string }) {
             className="flex flex-col gap-2 max-w-3xl w-full mt-5 p-6
             border border-gray-300 rounded-lg bg-white shadow-md"
         >
+            {/*1ST ROW*/}
             <div className="flex flex-row w-full gap-2 justify-center items-start">
                 {/*TITLE*/}
-                <div className="flex flex-col w-2/3 gap-2">
+                <div className="flex flex-col w-3/4 gap-2">
                     <label htmlFor="title" className="text-sm font-medium">
                         Title <span className="text-red-500">*</span>
                     </label>
@@ -347,7 +348,7 @@ export default function CreateExperience({ userID }: { userID: string }) {
                 </div>
 
                 {/*RATING*/}
-                <div className="flex flex-col w-1/3 gap-2">
+                <div className="flex flex-col w-1/4 gap-2">
                     <label className="text-sm font-medium">
                         Rating <span className="text-red-500">*</span>
                     </label>
@@ -358,9 +359,10 @@ export default function CreateExperience({ userID }: { userID: string }) {
                 </div>
             </div>
 
+            {/*2ND ROW*/}
             <div className="flex flex-row w-full gap-2 justify-center items-center">
                 {/*DESCRIPTION*/}
-                <div className="flex flex-col w-2/3 gap-2">
+                <div className="flex flex-col w-3/4 gap-3">
                     <label htmlFor="description" className="text-sm font-medium">
                         Description
                     </label>
@@ -376,7 +378,7 @@ export default function CreateExperience({ userID }: { userID: string }) {
                 </div>
 
                 {/*EXPERIENCE DATE*/}
-                <div className="flex flex-col w-1/3 gap-6 justify-center items-center">
+                <div className="flex flex-col w-1/4 gap-3 justify-center items-center">
                     <label htmlFor="experienceDate" className="text-sm font-medium">
                         Experience Date <span className="text-red-500">*</span>
                     </label>
@@ -386,97 +388,100 @@ export default function CreateExperience({ userID }: { userID: string }) {
                         value={experienceDate}
                         onChange={(e) => setExperienceDate(e.target.value)}
                         required
-                        className="w-48 p-3 rounded-lg border border-gray-300
+                        className="p-2 rounded-lg border border-gray-300
                         focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                 </div>
             </div>
 
+            {/*3RD ROW*/}
+            <div className="flex flex-row w-full gap-2 justify-center items-center">
+                {/*LOCATION inputs*/}
+                <div className="p-2 flex flex-col w-3/4 gap-2
+                                border border-gray-300 rounded-lg "
+                >
+                    <div className="px-2 font-medium">Location</div>
 
-            {/*LOCATION INPUTS*/}
-            <div className="border border-gray-300 rounded-lg p-5 mt-2">
-                <div className="px-2 font-medium">Location</div>
+                    {/* Combined Address Search with Autocomplete */}
+                    <div className="relative">
+                        <label htmlFor="address" className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleGetCurrentLocation}
+                                    disabled={isGettingLocation}
+                                    className={`px-4 py-2.5 rounded-md font-medium text-white 
+                                                transition-colors ${
+                                                isGettingLocation
+                                                    ? 'bg-gray-400 cursor-not-allowed'
+                                                    : 'bg-white hover:bg-gray-100'}`}
+                                >
+                                    📍
+                                </button>
+                                <input
+                                    id="address"
+                                    type="text"
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    onFocus={handleAddressFocus}
+                                    onBlur={handleAddressBlur}
+                                    placeholder="Search for a location or address"
+                                    className={`flex-1 p-3 rounded-lg border border-gray-300 
+                                                focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+                                                ${isLoadingAddress ? 'bg-gray-50' : ''}`}
+                                />
 
-                {/* Combined Address Search with Autocomplete */}
-                <div className="relative mb-5">
-                    <label htmlFor="address" className="flex flex-col gap-2">
-                        <div className="text-sm font-medium">Address</div>
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={handleGetCurrentLocation}
-                                disabled={isGettingLocation}
-                                className={`px-4 py-2.5 rounded-md font-medium text-white 
-                                transition-colors ${
-                                    isGettingLocation
-                                        ? 'bg-gray-400 cursor-not-allowed'
-                                        : 'bg-white hover:bg-gray-100'
-                                }`}
+                            </div>
+                        </label>
+                        {isLoadingAddress && (
+                            <div className="text-sm text-gray-500">Loading address...</div>
+                        )}
+
+                        {/* Search Results Dropdown - Only shown when the field is focused */}
+                        {isAddressFocused && (searchResults.length > 0 || isSearching) && (
+                            <ul className="absolute z-10 w-full bg-white border border-gray-300 border-t-0
+                                           rounded-b-lg shadow-lg max-h-48 overflow-y-auto"
                             >
-                                📍
-                            </button>
-                            <input
-                                id="address"
-                                type="text"
-                                value={address}
-                                onChange={(e) => setAddress(e.target.value)}
-                                onFocus={handleAddressFocus}
-                                onBlur={handleAddressBlur}
-                                placeholder="Search for a location or address"
-                                className={`flex-1 p-3 rounded-lg border border-gray-300 
-                                focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                                ${isLoadingAddress ? 'bg-gray-50' : ''}`}
-                            />
-
-                        </div>
-                    </label>
-                    {isLoadingAddress && (
-                        <div className="text-sm text-gray-500">Loading address...</div>
-                    )}
-
-                    {/* Search Results Dropdown - Only shown when the field is focused */}
-                    {isAddressFocused && (searchResults.length > 0 || isSearching) && (
-                        <ul className="absolute z-10 w-full bg-white border border-gray-300 border-t-0
-                        rounded-b-lg shadow-lg max-h-48 overflow-y-auto">
-                            {isSearching ? (
-                                <li className="p-3 text-gray-500 text-center">
-                                    Searching...
-                                </li>
-                            ) : (
-                                searchResults.map((result) => (
-                                    <li
-                                        key={result.place_id}
-                                        onClick={() => handleSuggestionClick(result)}
-                                        className="p-3 border-b border-gray-100 text-gray-700
-                                        cursor-pointer hover:bg-gray-50 transition-colors"
-                                    >
-                                        📍 {result.display_name}
+                                {isSearching ? (
+                                    <li className="p-3 text-gray-500 text-center">
+                                        Searching...
                                     </li>
-                                ))
-                            )}
-                        </ul>
-                    )}
+                                ) : (
+                                    searchResults.map((result) => (
+                                        <li
+                                            key={result.place_id}
+                                            onClick={() => handleSuggestionClick(result)}
+                                            className="p-3 border-b border-gray-100 text-gray-700
+                                        cursor-pointer hover:bg-gray-50 transition-colors"
+                                        >
+                                            📍 {result.display_name}
+                                        </li>
+                                    ))
+                                )}
+                            </ul>
+                        )}
+                    </div>
+
+                    {/* Map */}
+                    <div className="h-[350px] w-full border border-gray-300 rounded-lg overflow-hidden">
+                        <MapContainer
+                            center={mapCenter}
+                            zoom={13}
+                            className="h-full w-full"
+                        >
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            />
+                            <Marker position={getNumericCoordinates()} />
+                            <MapClickHandler onMapClick={handleMapClick} />
+                            <ChangeMapView center={mapCenter} />
+                        </MapContainer>
+                    </div>
                 </div>
 
-                {/* Map */}
-                <div className="h-[350px] w-full my-5 border border-gray-300 rounded-lg overflow-hidden">
-                    <MapContainer
-                        center={mapCenter}
-                        zoom={13}
-                        className="h-full w-full"
-                    >
-                        <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        />
-                        <Marker position={getNumericCoordinates()} />
-                        <MapClickHandler onMapClick={handleMapClick} />
-                        <ChangeMapView center={mapCenter} />
-                    </MapContainer>
-                </div>
-
-                {/* Coordinate Inputs */}
-                <div className="flex gap-4">
+                {/* COORDINATE inputs */}
+                <div className="flex flex-col w-1/4 h-full gap-4 justify-center items-center">
                     <div className="flex flex-col gap-2 flex-1">
                         <label htmlFor="latitude" className="text-sm font-medium">
                             Latitude <span className="text-red-500">*</span>
@@ -491,7 +496,7 @@ export default function CreateExperience({ userID }: { userID: string }) {
                             max="90"
                             required
                             className="w-full p-3 rounded-lg border border-gray-300
-                            focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="-90 to 90"
                         />
                     </div>
@@ -509,23 +514,16 @@ export default function CreateExperience({ userID }: { userID: string }) {
                             max="180"
                             required
                             className="w-full p-3 rounded-lg border border-gray-300
-                            focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="-180 to 180"
                         />
                     </div>
+
+
+                    <p className="text-sm text-gray-500 mt-3">
+                        💡 Click on the map, search for a location, use your current location, or enter coordinates
+                    </p>
                 </div>
-
-                <p className="text-sm text-gray-500 mt-3">
-                    💡 Click on the map, search for a location, use your current location, or enter coordinates
-                </p>
-            </div>
-
-            {/*UPLOAD IMAGE*/}
-            <div className="flex flex-col gap-2">
-                <input type="file" multiple accept="image/*" onChange={onImageChange} />
-                {imageURLS.map((imageSrc, index) => (
-                    <img key={index} src={imageSrc} alt="not found" width={"250px"} />
-                ))}
             </div>
 
             {/*KEYWORDS*/}
@@ -542,6 +540,26 @@ export default function CreateExperience({ userID }: { userID: string }) {
                     placeholder="Enter keywords separated by commas"
                 />
             </div>
+
+            {/*UPLOAD IMAGE*/}
+            <div className="flex flex-col gap-2">
+                <label htmlFor="keywords" className="text-sm font-medium">
+                    Photos
+                </label>
+                <div>
+                    <input
+                        type="file"
+                        multiple accept="image/*"
+                        onChange={onImageChange}
+                    />
+                    {imageURLS.map((imageSrc, index) => (
+                        <img key={index} src={imageSrc} alt="not found" width={"250px"} />
+                    ))}
+                </div>
+
+            </div>
+
+
 
             {/*SUBMIT*/}
             <button

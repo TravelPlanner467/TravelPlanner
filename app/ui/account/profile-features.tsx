@@ -3,6 +3,8 @@
 import { signOut } from "@/lib/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import { Session } from  "@/lib/types";
+import {EditProfileButton, MyExperiencesButton} from "@/app/ui/account/buttons/profile-buttons";
+import {router} from "next/client";
 
 
 export default function ProfileFeatures({ session }: { session: Session | null }) {
@@ -24,12 +26,16 @@ export default function ProfileFeatures({ session }: { session: Session | null }
             <p className="">userID: {user.id}</p>
         </div>
 
+        <EditProfileButton/>
+        <MyExperiencesButton/>
+
         <button
             onClick={handleSignOut}
             className=" items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md"
         >
             Sign Out
         </button>
+
     </div>
   )
 }

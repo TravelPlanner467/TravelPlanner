@@ -35,6 +35,29 @@ export async function demoGetExperienceByID(experienceID: string): Promise<Exper
     return experience as Experience;
 }
 
+export async function demoGetUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
+    const experiences = await demoGetExperiences();
+    if ("error" in experiences) {
+        return {
+            error: "ExperiencesNotFound",
+            message: `No Experiences Found`,
+        };
+    }
+
+    const matches = experiences.filter(
+        (exp: { userID: string }) => exp.userID === userID
+    );
+
+    if (matches.length === 0) {
+        return {
+            error: "ExperienceNotFound",
+            message: `No experiences found associated with userID: ${userID}`,
+        };
+    }
+
+    return matches as Experience[];
+}
+
 export async function createExperience(formData: Experience) {
     console.log(formData);
 }

@@ -9,7 +9,7 @@ export default function NewTripButton() {
         <div className="flex justify-end gap-2">
             <button
                 onClick={() => router.push("/trips/new")}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
             >
                 + New Trip
             </button>

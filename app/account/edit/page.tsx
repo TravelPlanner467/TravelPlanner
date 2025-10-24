@@ -1,0 +1,25 @@
+import {auth} from "@/lib/auth";
+import {headers} from "next/headers";
+import {redirect} from "next/navigation";
+import ProfileFeatures from "@/app/ui/account/profile-features";
+
+export default async function Page() {
+    const session = await auth.api.getSession(
+        {headers: await headers()}
+    );
+
+    if ( !session ) {
+        redirect('/account/login');
+    }
+
+    return (
+        <div className="flex flex-col w-full text-center gap-2.5 items-center">
+            <div className="flex flex-col gap-12">
+                <div className='text-4xl font-bold'>
+                    Edit User Profile
+                </div>
+                <ProfileFeatures session={session}/>
+            </div>
+        </div>
+    );
+}
