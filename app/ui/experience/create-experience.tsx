@@ -325,9 +325,10 @@ export default function CreateExperience({ userID }: { userID: string }) {
     return (
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-6 max-w-2xl w-full mx-auto my-8 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
+            className="flex flex-col gap-2 max-w-3xl w-full mt-5 p-6
+            border border-gray-300 rounded-lg bg-white shadow-md"
         >
-            <div className="flex flex-row w-full gap-2 justify-center items-center">
+            <div className="flex flex-row w-full gap-2 justify-center items-start">
                 {/*TITLE*/}
                 <div className="flex flex-col w-2/3 gap-2">
                     <label htmlFor="title" className="text-sm font-medium">
@@ -339,7 +340,8 @@ export default function CreateExperience({ userID }: { userID: string }) {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
-                        className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full p-3 rounded-lg border border-gray-300
+                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Enter experience title"
                     />
                 </div>
@@ -367,13 +369,14 @@ export default function CreateExperience({ userID }: { userID: string }) {
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={4}
-                        className="w-full p-3 rounded-lg border border-gray-300 shadow-sm resize-vertical focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full p-3 rounded-lg border border-gray-300
+                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Describe your experience..."
                     />
                 </div>
 
                 {/*EXPERIENCE DATE*/}
-                <div className="flex flex-col w-1/3 gap-2">
+                <div className="flex flex-col w-1/3 gap-6 justify-center items-center">
                     <label htmlFor="experienceDate" className="text-sm font-medium">
                         Experience Date <span className="text-red-500">*</span>
                     </label>
@@ -383,7 +386,8 @@ export default function CreateExperience({ userID }: { userID: string }) {
                         value={experienceDate}
                         onChange={(e) => setExperienceDate(e.target.value)}
                         required
-                        className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-48 p-3 rounded-lg border border-gray-300
+                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                 </div>
             </div>
@@ -402,7 +406,8 @@ export default function CreateExperience({ userID }: { userID: string }) {
                                 type="button"
                                 onClick={handleGetCurrentLocation}
                                 disabled={isGettingLocation}
-                                className={`px-4 py-2.5 rounded-md font-medium text-white transition-colors ${
+                                className={`px-4 py-2.5 rounded-md font-medium text-white 
+                                transition-colors ${
                                     isGettingLocation
                                         ? 'bg-gray-400 cursor-not-allowed'
                                         : 'bg-white hover:bg-gray-100'
@@ -418,7 +423,9 @@ export default function CreateExperience({ userID }: { userID: string }) {
                                 onFocus={handleAddressFocus}
                                 onBlur={handleAddressBlur}
                                 placeholder="Search for a location or address"
-                                className={`flex-1 p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isLoadingAddress ? 'bg-gray-50' : ''}`}
+                                className={`flex-1 p-3 rounded-lg border border-gray-300 
+                                focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+                                ${isLoadingAddress ? 'bg-gray-50' : ''}`}
                             />
 
                         </div>
@@ -429,7 +436,8 @@ export default function CreateExperience({ userID }: { userID: string }) {
 
                     {/* Search Results Dropdown - Only shown when the field is focused */}
                     {isAddressFocused && (searchResults.length > 0 || isSearching) && (
-                        <ul className="absolute z-10 w-full bg-white border border-gray-300 border-t-0 rounded-b-lg shadow-lg max-h-48 overflow-y-auto">
+                        <ul className="absolute z-10 w-full bg-white border border-gray-300 border-t-0
+                        rounded-b-lg shadow-lg max-h-48 overflow-y-auto">
                             {isSearching ? (
                                 <li className="p-3 text-gray-500 text-center">
                                     Searching...
@@ -439,7 +447,8 @@ export default function CreateExperience({ userID }: { userID: string }) {
                                     <li
                                         key={result.place_id}
                                         onClick={() => handleSuggestionClick(result)}
-                                        className="p-3 border-b border-gray-100 text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors"
+                                        className="p-3 border-b border-gray-100 text-gray-700
+                                        cursor-pointer hover:bg-gray-50 transition-colors"
                                     >
                                         📍 {result.display_name}
                                     </li>
@@ -481,7 +490,8 @@ export default function CreateExperience({ userID }: { userID: string }) {
                             min="-90"
                             max="90"
                             required
-                            className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full p-3 rounded-lg border border-gray-300
+                            focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="-90 to 90"
                         />
                     </div>
@@ -498,14 +508,15 @@ export default function CreateExperience({ userID }: { userID: string }) {
                             min="-180"
                             max="180"
                             required
-                            className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full p-3 rounded-lg border border-gray-300
+                            focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="-180 to 180"
                         />
                     </div>
                 </div>
 
                 <p className="text-sm text-gray-500 mt-3">
-                    💡 Tip: Click on the map, search for a location, use your current location, or enter coordinates manually
+                    💡 Click on the map, search for a location, use your current location, or enter coordinates
                 </p>
             </div>
 
@@ -526,7 +537,8 @@ export default function CreateExperience({ userID }: { userID: string }) {
                     id="keywords"
                     type="text"
                     onChange={handleKeywordsChange}
-                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-3 rounded-lg border border-gray-300
+                    focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter keywords separated by commas"
                 />
             </div>
@@ -534,7 +546,8 @@ export default function CreateExperience({ userID }: { userID: string }) {
             {/*SUBMIT*/}
             <button
                 type="submit"
-                className="mt-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                className="mt-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white
+                font-medium rounded-lg transition-colors"
             >
                 Create Experience
             </button>

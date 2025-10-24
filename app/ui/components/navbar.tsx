@@ -11,7 +11,7 @@ export default function Navbar({ session }: { session: Session | null }) {
     <div className="flex flex-row w-full h-[55px] bg-gray-50 ">
       <Link
         className="flex h-auto items-center bg-gray-500"
-        href="/"
+        href="/public"
       >
         <div className="w-40 pr-2 text-right text-white text-xl">
           <p>Travel Planner</p>
