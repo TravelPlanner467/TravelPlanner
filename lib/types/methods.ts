@@ -1,10 +1,12 @@
 import {auth} from "@/lib/auth";
 
+export type Session = typeof auth.$Infer.Session;
+
 export interface Experience {
     userID: string;
-    experienceID: string;
+    experienceID?: string;
     title: string;
-    description: string;
+    description?: string;
     experience_date: string;
     create_date: string;
     address: string;
@@ -13,7 +15,7 @@ export interface Experience {
         longitude: number;
     };
     keywords: string[];
-    photos: string[];
+    photos?: string[];
     rating: number;
 }
 
@@ -37,4 +39,3 @@ export interface DeleteTripsProps {
     userID: string
 }
 
-export type Session = typeof auth.$Infer.Session;

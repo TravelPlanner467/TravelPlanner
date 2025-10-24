@@ -2,12 +2,14 @@ import CreateExperience from "@/app/ui/experience/create-experience";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
+import CreateExperienceWrapper from "@/app/ui/experience/create-experience-wrapper";
 
 export default async function CreateExperiencePage() {
     const session = await auth.api.getSession(
         {headers: await headers()}
     );
 
+    // @ts-ignore
     const userID = session.user.id;
 
     if ( !session ) {
@@ -19,7 +21,7 @@ export default async function CreateExperiencePage() {
             <div className='text-4xl font-bold'>
                 Create Experience
             </div>
-            <CreateExperience userID={userID}/>
+            <CreateExperienceWrapper userID={userID}/>
         </div>
     )
 }

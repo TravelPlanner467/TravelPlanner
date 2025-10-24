@@ -54,7 +54,7 @@ export function SearchResults({ query, experiences }: SearchResultsProps) {
                 <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
-                    onPageChange={handlePageChange}
+                    onPageChangeAction={handlePageChange}
                 />
             </div>
 

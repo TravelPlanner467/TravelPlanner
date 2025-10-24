@@ -1,10 +1,31 @@
 'use client'
 
-import {useState, useRef, useEffect} from "react";
-import {MapContainer, Marker, TileLayer, useMap, useMapEvents} from "react-leaflet";
+import React, { useState, useEffect } from "react";
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import {createExperience} from "@/lib/actions/experience-actions";
+import { LatLng } from "leaflet";
+import 'leaflet/dist/leaflet.css';
+import {StarRating} from "@/app/ui/experience/star-rating";
+
+
+interface NominatimResult {
+    place_id: number;
+    lat: string;
+    lon: string;
+    display_name: string;
+}
+
+interface MapClickHandlerProps {
+    onMapClick: (latlng: LatLng) => void;
+}
+
+interface ChangeMapViewProps {
+    center: [number, number];
+}
+
 
 // HELPER COMPONENT: Handles map clicks
-function MapClickHandler({ onMapClick }) {
+function MapClickHandler({ onMapClick }: MapClickHandlerProps) {
     useMapEvents({
         click(e) {
             onMapClick(e.latlng);
@@ -14,7 +35,7 @@ function MapClickHandler({ onMapClick }) {
 }
 
 // HELPER COMPONENT: Changes map view when 'center' prop changes
-function ChangeMapView({ center }) {
+function ChangeMapView({ center }: ChangeMapViewProps) {
     const map = useMap();
     useEffect(() => {
         map.setView(center, map.getZoom());
@@ -22,38 +43,52 @@ function ChangeMapView({ center }) {
     return null;
 }
 
-export default function CreateExperience(userID: string) {
+export default function CreateExperience({ userID }: { userID: string }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [image, setImage] = useState(null);
+    const [image, setImage] = useState<File | null>(null);
+    const [experienceDate, setExperienceDate] = useState('');
+    const [keywords, setKeywords] = useState<string[]>([]);
+    const [rating, setRating] = useState(0);
 
     // Location State
-    const [latitude, setLatitude] = useState(51.505);
-    const [longitude, setLongitude] = useState(-0.09);
-    const [mapCenter, setMapCenter] = useState([51.505, -0.09]);
+    const [latitude, setLatitude] = useState<number | string>(44.5618);
+    const [longitude, setLongitude] = useState<number | string>(-123.2823);
+    const [mapCenter, setMapCenter] = useState<[number, number]>([44.5618, -123.2823]);
     const [address, setAddress] = useState('');
 
     // Search State
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
+    const [searchResults, setSearchResults] = useState<NominatimResult[]>([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [isAddressFocused, setIsAddressFocused] = useState(false);
 
     // Loading States
     const [isGettingLocation, setIsGettingLocation] = useState(false);
     const [isLoadingAddress, setIsLoadingAddress] = useState(false);
 
-
     // UTILITY: Round coordinates to specified decimal places (default 6 = ~0.11m accuracy)
-    const roundCoordinate = (coord, decimals = 6) => {
+    const roundCoordinate = (coord: number, decimals: number = 6): number => {
         return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
     };
 
-    // Debounce search query
+    // Helper to get numeric coordinates for map display
+    const getNumericCoordinates = (): [number, number] => {
+        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
+        const lng = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
+
+        // Return valid coordinates or fallback to center
+        if (!isNaN(lat) && !isNaN(lng)) {
+            return [lat, lng];
+        }
+        return mapCenter;
+    };
+
+    // Debounce address search
     useEffect(() => {
         const handler = setTimeout(() => {
-            if (searchQuery.trim()) {
-                fetchForwardGeocode(searchQuery);
-            } else {
+            if (address.trim() && !isLoadingAddress && isAddressFocused) {
+                fetchForwardGeocode(address);
+            } else if (!isAddressFocused) {
                 setSearchResults([]);
             }
         }, 500);
@@ -61,11 +96,10 @@ export default function CreateExperience(userID: string) {
         return () => {
             clearTimeout(handler);
         };
-    }, [searchQuery]);
-
+    }, [address, isLoadingAddress, isAddressFocused]);
 
     // Fetch address from coordinates (Reverse Geocoding)
-    const fetchReverseGeocode = async (lat, lon) => {
+    const fetchReverseGeocode = async (lat: number, lon: number) => {
         setIsLoadingAddress(true);
         try {
             const response = await fetch(
@@ -78,6 +112,7 @@ export default function CreateExperience(userID: string) {
 
             const data = await response.json();
             setAddress(data.display_name || 'Could not find address');
+            setSearchResults([]); // Clear search results when getting address from coordinates
         } catch (error) {
             console.error("Error fetching address:", error);
             setAddress('Error fetching address');
@@ -87,7 +122,7 @@ export default function CreateExperience(userID: string) {
     };
 
     // Fetch coordinates/suggestions from address string (Forward Geocoding)
-    const fetchForwardGeocode = async (query) => {
+    const fetchForwardGeocode = async (query: string) => {
         setIsSearching(true);
         try {
             const response = await fetch(
@@ -143,7 +178,7 @@ export default function CreateExperience(userID: string) {
     };
 
     // User clicked on the map
-    const handleMapClick = (latlng) => {
+    const handleMapClick = (latlng: LatLng) => {
         const lat = roundCoordinate(latlng.lat);
         const lng = roundCoordinate(latlng.lng);
 
@@ -153,7 +188,7 @@ export default function CreateExperience(userID: string) {
     };
 
     // User clicked on a search suggestion
-    const handleSuggestionClick = (result) => {
+    const handleSuggestionClick = (result: NominatimResult) => {
         const lat = roundCoordinate(parseFloat(result.lat));
         const lon = roundCoordinate(parseFloat(result.lon));
 
@@ -162,38 +197,57 @@ export default function CreateExperience(userID: string) {
         setAddress(result.display_name);
         setMapCenter([lat, lon]);
 
-        // Clear search
-        setSearchQuery('');
+        // Clear search results and remove focus after selection
         setSearchResults([]);
+        setIsAddressFocused(false);
     };
 
-    // Handle manual coordinate input
-    const handleLatitudeChange = (e) => {
-        const value = parseFloat(e.target.value);
-        if (!isNaN(value) && value >= -90 && value <= 90) {
-            const rounded = roundCoordinate(value);
+    const handleLatitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        // handling for missing Latitude
+        if (value === '' || value === '-') {
+            setLatitude('');
+            return;
+        }
+
+        const parsed = parseFloat(value);
+
+        // validate latitude before setting
+        if (!isNaN(parsed) && parsed >= -90 && parsed <= 90) {
+            const rounded = roundCoordinate(parsed);
             setLatitude(rounded);
-            setMapCenter([rounded, longitude]);
-        } else if (e.target.value === '' || e.target.value === '-') {
-            setLatitude(e.target.value);
+            const currentLng = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
+            if (!isNaN(currentLng)) {
+                setMapCenter([rounded, currentLng]);
+            }
         }
     };
 
-    const handleLongitudeChange = (e) => {
-        const value = parseFloat(e.target.value);
-        if (!isNaN(value) && value >= -180 && value <= 180) {
-            const rounded = roundCoordinate(value);
+    const handleLongitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (value === '' || value === '-') {
+            setLongitude('');
+            return;
+        }
+
+        const parsed = parseFloat(value);
+
+        if (!isNaN(parsed) && parsed >= -180 && parsed <= 180) {
+            const rounded = roundCoordinate(parsed);
             setLongitude(rounded);
-            setMapCenter([latitude, rounded]);
-        } else if (e.target.value === '' || e.target.value === '-') {
-            setLongitude(e.target.value);
+            const currentLat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
+            if (!isNaN(currentLat)) {
+                setMapCenter([currentLat, rounded]);
+            }
         }
     };
 
     // Update address when coordinates change manually
     useEffect(() => {
-        const lat = parseFloat(latitude);
-        const lon = parseFloat(longitude);
+        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
+        const lon = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
 
         if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
             const timeoutId = setTimeout(() => {
@@ -204,141 +258,175 @@ export default function CreateExperience(userID: string) {
         }
     }, [latitude, longitude]);
 
+    // Handle focus events for address input
+    const handleAddressFocus = () => {
+        setIsAddressFocused(true);
+        // Only trigger search if there is text in the box
+        if (address.trim()) {
+            fetchForwardGeocode(address);
+        }
+    };
+
+    const handleAddressBlur = () => {
+        // Delay blur
+        setTimeout(() => {
+            setIsAddressFocused(false);
+        }, 200);
+    };
+
+    const handleKeywordsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value.trim() === '') {
+            setKeywords([]);
+        } else {
+            const keywordsArray = value
+                .split(',')
+                .map(k => k.trim())
+                .filter(k => k !== '');
+            setKeywords(keywordsArray);
+        }
+    };
+
+
     // Form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         // Validate coordinates
-        const lat = parseFloat(latitude);
-        const lon = parseFloat(longitude);
+        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
+        const lon = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
 
         if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
             alert('Please enter valid coordinates');
             return;
         }
 
+        const createDate = new Date().toISOString();
+        const coordinates = {latitude: lat, longitude: lon};
+
         const formData = {
-            title,
-            description,
-            latitude: lat,
-            longitude: lon,
-            address,
-            image
+            userID: userID,
+            title: title,
+            description: description,
+            experience_date: experienceDate,
+            coordinates: coordinates,
+            address: address,
+            image: image || undefined,
+            create_date: createDate,
+            rating: rating,
+            keywords: keywords
         };
 
-        console.log('Experience data:', formData);
-        alert('Experience data logged to console!');
+        console.log('Experience ', formData);
+        createExperience(formData);
+
     };
 
     return (
         <form
             onSubmit={handleSubmit}
-            style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '15px',
-                maxWidth: '600px',
-                margin: '20px auto',
-                padding: '20px',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                backgroundColor: '#fff'
-            }}
+            className="flex flex-col gap-6 max-w-2xl w-full mx-auto my-8 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
         >
-            <h3 style={{ margin: '0 0 10px 0' }}>Create New Experience</h3>
-
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <strong>Title: *</strong>
+            {/*TITLE*/}
+            <div className="flex flex-col gap-2">
+                <label htmlFor="title" className="text-sm font-medium">
+                    Title <span className="text-red-500">*</span>
+                </label>
                 <input
+                    id="title"
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
-                    style={{ padding: '8px', fontSize: '14px', border: '1px solid #ccc', borderRadius: '4px' }}
+                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter experience title"
                 />
-            </label>
+            </div>
 
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <strong>Description:</strong>
+            {/*RATING*/}
+            <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">
+                    Rating <span className="text-red-500">*</span>
+                </label>
+                <StarRating rating={rating} setRating={setRating} />
+                {rating === 0 && (
+                    <p className="text-xs text-gray-500">Please select a rating</p>
+                )}
+            </div>
+
+            {/*DESCRIPTION*/}
+            <div className="flex flex-col gap-2">
+                <label htmlFor="description" className="text-sm font-medium">
+                    Description
+                </label>
                 <textarea
+                    id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    rows="4"
-                    style={{ padding: '8px', fontSize: '14px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical' }}
+                    rows={4}
+                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm resize-vertical focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Describe your experience..."
                 />
-            </label>
+            </div>
 
-            <label style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <strong>Image:</strong>
+            {/*EXPERIENCE DATE*/}
+            <div className="flex flex-col gap-2">
+                <label htmlFor="experienceDate" className="text-sm font-medium">
+                    Experience Date <span className="text-red-500">*</span>
+                </label>
                 <input
-                    type="file"
-                    onChange={(e) => setImage(e.target.files[0])}
-                    accept="image/*"
-                    style={{ padding: '8px', fontSize: '14px' }}
+                    id="experienceDate"
+                    type="date"
+                    value={experienceDate}
+                    onChange={(e) => setExperienceDate(e.target.value)}
+                    required
+                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                {image && (
-                    <span style={{ fontSize: '12px', color: '#666' }}>
-            Selected: {image.name}
-          </span>
-                )}
-            </label>
+            </div>
 
-            <fieldset style={{ border: '1px solid #ddd', borderRadius: '4px', padding: '15px' }}>
-                <legend style={{ padding: '0 10px', fontWeight: 'bold' }}>Location</legend>
+            {/*LOCATION INPUTS*/}
+            <div className="border border-gray-300 rounded-lg p-5 mt-2">
+                <div className="px-2 font-medium">Location</div>
 
-                <button
-                    type="button"
-                    onClick={handleGetCurrentLocation}
-                    disabled={isGettingLocation}
-                    style={{
-                        marginBottom: '15px',
-                        padding: '10px 20px',
-                        backgroundColor: isGettingLocation ? '#ccc' : '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: isGettingLocation ? 'not-allowed' : 'pointer',
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                    }}
-                >
-                    {isGettingLocation ? '📍 Getting Location...' : '📍 Use My Current Location'}
-                </button>
+                {/* Combined Address Search with Autocomplete */}
+                <div className="relative mb-5">
+                    <label htmlFor="address" className="flex flex-col gap-2">
+                        <div className="text-sm font-medium">Address</div>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={handleGetCurrentLocation}
+                                disabled={isGettingLocation}
+                                className={`px-4 py-2.5 rounded-md font-medium text-white transition-colors ${
+                                    isGettingLocation
+                                        ? 'bg-gray-400 cursor-not-allowed'
+                                        : 'bg-white hover:bg-gray-100'
+                                }`}
+                            >
+                                📍
+                            </button>
+                            <input
+                                id="address"
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                onFocus={handleAddressFocus}
+                                onBlur={handleAddressBlur}
+                                placeholder="Search for a location or address"
+                                className={`flex-1 p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isLoadingAddress ? 'bg-gray-50' : ''}`}
+                            />
 
-                {/* Search Bar */}
-                <div style={{ position: 'relative', marginBottom: '15px' }}>
-                    <label style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        <strong>Search for an address:</strong>
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="e.g., 'Eiffel Tower, Paris'"
-                            style={{ padding: '8px', fontSize: '14px', border: '1px solid #ccc', borderRadius: '4px' }}
-                        />
+                        </div>
                     </label>
+                    {isLoadingAddress && (
+                        <div className="text-sm text-gray-500">Loading address...</div>
+                    )}
 
-                    {/* Search Results Dropdown */}
-                    {(searchResults.length > 0 || isSearching) && (
-                        <ul style={{
-                            background: 'white',
-                            border: '1px solid #ccc',
-                            borderTop: 'none',
-                            listStyle: 'none',
-                            padding: 0,
-                            margin: 0,
-                            position: 'absolute',
-                            width: '100%',
-                            zIndex: 1000,
-                            maxHeight: '200px',
-                            overflowY: 'auto',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                            borderRadius: '0 0 4px 4px'
-                        }}>
+                    {/* Search Results Dropdown - Only shown when the field is focused */}
+                    {isAddressFocused && (searchResults.length > 0 || isSearching) && (
+                        <ul className="absolute z-10 w-full bg-white border border-gray-300 border-t-0 rounded-b-lg shadow-lg max-h-48 overflow-y-auto">
                             {isSearching ? (
-                                <li style={{ padding: '12px', color: '#666', textAlign: 'center' }}>
+                                <li className="p-3 text-gray-500 text-center">
                                     Searching...
                                 </li>
                             ) : (
@@ -346,15 +434,7 @@ export default function CreateExperience(userID: string) {
                                     <li
                                         key={result.place_id}
                                         onClick={() => handleSuggestionClick(result)}
-                                        style={{
-                                            padding: '10px 12px',
-                                            cursor: 'pointer',
-                                            borderBottom: '1px solid #eee',
-                                            color: '#333',
-                                            transition: 'background-color 0.2s'
-                                        }}
-                                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
-                                        onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
+                                        className="p-3 border-b border-gray-100 text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors"
                                     >
                                         📍 {result.display_name}
                                     </li>
@@ -364,55 +444,31 @@ export default function CreateExperience(userID: string) {
                     )}
                 </div>
 
-                <label style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '15px' }}>
-                    <strong>Address:</strong>
-                    <input
-                        type="text"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="Click map, use current location, or search"
-                        style={{
-                            padding: '8px',
-                            fontSize: '14px',
-                            border: '1px solid #ccc',
-                            borderRadius: '4px',
-                            backgroundColor: isLoadingAddress ? '#f5f5f5' : 'white'
-                        }}
-                    />
-                    {isLoadingAddress && (
-                        <span style={{ fontSize: '12px', color: '#666' }}>Loading address...</span>
-                    )}
-                </label>
-
                 {/* Map */}
-                <div style={{
-                    height: '350px',
-                    width: '100%',
-                    margin: '15px 0',
-                    border: '1px solid #ddd',
-                    borderRadius: '4px',
-                    overflow: 'hidden'
-                }}>
+                <div className="h-[350px] w-full my-5 border border-gray-300 rounded-lg overflow-hidden">
                     <MapContainer
                         center={mapCenter}
                         zoom={13}
-                        style={{ height: '100%', width: '100%' }}
+                        className="h-full w-full"
                     >
                         <TileLayer
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         />
-                        <Marker position={[latitude, longitude]} />
+                        <Marker position={getNumericCoordinates()} />
                         <MapClickHandler onMapClick={handleMapClick} />
                         <ChangeMapView center={mapCenter} />
                     </MapContainer>
                 </div>
 
                 {/* Coordinate Inputs */}
-                <div style={{ display: 'flex', gap: '15px' }}>
-                    <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        <strong>Latitude: *</strong>
+                <div className="flex gap-4">
+                    <div className="flex flex-col gap-2 flex-1">
+                        <label htmlFor="latitude" className="text-sm font-medium">
+                            Latitude <span className="text-red-500">*</span>
+                        </label>
                         <input
+                            id="latitude"
                             type="number"
                             value={latitude}
                             onChange={handleLatitudeChange}
@@ -420,13 +476,16 @@ export default function CreateExperience(userID: string) {
                             min="-90"
                             max="90"
                             required
-                            style={{ padding: '8px', fontSize: '14px', border: '1px solid #ccc', borderRadius: '4px' }}
+                            className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="-90 to 90"
                         />
-                    </label>
-                    <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        <strong>Longitude: *</strong>
+                    </div>
+                    <div className="flex flex-col gap-2 flex-1">
+                        <label htmlFor="longitude" className="text-sm font-medium">
+                            Longitude <span className="text-red-500">*</span>
+                        </label>
                         <input
+                            id="longitude"
                             type="number"
                             value={longitude}
                             onChange={handleLongitudeChange}
@@ -434,85 +493,57 @@ export default function CreateExperience(userID: string) {
                             min="-180"
                             max="180"
                             required
-                            style={{ padding: '8px', fontSize: '14px', border: '1px solid #ccc', borderRadius: '4px' }}
+                            className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="-180 to 180"
                         />
-                    </label>
+                    </div>
                 </div>
 
-                <div style={{ fontSize: '12px', color: '#666', marginTop: '10px' }}>
+                <p className="text-sm text-gray-500 mt-3">
                     💡 Tip: Click on the map, search for a location, use your current location, or enter coordinates manually
-                </div>
-            </fieldset>
+                </p>
+            </div>
 
+            {/*UPLOAD IMAGE*/}
+            <div className="flex flex-col gap-2">
+                <label htmlFor="image" className="text-sm font-medium">
+                    Image
+                </label>
+                <input
+                    id="image"
+                    type="file"
+                    onChange={(e) => setImage(e.target.files?.[0] || null)}
+                    accept="image/*"
+                    className="w-full p-3"
+                />
+                {image && (
+                    <span className="text-sm text-gray-500">
+                        Selected: {image.name}
+                    </span>
+                )}
+            </div>
+
+            {/*KEYWORDS*/}
+            <div className="flex flex-col gap-2">
+                <label htmlFor="keywords" className="text-sm font-medium">
+                    Keywords
+                </label>
+                <input
+                    id="keywords"
+                    type="text"
+                    onChange={handleKeywordsChange}
+                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter keywords separated by commas"
+                />
+            </div>
+
+            {/*SUBMIT*/}
             <button
                 type="submit"
-                style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    transition: 'background-color 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#218838'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#28a745'}
+                className="mt-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
             >
                 Create Experience
             </button>
         </form>
     );
-
-    // return (
-    //     <div className="flex flex-col p-6 bg-white rounded-lg shadow-md">
-    //
-    //         <form className="space-y-6">
-    //             <div className="flex flex-row gap-2 items-center">
-    //                 <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-    //                     Title
-    //                 </label>
-    //                 <input
-    //                     id="title"
-    //                     type="text"
-    //                     value={title}
-    //                     onChange={(e) => setTitle(e.target.value)}
-    //                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-    //                     placeholder="Title"
-    //                     required
-    //                 />
-    //             </div>
-    //             <div className="flex flex-row gap-2 items-center">
-    //                 <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-    //                     Date
-    //                 </label>
-    //                 <input
-    //                     id="experience_date"
-    //                     type="date"
-    //                     value={experienceDate}
-    //                     onChange={(e) => setTitle(e.target.value)}
-    //                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-    //                     placeholder="Title"
-    //                     required
-    //                 />
-    //             </div>
-    //
-    //
-    //             <div className="flex flex-row gap-2 items-center">
-    //                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-    //                     Details
-    //                 </label>
-    //                 <textarea
-    //                     id="details"
-    //                     value={details}
-    //                     onChange={(e) => setDetails(e.target.value)}
-    //                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-    //                     placeholder="Write about your experience..."
-    //                 />
-    //             </div>
-    //         </form>
-    //     </div>
-    // )
 }

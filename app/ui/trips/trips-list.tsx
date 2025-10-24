@@ -53,7 +53,7 @@ export default function DisplayTrips({ trips }: TripDataProps) {
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
-                        onPageChange={handlePageChange}
+                        onPageChangeAction={handlePageChange}
                     />
                 )}
             </div>

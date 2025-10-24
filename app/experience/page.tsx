@@ -1,6 +1,3 @@
-import DisplayTrips from "@/app/ui/trips/display-trips";
-import NewTripButton from "@/app/ui/trips/buttons/new-trip-button";
-
 export default function Page() {
     return (
         <div className="min-h-screen min-w-screen">

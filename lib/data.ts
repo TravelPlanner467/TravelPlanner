@@ -1,10 +1,6 @@
 'use server'
 
 import postgres from 'postgres';
-import {
-  crafting_methods,
-  ItemData
-} from '@/lib/types';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
