@@ -9,8 +9,9 @@ export default async function Page() {
     );
 
     if ( !session ) {
-        redirect('/login');
+        redirect('/account/login');
     }
+
     return (
         <div className="flex flex-col w-full text-center gap-2.5 items-center">
             <div className="flex flex-col gap-12">

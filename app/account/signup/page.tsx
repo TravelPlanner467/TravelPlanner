@@ -9,7 +9,7 @@ export default async function Page() {
     );
 
     if ( session ) {
-        redirect('/profile');
+        redirect('/account/profile');
     }
 
     return (

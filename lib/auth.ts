@@ -10,5 +10,12 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true
     },
-    plugins: [nextCookies()]
+    plugins: [nextCookies()],
+    pages: {
+        signIn: '/account/login',
+        afterSignIn: '/account/profile',
+        signUp: '/account/signup',
+        afterSignUp: '/account/profile'
+    },
+
 })

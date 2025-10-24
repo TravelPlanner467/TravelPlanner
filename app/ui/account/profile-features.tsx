@@ -12,7 +12,7 @@ export default function ProfileFeatures({ session }: { session: Session | null }
 
     const handleSignOut = async () => {
         await signOut();
-        router.push("/login");
+        router.push("/account/login");
     };
 
     return (

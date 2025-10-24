@@ -9,12 +9,12 @@ export default async function CreateExperiencePage() {
         {headers: await headers()}
     );
 
+    if ( !session ) {
+        redirect('/login');
+    }
+
     // @ts-ignore
     const userID = session.user.id;
-
-    if ( !session ) {
-        redirect('/');
-    }
 
     return (
         <div className="flex flex-col w-full text-center gap-2.5 items-center">

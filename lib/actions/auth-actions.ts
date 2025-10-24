@@ -2,6 +2,7 @@
 
 import { auth } from '@/lib/auth';
 import {headers} from "next/headers";
+import {redirect} from "next/navigation";
 
 export const signUp = async (email: string, password: string, name: string) => {
     const result = await auth.api.signUpEmail({
@@ -9,11 +10,13 @@ export const signUp = async (email: string, password: string, name: string) => {
             email,
             password,
             name,
-            callbackURL: "/profile"
+            callbackURL: "/account/profile"
         }
     })
-
-    return result;
+    if (!result?.user) {
+        return { ok: false, message: 'Account Not Created' };
+    }
+    redirect('/account/profile');
 };
 
 export const signIn = async (email: string, password: string) => {
@@ -21,15 +24,19 @@ export const signIn = async (email: string, password: string) => {
         body: {
             email,
             password,
-            callbackURL: "/profile"
+            callbackURL: "/account/profile"
         }
     })
-
-    return result;
+    if (!result?.user) {
+        return { ok: false, message: 'Invalid email or password' };
+    }
+    redirect('/account/profile');
 };
 
 export const signOut = async () => {
-    const result = await auth.api.signOut({headers: await headers()})
+    const result = await auth.api.signOut({
+        headers: await headers(),
+    })
 
     return result;
 };

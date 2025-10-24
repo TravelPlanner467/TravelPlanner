@@ -16,10 +16,7 @@ export default function LoginForm() {
 
         try {
             const result = await signIn(email, password);
-            if (!result.user) {
-                setError("Invalid email or password");
-            }
-
+            if (result?.ok === false) setError(result.message);
         } catch (error) {
             setError(
                 `Authentication error: ${error instanceof Error ? error.message : "Unknown error occurred"}`

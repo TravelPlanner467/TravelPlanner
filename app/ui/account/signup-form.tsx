@@ -17,9 +17,7 @@ export default function SignupForm() {
 
         try {
             const result = await signUp(email, password, displayName);
-            if (!result.user) {
-                setError("Failed to create account");
-            }
+            if (result?.ok === false) setError(result.message);
 
         } catch (error) {
             setError(

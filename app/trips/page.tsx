@@ -6,12 +6,17 @@ import {demoGetTrips} from "@/lib/actions/trips-actions";
 import {ErrorResponse, Trip} from "@/lib/types";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
+import {redirect} from "next/navigation";
 
 
 export default async function Page() {
     const session = await auth.api.getSession(
         {headers: await headers()}
     );
+
+    if ( !session ) {
+        redirect('/account/login');
+    }
 
     //@ts-ignore
     const userID = session.user.id;
