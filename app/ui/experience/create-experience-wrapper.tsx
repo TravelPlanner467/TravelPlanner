@@ -3,6 +3,7 @@
 
 import dynamic from 'next/dynamic';
 
+// dynamic wrapper for "leaflet"
 const CreateExperienceClient = dynamic(
     () => import('./create-experience'),
     {

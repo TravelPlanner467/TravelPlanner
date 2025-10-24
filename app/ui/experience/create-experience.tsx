@@ -6,22 +6,7 @@ import {createExperience} from "@/lib/actions/experience-actions";
 import { LatLng } from "leaflet";
 import 'leaflet/dist/leaflet.css';
 import {StarRating} from "@/app/ui/experience/star-rating";
-
-
-interface NominatimResult {
-    place_id: number;
-    lat: string;
-    lon: string;
-    display_name: string;
-}
-
-interface MapClickHandlerProps {
-    onMapClick: (latlng: LatLng) => void;
-}
-
-interface ChangeMapViewProps {
-    center: [number, number];
-}
+import { NominatimResult, MapClickHandlerProps, ChangeMapViewProps} from '@/lib/types'
 
 
 // HELPER COMPONENT: Handles map clicks
@@ -44,9 +29,11 @@ function ChangeMapView({ center }: ChangeMapViewProps) {
 }
 
 export default function CreateExperience({ userID }: { userID: string }) {
+    // formData
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [image, setImage] = useState<File | null>(null);
+    const [images, setImages] = useState([] as any);
+    const [imageURLS, setImageURLs] = useState([]);
     const [experienceDate, setExperienceDate] = useState('');
     const [keywords, setKeywords] = useState<string[]>([]);
     const [rating, setRating] = useState(0);
@@ -98,6 +85,14 @@ export default function CreateExperience({ userID }: { userID: string }) {
         };
     }, [address, isLoadingAddress, isAddressFocused]);
 
+    // create and set image URL
+    useEffect(() => {
+        if (images.length < 1) return;
+        const newImageUrls: any = [];
+        images.forEach((image:any) => newImageUrls.push(URL.createObjectURL(image)));
+        setImageURLs(newImageUrls);
+    }, [images]);
+
     // Fetch address from coordinates (Reverse Geocoding)
     const fetchReverseGeocode = async (lat: number, lon: number) => {
         setIsLoadingAddress(true);
@@ -144,6 +139,11 @@ export default function CreateExperience({ userID }: { userID: string }) {
     };
 
     // --- EVENT HANDLERS ---
+
+    // User uploads a photo
+    function onImageChange(e: any) {
+        setImages([...e.target.files]);
+    }
 
     // User clicked "Use My Current Location"
     const handleGetCurrentLocation = () => {
@@ -287,7 +287,6 @@ export default function CreateExperience({ userID }: { userID: string }) {
         }
     };
 
-
     // Form submission
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -311,7 +310,8 @@ export default function CreateExperience({ userID }: { userID: string }) {
             experience_date: experienceDate,
             coordinates: coordinates,
             address: address,
-            image: image || undefined,
+            images: images || undefined,
+            imageURL: imageURLS,
             create_date: createDate,
             rating: rating,
             keywords: keywords
@@ -327,62 +327,67 @@ export default function CreateExperience({ userID }: { userID: string }) {
             onSubmit={handleSubmit}
             className="flex flex-col gap-6 max-w-2xl w-full mx-auto my-8 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
         >
-            {/*TITLE*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="title" className="text-sm font-medium">
-                    Title <span className="text-red-500">*</span>
-                </label>
-                <input
-                    id="title"
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter experience title"
-                />
+            <div className="flex flex-row w-full gap-2 justify-center items-center">
+                {/*TITLE*/}
+                <div className="flex flex-col w-2/3 gap-2">
+                    <label htmlFor="title" className="text-sm font-medium">
+                        Title <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        id="title"
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                        className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter experience title"
+                    />
+                </div>
+
+                {/*RATING*/}
+                <div className="flex flex-col w-1/3 gap-2">
+                    <label className="text-sm font-medium">
+                        Rating <span className="text-red-500">*</span>
+                    </label>
+                    <StarRating rating={rating} setRating={setRating} />
+                    {rating === 0 && (
+                        <p className="text-xs text-gray-500">Please select a rating</p>
+                    )}
+                </div>
             </div>
 
-            {/*RATING*/}
-            <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">
-                    Rating <span className="text-red-500">*</span>
-                </label>
-                <StarRating rating={rating} setRating={setRating} />
-                {rating === 0 && (
-                    <p className="text-xs text-gray-500">Please select a rating</p>
-                )}
+            <div className="flex flex-row w-full gap-2 justify-center items-center">
+                {/*DESCRIPTION*/}
+                <div className="flex flex-col w-2/3 gap-2">
+                    <label htmlFor="description" className="text-sm font-medium">
+                        Description
+                    </label>
+                    <textarea
+                        id="description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={4}
+                        className="w-full p-3 rounded-lg border border-gray-300 shadow-sm resize-vertical focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Describe your experience..."
+                    />
+                </div>
+
+                {/*EXPERIENCE DATE*/}
+                <div className="flex flex-col w-1/3 gap-2">
+                    <label htmlFor="experienceDate" className="text-sm font-medium">
+                        Experience Date <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        id="experienceDate"
+                        type="date"
+                        value={experienceDate}
+                        onChange={(e) => setExperienceDate(e.target.value)}
+                        required
+                        className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                </div>
             </div>
 
-            {/*DESCRIPTION*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="description" className="text-sm font-medium">
-                    Description
-                </label>
-                <textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={4}
-                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm resize-vertical focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Describe your experience..."
-                />
-            </div>
-
-            {/*EXPERIENCE DATE*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="experienceDate" className="text-sm font-medium">
-                    Experience Date <span className="text-red-500">*</span>
-                </label>
-                <input
-                    id="experienceDate"
-                    type="date"
-                    value={experienceDate}
-                    onChange={(e) => setExperienceDate(e.target.value)}
-                    required
-                    className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-            </div>
 
             {/*LOCATION INPUTS*/}
             <div className="border border-gray-300 rounded-lg p-5 mt-2">
@@ -506,21 +511,10 @@ export default function CreateExperience({ userID }: { userID: string }) {
 
             {/*UPLOAD IMAGE*/}
             <div className="flex flex-col gap-2">
-                <label htmlFor="image" className="text-sm font-medium">
-                    Image
-                </label>
-                <input
-                    id="image"
-                    type="file"
-                    onChange={(e) => setImage(e.target.files?.[0] || null)}
-                    accept="image/*"
-                    className="w-full p-3"
-                />
-                {image && (
-                    <span className="text-sm text-gray-500">
-                        Selected: {image.name}
-                    </span>
-                )}
+                <input type="file" multiple accept="image/*" onChange={onImageChange} />
+                {imageURLS.map((imageSrc, index) => (
+                    <img key={index} src={imageSrc} alt="not found" width={"250px"} />
+                ))}
             </div>
 
             {/*KEYWORDS*/}

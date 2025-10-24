@@ -1,4 +1,5 @@
 import {auth} from "@/lib/auth";
+import {LatLng} from "leaflet";
 
 export type Session = typeof auth.$Infer.Session;
 
@@ -39,3 +40,17 @@ export interface DeleteTripsProps {
     userID: string
 }
 
+export interface NominatimResult {
+    place_id: number;
+    lat: string;
+    lon: string;
+    display_name: string;
+}
+
+export interface MapClickHandlerProps {
+    onMapClick: (latlng: LatLng) => void;
+}
+
+export interface ChangeMapViewProps {
+    center: [number, number];
+}

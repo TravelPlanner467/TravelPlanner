@@ -10,7 +10,7 @@ export function StarRating({ rating, setRating }: StarRatingProps) {
     const [hover, setHover] = useState(0);
 
     return (
-        <div className="flex gap-1">
+        <div className="flex justify-center items-center gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
                 <button
                     key={star}
