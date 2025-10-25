@@ -317,7 +317,7 @@ export default function CreateExperience({ userID }: { userID: string }) {
             keywords: keywords
         };
 
-        console.log('Experience ', formData);
+        console.log(formData);
         createExperience(formData);
 
     };
@@ -325,7 +325,7 @@ export default function CreateExperience({ userID }: { userID: string }) {
     return (
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-2 max-w-3xl w-full mt-5 p-6
+            className="flex flex-col gap-2 max-w-3xl w-full mt-2 p-6
             border border-gray-300 rounded-lg bg-white shadow-md"
         >
             {/*1ST ROW*/}

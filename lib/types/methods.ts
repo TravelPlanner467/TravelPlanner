@@ -16,7 +16,25 @@ export interface Experience {
         longitude: number;
     };
     keywords: string[];
-    photos?: string[];
+    imageURLs?: string[];
+    images?:[];
+    rating: number;
+}
+
+export interface CreateExperienceProps {
+    userID: string;
+    title: string;
+    description?: string;
+    experience_date: string;
+    create_date: string;
+    address: string;
+    coordinates: {
+        latitude: number;
+        longitude: number;
+    };
+    keywords: string[];
+    imageURLs?: string[];
+    images?:[];
     rating: number;
 }
 
