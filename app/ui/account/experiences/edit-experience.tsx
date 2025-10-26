@@ -52,15 +52,15 @@ export default function EditExperience({ userID, experience }: EditExperiencePro
     const [title, setTitle] = useState(experience.title);
     const [description, setDescription] = useState(experience.description);
     const [images, setImages] = useState([] as any);
-    const [imageURLS, setImageURLs] = useState(experience.imageURLs);
+    // const [imageURLS, setImageURLs] = useState(experience.imageURLs);
     const [experienceDate, setExperienceDate] = useState(experience.experience_date);
     const [keywords, setKeywords] = useState(experience.keywords);
     const [rating, setRating] = useState(experience.rating);
 
     // Location State
-    const [latitude, setLatitude] = useState<number | string>(experience.coordinates.latitude);
-    const [longitude, setLongitude] = useState<number | string>(experience.coordinates.longitude);
-    const [mapCenter, setMapCenter] = useState<[number, number]>([experience.coordinates.latitude, experience.coordinates.longitude]);
+    const [latitude, setLatitude] = useState<number | string>(experience.latitude);
+    const [longitude, setLongitude] = useState<number | string>(experience.longitude);
+    const [mapCenter, setMapCenter] = useState<[number, number]>([experience.latitude, experience.longitude]);
     const [address, setAddress] = useState(experience.address);
 
     // Search State
@@ -105,12 +105,12 @@ export default function EditExperience({ userID, experience }: EditExperiencePro
     }, [address, isLoadingAddress, isAddressFocused]);
 
     // create and set image URL
-    useEffect(() => {
-        if (images.length < 1) return;
-        const newImageUrls: any = [];
-        images.forEach((image:any) => newImageUrls.push(URL.createObjectURL(image)));
-        setImageURLs(newImageUrls);
-    }, [images]);
+    // useEffect(() => {
+    //     if (images.length < 1) return;
+    //     const newImageUrls: any = [];
+    //     images.forEach((image:any) => newImageUrls.push(URL.createObjectURL(image)));
+    //     setImageURLs(newImageUrls);
+    // }, [images]);
 
     // Fetch address from coordinates (Reverse Geocoding)
     const fetchReverseGeocode = async (lat: number, lon: number) => {
@@ -327,10 +327,11 @@ export default function EditExperience({ userID, experience }: EditExperiencePro
             title: title,
             description: description,
             experience_date: experienceDate,
-            coordinates: coordinates,
+            latitude: lat,
+            longitude: lon,
             address: address,
-            images: images || undefined,
-            imageURL: imageURLS,
+            // images: images || undefined,
+            // imageURL: imageURLS,
             create_date: editDate,
             rating: rating,
             keywords: keywords

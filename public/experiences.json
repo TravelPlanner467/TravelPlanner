@@ -7,10 +7,8 @@
     "experience_date": "2025-09-25",
     "description": "Watched an incredible sunset from Battery Spencer viewpoint. The orange sky perfectly framed the iconic bridge. Perfect spot for photography!",
     "address": "Battery Spencer, Sausalito, CA 94965",
-    "coordinates": {
-      "latitude": 37.8272,
-      "longitude": -122.4816
-    },
+    "latitude": 37.8272,
+    "longitude": -122.4816,
     "keywords": [
       "sunset",
       "photography",
@@ -56,10 +54,8 @@
     "experience_date": "2025-09-23",
     "description": "Challenging but rewarding hike in Zion National Park. The chain section was thrilling and the 360-degree views from the summit were breathtaking.",
     "address": "Zion National Park, Springdale, UT 84767",
-    "coordinates": {
-      "latitude": 37.269,
-      "longitude": -112.9472
-    },
+    "latitude": 37.269,
+    "longitude": -112.9472,
     "keywords": [
       "hiking",
       "adventure",
@@ -81,10 +77,8 @@
     "experience_date": "2025-09-22",
     "description": "Incredible live jazz performance at Preservation Hall. The intimate venue and talented musicians made for an unforgettable evening.",
     "address": "726 St Peter St, New Orleans, LA 70116",
-    "coordinates": {
-      "latitude": 29.9584,
-      "longitude": -90.0644
-    },
+    "latitude": 29.9584,
+    "longitude": -90.0644,
     "keywords": [
       "music",
       "jazz",
@@ -105,10 +99,8 @@
     "experience_date": "2025-09-21",
     "description": "Paddled among icebergs and spotted sea otters, seals, and even a humpback whale in the distance. The glacier calving was spectacular!",
     "address": "Glacier Bay National Park, AK 99826",
-    "coordinates": {
-      "latitude": 58.665,
-      "longitude": -136.9
-    },
+    "latitude": 58.665,
+    "longitude": -136.9,
     "keywords": [
       "kayaking",
       "wildlife",
@@ -129,10 +121,8 @@
     "experience_date": "2025-09-20",
     "description": "Sampled the best food carts Portland has to offer. From Korean BBQ to artisan donuts, every stop was delicious. Highly recommend!",
     "address": "SW 10th Ave & SW Alder St, Portland, OR 97205",
-    "coordinates": {
-      "latitude": 45.5202,
-      "longitude": -122.6812
-    },
+    "latitude": 45.5202,
+    "longitude": -122.6812,
     "keywords": [
       "food",
       "street food",
@@ -153,10 +143,8 @@
     "experience_date": "2025-09-19",
     "description": "Woke up early for sunrise at Mather Point. Watching the canyon light up with orange and red hues was worth the early alarm. Absolutely stunning!",
     "address": "Mather Point, Grand Canyon Village, AZ 86023",
-    "coordinates": {
-      "latitude": 36.0544,
-      "longitude": -112.084
-    },
+    "latitude": 36.0544,
+    "longitude": -112.084,
     "keywords": [
       "sunrise",
       "national park",
@@ -177,10 +165,8 @@
     "experience_date": "2025-09-18",
     "description": "Rented a bike and crossed the iconic Brooklyn Bridge. Great views of Manhattan skyline and lots of photo opportunities along the way.",
     "address": "Brooklyn Bridge, New York, NY 10038",
-    "coordinates": {
-      "latitude": 40.7061,
-      "longitude": -73.9969
-    },
+    "latitude": 40.7061,
+    "longitude": -73.9969,
     "keywords": [
       "cycling",
       "bridge",
@@ -201,10 +187,8 @@
     "experience_date": "2025-09-17",
     "description": "Visited three wineries and learned about the wine-making process. The Cabernet Sauvignon was exceptional. Beautiful vineyard views!",
     "address": "6150 Silverado Trail, Napa, CA 94558",
-    "coordinates": {
-      "latitude": 38.4103,
-      "longitude": -122.3477
-    },
+    "latitude": 38.4103,
+    "longitude": -122.3477,
     "keywords": [
       "wine",
       "tasting",
@@ -225,10 +209,8 @@
     "experience_date": "2025-09-16",
     "description": "Crystal clear water and vibrant coral reefs. Saw tropical fish, sea turtles, and even a small reef shark. Best snorkeling of my life!",
     "address": "Fort Zachary Taylor State Park, Key West, FL 33040",
-    "coordinates": {
-      "latitude": 24.5465,
-      "longitude": -81.8077
-    },
+    "latitude": 24.5465,
+    "longitude": -81.8077,
     "keywords": [
       "snorkeling",
       "beach",
@@ -249,10 +231,8 @@
     "experience_date": "2025-09-15",
     "description": "Spent the afternoon exploring world-class art collections. The Impressionist gallery and American Gothic painting were highlights.",
     "address": "111 S Michigan Ave, Chicago, IL 60603",
-    "coordinates": {
-      "latitude": 41.8796,
-      "longitude": -87.6237
-    },
+    "latitude": 41.8796,
+    "longitude": -87.6237,
     "keywords": [
       "art",
       "museum",
@@ -273,10 +253,8 @@
     "experience_date": "2025-09-14",
     "description": "Floated over the Rio Grande Valley at sunrise. The peaceful flight and panoramic views of the Sandia Mountains were magical.",
     "address": "Balloon Fiesta Park, Albuquerque, NM 87113",
-    "coordinates": {
-      "latitude": 35.1872,
-      "longitude": -106.5978
-    },
+    "latitude": 35.1872,
+    "longitude": -106.5978,
     "keywords": [
       "hot air balloon",
       "adventure",
@@ -297,10 +275,8 @@
     "experience_date": "2025-09-13",
     "description": "The light beams filtering through the narrow slot canyon created otherworldly photos. Our Navajo guide shared fascinating stories about the formation.",
     "address": "Antelope Canyon, Page, AZ 86040",
-    "coordinates": {
-      "latitude": 36.8619,
-      "longitude": -111.3743
-    },
+    "latitude": 36.8619,
+    "longitude": -111.3743,
     "keywords": [
       "photography",
       "canyon",
@@ -321,10 +297,8 @@
     "experience_date": "2025-09-12",
     "description": "Saw multiple humpback whales breaching and a pod of dolphins swimming alongside our boat. The marine biologist guide was very knowledgeable.",
     "address": "Fisherman's Wharf, Monterey, CA 93940",
-    "coordinates": {
-      "latitude": 36.6002,
-      "longitude": -121.8947
-    },
+    "latitude": 36.6002,
+    "longitude": -121.8947,
     "keywords": [
       "whale watching",
       "wildlife",
@@ -345,10 +319,8 @@
     "experience_date": "2025-09-11",
     "description": "Walked the Freedom Trail and visited historic sites like Paul Revere's House and the Old North Church. Great way to learn American history!",
     "address": "Freedom Trail, Boston, MA 02108",
-    "coordinates": {
-      "latitude": 42.3601,
-      "longitude": -71.0589
-    },
+    "latitude": 42.3601,
+    "longitude": -71.0589,
     "keywords": [
       "history",
       "walking tour",
@@ -369,10 +341,8 @@
     "experience_date": "2025-09-10",
     "description": "Rode the famous Slickrock Trail. Challenging terrain but the red rock landscape and technical riding made it an adrenaline-filled adventure.",
     "address": "Slickrock Trail, Moab, UT 84532",
-    "coordinates": {
-      "latitude": 38.5733,
-      "longitude": -109.5498
-    },
+    "latitude": 38.5733,
+    "longitude": -109.5498,
     "keywords": [
       "mountain biking",
       "adventure",
@@ -393,10 +363,8 @@
     "experience_date": "2025-09-09",
     "description": "Visited during peak bloom around the Tidal Basin. The pink blossoms against the Jefferson Memorial were picture-perfect.",
     "address": "Tidal Basin, Washington, DC 20024",
-    "coordinates": {
-      "latitude": 38.8814,
-      "longitude": -77.0365
-    },
+    "latitude": 38.8814,
+    "longitude": -77.0365,
     "keywords": [
       "cherry blossoms",
       "spring",
@@ -417,10 +385,8 @@
     "experience_date": "2025-09-08",
     "description": "Hit three famous BBQ joints in one day. Franklin Barbecue's brisket was incredible.",
     "address": "900 E 11th St, Austin, TX 78702",
-    "coordinates": {
-      "latitude": 30.2672,
-      "longitude": -97.7431
-    },
+    "latitude": 30.2672,
+    "longitude": -97.7431,
     "keywords": [
       "BBQ",
       "food",
@@ -441,10 +407,8 @@
     "experience_date": "2025-09-07",
     "description": "One of the darkest skies in North America. Saw the Milky Way clearly and caught a shooting star.",
     "address": "Death Valley National Park, CA 92328",
-    "coordinates": {
-      "latitude": 36.5323,
-      "longitude": -116.9325
-    },
+    "latitude": 36.5323,
+    "longitude": -116.9325,
     "keywords": [
       "stargazing",
       "astronomy",
@@ -465,10 +429,8 @@
     "experience_date": "2025-09-06",
     "description": "Evening walking tour through historic Savannah's most haunted locations.",
     "address": "Reynolds Square, Savannah, GA 31401",
-    "coordinates": {
-      "latitude": 32.0809,
-      "longitude": -81.0912
-    },
+    "latitude": 32.0809,
+    "longitude": -81.0912,
     "keywords": [
       "ghost tour",
       "history",

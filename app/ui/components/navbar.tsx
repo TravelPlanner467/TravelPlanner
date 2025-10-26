@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import {BookOpenIcon, UserCircleIcon, FlagIcon} from "@heroicons/react/24/outline";
+import {BookOpenIcon, UserCircleIcon, FlagIcon, LinkSlashIcon } from "@heroicons/react/24/outline";
 import {auth} from "@/lib/auth";
 
 type Session = typeof auth.$Infer.Session;
@@ -21,9 +21,20 @@ export default function Navbar({ session }: { session: Session | null }) {
       <div className="flex grow flex-row justify-end md:flex-row">
           {session && (
               <Link
-                  key="My Experiences"
+                  key="dev"
+                  href="/dev"
+                  className="flex items-center justify-center gap-2 p-3 text-sm font-medium hover:bg-gray-300"
+              >
+                  < LinkSlashIcon className="w-6" />
+                  <p className="hidden md:block">DEVELOPMENT</p>
+              </Link>
+          )}
+
+          {session && (
+              <Link
+                  key="myExperiences"
                   href="/account/experiences"
-                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
+                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300"
               >
                   <FlagIcon className="w-6" />
                   <p className="hidden md:block">My Experiences</p>
@@ -32,9 +43,9 @@ export default function Navbar({ session }: { session: Session | null }) {
 
           {session && (
               <Link
-                  key="Trip Planner"
+                  key="tripPlanner"
                   href="/trips"
-                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
+                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300"
               >
                   <BookOpenIcon className="w-6" />
                   <p className="hidden md:block">Trip Planner</p>
@@ -45,7 +56,7 @@ export default function Navbar({ session }: { session: Session | null }) {
               <Link
                   key="profile"
                   href="/account/profile"
-                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
+                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300"
               >
                   <UserCircleIcon className="w-6" />
                   <p className="hidden md:block">User Profile</p>
@@ -53,9 +64,9 @@ export default function Navbar({ session }: { session: Session | null }) {
           )}
           {!session && (
               <Link
-                  key="Login"
+                  key="login"
                   href="/account/login"
-                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300 md:flex-none md:justify-start md:p-2 md:px-3"
+                  className="flex  items-center justify-center gap-2 p-3 text-sm font-medium hover:bg-gray-300"
               >
                   <UserCircleIcon className="w-6" />
                   <p className="hidden md:block">Login</p>

@@ -12,13 +12,11 @@ export interface Experience {
     experience_date: string;
     create_date: string;
     address: string;
-    coordinates: {
-        latitude: number;
-        longitude: number;
-    };
+    latitude: number;
+    longitude: number;
     keywords: string[];
-    imageURLs?: string[];
-    images?:[];
+    // imageURLs?: string[];
+    // images?:[];
     rating: number;
 }
 

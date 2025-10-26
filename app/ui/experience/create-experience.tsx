@@ -301,17 +301,17 @@ export default function CreateExperience({ userID }: { userID: string }) {
         }
 
         const createDate = new Date().toISOString();
-        const coordinates = {latitude: lat, longitude: lon};
 
         const formData = {
             userID: userID,
             title: title,
             description: description,
             experience_date: experienceDate,
-            coordinates: coordinates,
+            latitude: lat,
+            longitude: lon,
             address: address,
-            images: images || undefined,
-            imageURL: imageURLS,
+            // images: images || undefined,
+            // imageURL: imageURLS,
             create_date: createDate,
             rating: rating,
             keywords: keywords
@@ -542,23 +542,21 @@ export default function CreateExperience({ userID }: { userID: string }) {
             </div>
 
             {/*UPLOAD IMAGE*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="keywords" className="text-sm font-medium">
-                    Photos
-                </label>
-                <div>
-                    <input
-                        type="file"
-                        multiple accept="image/*"
-                        onChange={onImageChange}
-                    />
-                    {imageURLS.map((imageSrc, index) => (
-                        <img key={index} src={imageSrc} alt="not found" width={"250px"} />
-                    ))}
-                </div>
-
-            </div>
-
+            {/*<div className="flex flex-col gap-2">*/}
+            {/*    <label htmlFor="keywords" className="text-sm font-medium">*/}
+            {/*        Photos*/}
+            {/*    </label>*/}
+            {/*    <div>*/}
+            {/*        <input*/}
+            {/*            type="file"*/}
+            {/*            multiple accept="image/*"*/}
+            {/*            onChange={onImageChange}*/}
+            {/*        />*/}
+            {/*        {imageURLS.map((imageSrc, index) => (*/}
+            {/*            <img key={index} src={imageSrc} alt="not found" width={"250px"} />*/}
+            {/*        ))}*/}
+            {/*    </div>*/}
+            {/*</div>*/}
 
 
             {/*SUBMIT*/}

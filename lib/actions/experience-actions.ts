@@ -3,6 +3,111 @@
 import experiences from "@/public/experiences.json"
 import {Experience, ErrorResponse, DeleteExperienceProps} from "@/lib/types";
 
+export async function createExperience(formData: Experience) {
+    console.log("Attempting to create experience");
+    try {
+        const response = await fetch('http://localhost:5001/experiences', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.userID,
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`upload OK: ${response.status}`)
+            console.log('message:', result);
+            setTimeout(() => {}, 2000);
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('Upload failed:', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
+    try {
+        const response = await fetch(`http://localhost:5001/experiences/user-experiences`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": userID,
+            },
+        });
+
+        if (response.ok) {
+            console.log(`OK: ${response.status}`)
+            const result = await response.json();
+            return result as Experience[];
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function deleteExperience(formData: DeleteExperienceProps) {
+    try {
+        // TODO: REPLACE URL WITH API ENDPOINT TO CREATE EXPERIENCES
+        const response = await fetch(`http://localhost:5001/experiences/${formData.experienceID}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-id": formData.userID,
+            },
+        });
+
+        if (response.ok) {
+            console.log("sent DATA: ", formData)
+            const result = await response.json();
+            console.log('Delete Successful successful:', result);
+            setTimeout(() => {}, 2000);
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('Delete failed:', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// DEMO FUNCTIONS -----------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+
 export async function demoGetExperiences(): Promise<Experience[] | ErrorResponse> {
     if (!experiences) {
         return {
@@ -56,111 +161,4 @@ export async function demoGetUserExperiences(userID: string): Promise<Experience
     }
 
     return matches as Experience[];
-}
-
-export async function createExperience(formData: Experience) {
-    console.log(formData);
-    try {
-        // TODO: REPLACE URL WITH API ENDPOINT TO CREATE EXPERIENCES
-        const response = await fetch('http://localhost:8001/upload', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (response.ok) {
-            console.log("sent JSON: ", formData)
-            const result = await response.json();
-            console.log('Upload successful:', result);
-            setTimeout(() => {}, 2000);
-
-        } else {
-            console.error(`HTTP error! status: ${response.status}`);
-            return {
-                error: "HTTP response error",
-                message: `${response.status}`,
-            };
-        }
-
-    } catch (error) {
-        console.error('Upload failed:', error);
-        return {
-            error: "HTTP response error",
-            message: `${error}`,
-        };
-    }
-}
-
-export async function deleteExperience(formData: DeleteExperienceProps) {
-    console.log(formData);
-    // try {
-    //     // TODO: REPLACE URL WITH API ENDPOINT TO CREATE EXPERIENCES
-    //     const response = await fetch('http://localhost:8001/deleteExperience', {
-    //         method: 'DELETE',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify(formData)
-    //     });
-    //
-    //     if (response.ok) {
-    //         console.log("sent JSON: ", formData)
-    //         const result = await response.json();
-    //         console.log('Delete Successful successful:', result);
-    //         setTimeout(() => {}, 2000);
-    //
-    //     } else {
-    //         console.error(`HTTP error! status: ${response.status}`);
-    //         return {
-    //             error: "HTTP response error",
-    //             message: `${response.status}`,
-    //         };
-    //     }
-    //
-    // } catch (error) {
-    //     console.error('Upload failed:', error);
-    //     return {
-    //         error: "HTTP response error",
-    //         message: `${error}`,
-    //     };
-    // }
-}
-
-export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
-    const formData = {userID: userID}
-
-    try {
-        // TODO: REPLACE URL WITH API ENDPOINT TO FETCH EXPERIENCES PER userID
-        const response = await fetch('http://localhost:8001/FetchExperiencesByID', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (response.ok) {
-            console.log("sent JSON: ", formData)
-            const result = await response.json();
-            return result as Experience[];
-
-        } else {
-            console.log("sent JSON: ", formData)
-            console.error(`HTTP response error! status: ${response.status}`);
-            return {
-                error: "HTTP response error",
-                message: `${response.status}`,
-            };
-        }
-
-    } catch (error) {
-        console.error('Upload failed:', error);
-        return {
-            error: "Unknown Error",
-            message: `${error}`,
-        };
-    }
-
 }

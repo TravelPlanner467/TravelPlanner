@@ -62,16 +62,16 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
                 </div>
 
                 {/*Photos*/}
-                {experience.imageURLs && experience.imageURLs.length > 0 && (
-                    <div className="flex items-center text-sm text-gray-500">
-                        <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0"
-                        >
-                            <PhotoIcon/>
-                        </svg>
+                {/*{experience.imageURLs && experience.imageURLs.length > 0 && (*/}
+                {/*    <div className="flex items-center text-sm text-gray-500">*/}
+                {/*        <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0"*/}
+                {/*        >*/}
+                {/*            <PhotoIcon/>*/}
+                {/*        </svg>*/}
 
-                        {experience.imageURLs.length} {experience.imageURLs.length === 1 ? 'photo' : 'photos'}
-                    </div>
-                )}
+                {/*        {experience.imageURLs.length} {experience.imageURLs.length === 1 ? 'photo' : 'photos'}*/}
+                {/*    </div>*/}
+                {/*)}*/}
             </div>
         </div>
     );

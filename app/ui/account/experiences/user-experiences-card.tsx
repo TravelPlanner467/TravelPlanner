@@ -28,15 +28,15 @@ export default function UserExperiencesCard({ experience, userID }: ExperienceCa
                 <h3 className="text-2xl font-semibold text-gray-900">{experience.title}</h3>
 
                 {/*Keywords*/}
-                <div className="flex flex-wrap gap-2">
-                    {experience.keywords.map((keyword, index) => (
-                        <p key={index}
-                           className="px-2 py-1 text-xs font-medium border"
-                        >
-                            {keyword}
-                        </p>
-                    ))}
-                </div>
+                {/*<div className="flex flex-wrap gap-2">*/}
+                {/*    {experience.keywords.map((keyword, index) => (*/}
+                {/*        <p key={index}*/}
+                {/*           className="px-2 py-1 text-xs font-medium border"*/}
+                {/*        >*/}
+                {/*            {keyword}*/}
+                {/*        </p>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
 
                 <p className="text-sm text-gray-500 whitespace-nowrap ml-4">{experienceDate}</p>
             </div>
@@ -58,16 +58,16 @@ export default function UserExperiencesCard({ experience, userID }: ExperienceCa
                 </div>
 
                 {/*Photos*/}
-                {experience.imageURLs && experience.imageURLs.length > 0 && (
-                    <div className="flex items-center text-sm text-gray-500">
-                        <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0"
-                        >
-                            <PhotoIcon/>
-                        </svg>
+                {/*{experience.imageURLs && experience.imageURLs.length > 0 && (*/}
+                {/*    <div className="flex items-center text-sm text-gray-500">*/}
+                {/*        <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0"*/}
+                {/*        >*/}
+                {/*            <PhotoIcon/>*/}
+                {/*        </svg>*/}
 
-                        {experience.imageURLs.length} {experience.imageURLs.length === 1 ? 'photo' : 'photos'}
-                    </div>
-                )}
+                {/*        {experience.imageURLs.length} {experience.imageURLs.length === 1 ? 'photo' : 'photos'}*/}
+                {/*    </div>*/}
+                {/*)}*/}
 
                 <div className="flex flex-row gap-2">
                     <EditExperienceButton experienceID={experience.experienceID} userID={userID} />

@@ -13,12 +13,22 @@ interface UserExperienceProps {
 const ITEMS_PER_PAGE = 6;
 
 export function UserExperiences({ userID, experiences }: UserExperienceProps) {
+    // IF REPLY ERROR
     if ("error" in experiences) {
         return (
             <div>
                 TODO: IMPLEMENT EXPERIENCES FETCH ERROR
             </div>
         );
+    }
+
+    // IF NO EXPERIENCES FOUND (but not an error)
+    if (experiences.length === 0) {
+        return (
+            <div>
+                TODO: NO EXPERIENCES FOUND FOR THIS USER
+            </div>
+        )
     }
 
     // Pagination calculations
