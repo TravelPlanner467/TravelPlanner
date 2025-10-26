@@ -38,7 +38,7 @@ export default function EditExperience({ userID, experience }: EditExperiencePro
                         TODO: Create "No Experience Found" component
                     </h1>
                     <Link
-                        href={`/`}
+                        href={`/public`}
                         className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
                     >
                         Return to Home (TODO)

@@ -1,5 +1,5 @@
 import {demoGetExperiences} from "@/lib/actions/experience-actions";
-import {SearchResults} from "@/app/ui/experience/search-results";
+import {SearchResults} from "@/app/ui/experience/search/search-results";
 import {ErrorResponse, Experience} from "@/lib/types";
 
 export default async function SearchResultsPage(

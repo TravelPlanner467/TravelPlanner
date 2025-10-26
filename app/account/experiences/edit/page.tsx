@@ -1,7 +1,7 @@
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
-import EditExperienceWrapper from "@/app/ui/account/edit-experience-wrapper";
+import EditExperienceWrapper from "@/app/ui/account/experiences/edit-experience-wrapper";
 import {demoGetExperienceByID} from "@/lib/actions/experience-actions";
 
 export default async function EditExperiencePage(

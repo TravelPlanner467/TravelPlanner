@@ -4,7 +4,7 @@ import {ErrorResponse, Experience, Trip} from "@/lib/types";
 import {CalendarDaysIcon} from "@heroicons/react/16/solid";
 import Link from "next/link";
 import TripExperiencesCard from "@/app/ui/trips/trip-experiences-card";
-import SearchResultsCard from "@/app/ui/experience/search-results-card";
+import SearchResultsCard from "@/app/ui/experience/search/search-results-card";
 
 interface TripDetailsProps {
     query: string;

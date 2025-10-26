@@ -24,11 +24,9 @@ export default async function Page() {
 
     return (
         <div className="flex flex-col min-w-fit min-h-fit">
-            <div>
-                <h1 className="text-4xl font-bold mb-2">My Trips</h1>
-                <div className="">
-                    <NewTripButton />
-                </div>
+            <div className="flex flex-row justify-between items-center my-6">
+                <h1 className="text-4xl font-bold">My Trips</h1>
+                <NewTripButton />
             </div>
             <div>
                 <DisplayTrips trips={trips} />

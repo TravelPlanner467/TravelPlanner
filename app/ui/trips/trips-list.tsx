@@ -19,29 +19,22 @@ export default function DisplayTrips({ trips }: TripDataProps) {
         )
     }
 
+    // Pagination calculations
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(trips.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const currentTrips = trips.slice(startIndex, endIndex);
 
-    const handlePageChange = (page: number) => {
+    function handlePageChange(page: number) {
         setCurrentPage(page);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
-        <div className="min-h-screen mx-auto px-4 py-10">
-            {/*My Trips Header*/}
-            {/*<div className="mb-8">*/}
-            {/*    <h1 className="text-4xl font-bold mb-2">My Trips</h1>*/}
-            {/*    <p className="text-gray-600">*/}
-            {/*        Showing {startIndex + 1}-{Math.min(endIndex, trips.length)} of {trips.length} trips*/}
-            {/*    </p>*/}
-            {/*</div>*/}
-
+        <div className="min-h-screen mx-auto px-4">
             {/*My Trips Display List*/}
-            <div className="space-y-6">
+            <div className="space-y-2">
                 {currentTrips.map((trip) => (
                     <TripsListCard key={trip.tripID} trip={trip} />
                 ))}

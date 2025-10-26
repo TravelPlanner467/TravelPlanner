@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import SearchResultsCard from "@/app/ui/experience/search-results-card";
+import SearchResultsCard from "@/app/ui/experience/search/search-results-card";
 import Pagination from "@/app/ui/components/pagination";
 import {ErrorResponse, Experience} from "@/lib/types";
 
@@ -32,13 +32,12 @@ export function SearchResults({ query, experiences }: SearchResultsProps) {
     };
 
     return (
-        <div className="min-h-screen mx-auto px-4 py-10">
+        <div className="min-h-screen flex flex-col p-4">
             {/*Search Results Header*/}
-            <div className="mb-8">
+            <div className="mb-4">
                 <h1 className="text-4xl font-bold mb-2">Search Results</h1>
                 <p className="text-gray-600">
-                    Showing {startIndex + 1}-{Math.min(endIndex, experiences.length)} of
-                    {experiences.length} experiences for {JSON.stringify(query)}
+                    Showing {startIndex + 1}-{Math.min(endIndex, experiences.length)} of {experiences.length} results for {JSON.stringify(query)}
                 </p>
             </div>
 
