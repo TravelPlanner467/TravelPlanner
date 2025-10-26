@@ -17,7 +17,7 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
     });
 
     const handleClick = () => {
-        router.push(`/experience/details?q=${experience.experienceID}`);
+        router.push(`/experience/details?q=${experience.experience_id}`);
     };
 
 

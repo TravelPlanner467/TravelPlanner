@@ -12,14 +12,14 @@ export default async function Page(
         {headers: await headers()}
     );
     //@ts-ignore
-    const userID = session.user.id;
+    const user_id = session.user.id;
 
     // get search parameters from URL
     const searchParams = await props.searchParams;
     const query = searchParams?.q || '';
 
     // use server actions to get Trip Details Data
-    const trip: Trip | ErrorResponse = await demoGetTripByID(query, userID);
+    const trip: Trip | ErrorResponse = await demoGetTripByID(query, user_id);
 
     // ERROR PAGE IF TRIP IS NOT FOUND
     if ("error" in trip) {

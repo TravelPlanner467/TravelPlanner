@@ -29,7 +29,7 @@ function ChangeMapView({ center }: ChangeMapViewProps) {
     return null;
 }
 
-export default function EditExperience({ userID, experience }: EditExperienceProps) {
+export default function EditExperience({ user_id, experience }: EditExperienceProps) {
     if ("error" in experience) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -323,7 +323,7 @@ export default function EditExperience({ userID, experience }: EditExperiencePro
         const coordinates = {latitude: lat, longitude: lon};
 
         const formData = {
-            userID: userID,
+            user_id: user_id,
             title: title,
             description: description,
             experience_date: experienceDate,

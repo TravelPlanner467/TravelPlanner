@@ -19,8 +19,8 @@ export default async function Page() {
     }
 
     //@ts-ignore
-    const userID = session.user.id;
-    const trips: Trip[] | ErrorResponse = await demoGetTrips(userID);
+    const user_id = session.user.id;
+    const trips: Trip[] | ErrorResponse = await demoGetTrips(user_id);
 
     return (
         <div className="flex flex-col min-w-fit min-h-fit">

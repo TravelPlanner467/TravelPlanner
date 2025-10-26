@@ -18,6 +18,6 @@ const EditExperienceClient = dynamic(
     }
 );
 
-export default function EditExperienceWrapper({ userID, experience }: EditExperienceProps) {
-    return <EditExperienceClient userID={userID} experience={experience}/>;
+export default function EditExperienceWrapper({ user_id, experience }: EditExperienceProps) {
+    return <EditExperienceClient user_id={user_id} experience={experience}/>;
 }

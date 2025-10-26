@@ -1,7 +1,7 @@
 [
   {
-    "experienceID": "1",
-    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
+    "experience_id": "1",
+    "user_id": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Sunset at Golden Gate Bridge",
     "create_date": "2025-10-20T12:00:00Z",
     "experience_date": "2025-09-25",
@@ -23,8 +23,8 @@
     "rating": 5
   },
   {
-    "experienceID": "2",
-    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
+    "experience_id": "2",
+    "user_id": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Exploring Pike Place Market",
     "create_date": "2025-10-19T12:01:00Z",
     "experience_date": "2025-09-24",
@@ -47,8 +47,8 @@
     "rating": 4
   },
   {
-    "experienceID": "3",
-    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
+    "experience_id": "3",
+    "user_id": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
     "title": "Hiking Angels Landing",
     "create_date": "2025-10-18T12:02:00Z",
     "experience_date": "2025-09-23",
@@ -70,8 +70,8 @@
     "rating": 3.5
   },
   {
-    "experienceID": "4",
-    "userID": "asdf",
+    "experience_id": "4",
+    "user_id": "asdf",
     "title": "Jazz Night in New Orleans",
     "create_date": "2025-10-17T12:03:00Z",
     "experience_date": "2025-09-22",
@@ -92,8 +92,8 @@
     "rating": 5
   },
   {
-    "experienceID": "5",
-    "userID": "asdf",
+    "experience_id": "5",
+    "user_id": "asdf",
     "title": "Kayaking in Glacier Bay",
     "create_date": "2025-10-16T12:04:00Z",
     "experience_date": "2025-09-21",
@@ -114,8 +114,8 @@
     "rating": 5
   },
   {
-    "experienceID": "6",
-    "userID": "asdf",
+    "experience_id": "6",
+    "user_id": "asdf",
     "title": "Food Tour in Portland",
     "create_date": "2025-10-15T12:05:00Z",
     "experience_date": "2025-09-20",
@@ -136,8 +136,8 @@
     "rating": 5
   },
   {
-    "experienceID": "7",
-    "userID": "asdf",
+    "experience_id": "7",
+    "user_id": "asdf",
     "title": "Sunrise at Grand Canyon",
     "create_date": "2025-10-14T12:06:00Z",
     "experience_date": "2025-09-19",
@@ -158,8 +158,8 @@
     "rating": 5
   },
   {
-    "experienceID": "8",
-    "userID": "asdf",
+    "experience_id": "8",
+    "user_id": "asdf",
     "title": "Cycling the Brooklyn Bridge",
     "create_date": "2025-10-13T12:07:00Z",
     "experience_date": "2025-09-18",
@@ -180,8 +180,8 @@
     "rating": 5
   },
   {
-    "experienceID": "9",
-    "userID": "asdf",
+    "experience_id": "9",
+    "user_id": "asdf",
     "title": "Wine Tasting in Napa Valley",
     "create_date": "2025-10-12T12:08:00Z",
     "experience_date": "2025-09-17",
@@ -202,8 +202,8 @@
     "rating": 5
   },
   {
-    "experienceID": "10",
-    "userID": "asdf",
+    "experience_id": "10",
+    "user_id": "asdf",
     "title": "Snorkeling in Key West",
     "create_date": "2025-10-11T12:09:00Z",
     "experience_date": "2025-09-16",
@@ -224,8 +224,8 @@
     "rating": 5
   },
   {
-    "experienceID": "11",
-    "userID": "asdf",
+    "experience_id": "11",
+    "user_id": "asdf",
     "title": "Art Institute of Chicago",
     "create_date": "2025-10-10T12:10:00Z",
     "experience_date": "2025-09-15",
@@ -246,8 +246,8 @@
     "rating": 5
   },
   {
-    "experienceID": "12",
-    "userID": "asdf",
+    "experience_id": "12",
+    "user_id": "asdf",
     "title": "Hot Air Balloon in Albuquerque",
     "create_date": "2025-10-09T12:11:00Z",
     "experience_date": "2025-09-14",
@@ -268,8 +268,8 @@
     "rating": 5
   },
   {
-    "experienceID": "13",
-    "userID": "asdf",
+    "experience_id": "13",
+    "user_id": "asdf",
     "title": "Exploring Antelope Canyon",
     "create_date": "2025-10-08T12:12:00Z",
     "experience_date": "2025-09-13",
@@ -290,8 +290,8 @@
     "rating": 5
   },
   {
-    "experienceID": "14",
-    "userID": "sdfg",
+    "experience_id": "14",
+    "user_id": "sdfg",
     "title": "Whale Watching in Monterey",
     "create_date": "2025-10-07T12:13:00Z",
     "experience_date": "2025-09-12",
@@ -312,8 +312,8 @@
     "rating": 5
   },
   {
-    "experienceID": "15",
-    "userID": "sdfg",
+    "experience_id": "15",
+    "user_id": "sdfg",
     "title": "Historic Tour of Boston",
     "create_date": "2025-10-06T12:14:00Z",
     "experience_date": "2025-09-11",
@@ -334,8 +334,8 @@
     "rating": 5
   },
   {
-    "experienceID": "16",
-    "userID": "sdfg",
+    "experience_id": "16",
+    "user_id": "sdfg",
     "title": "Mountain Biking in Moab",
     "create_date": "2025-10-05T12:15:00Z",
     "experience_date": "2025-09-10",
@@ -356,8 +356,8 @@
     "rating": 5
   },
   {
-    "experienceID": "17",
-    "userID": "sdfg",
+    "experience_id": "17",
+    "user_id": "sdfg",
     "title": "Cherry Blossoms in DC",
     "create_date": "2025-10-04T12:16:00Z",
     "experience_date": "2025-09-09",
@@ -378,8 +378,8 @@
     "rating": 5
   },
   {
-    "experienceID": "18",
-    "userID": "sdfg",
+    "experience_id": "18",
+    "user_id": "sdfg",
     "title": "BBQ Tour in Austin",
     "create_date": "2025-10-03T12:17:00Z",
     "experience_date": "2025-09-08",
@@ -400,8 +400,8 @@
     "rating": 5
   },
   {
-    "experienceID": "19",
-    "userID": "sdfg",
+    "experience_id": "19",
+    "user_id": "sdfg",
     "title": "Stargazing in Death Valley",
     "create_date": "2025-10-02T12:18:00Z",
     "experience_date": "2025-09-07",
@@ -422,8 +422,8 @@
     "rating": 5
   },
   {
-    "experienceID": "20",
-    "userID": "dfghd",
+    "experience_id": "20",
+    "user_id": "dfghd",
     "title": "Savannah Ghost Tour",
     "create_date": "2025-10-01T12:19:00Z",
     "experience_date": "2025-09-06",

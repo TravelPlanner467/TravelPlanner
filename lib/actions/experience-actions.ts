@@ -10,7 +10,7 @@ export async function createExperience(formData: Experience) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                "X-User-Id": formData.userID,
+                "X-User-Id": formData.user_id,
             },
             body: JSON.stringify(formData)
         });
@@ -73,11 +73,11 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
 export async function deleteExperience(formData: DeleteExperienceProps) {
     try {
         // TODO: REPLACE URL WITH API ENDPOINT TO CREATE EXPERIENCES
-        const response = await fetch(`http://localhost:5001/experiences/${formData.experienceID}`, {
+        const response = await fetch(`http://localhost:5001/experiences/${formData.experience_id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                "X-User-id": formData.userID,
+                "X-User-id": formData.user_id,
             },
         });
 
@@ -119,7 +119,7 @@ export async function demoGetExperiences(): Promise<Experience[] | ErrorResponse
     return experiences as Experience[];
 }
 
-export async function demoGetExperienceByID(experienceID: string): Promise<Experience | ErrorResponse> {
+export async function demoGetExperienceByID(experience_id: string): Promise<Experience | ErrorResponse> {
     const experiences = await demoGetExperiences();
     if ("error" in experiences) {
         return {
@@ -129,18 +129,18 @@ export async function demoGetExperienceByID(experienceID: string): Promise<Exper
     }
 
     // @ts-ignore
-    const experience = experiences.find((exp: { experienceID: string; }) => exp.experienceID === experienceID);
+    const experience = experiences.find((exp: { experience_id: string; }) => exp.experience_id === experience_id);
     if (!experience) {
         return {
             error: "ExperienceNotFound",
-            message: `No experience found with ID: ${experienceID}`,
+            message: `No experience found with ID: ${experience_id}`,
         };
     }
 
     return experience as Experience;
 }
 
-export async function demoGetUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
+export async function demoGetUserExperiences(user_id: string): Promise<Experience[] | ErrorResponse> {
     const experiences = await demoGetExperiences();
     if ("error" in experiences) {
         return {
@@ -150,13 +150,13 @@ export async function demoGetUserExperiences(userID: string): Promise<Experience
     }
 
     const matches = experiences.filter(
-        (exp: { userID: string }) => exp.userID === userID
+        (exp: { user_id: string }) => exp.user_id === user_id
     );
 
     if (matches.length === 0) {
         return {
             error: "ExperienceNotFound",
-            message: `No experiences found associated with userID: ${userID}`,
+            message: `No experiences found associated with userID: ${user_id}`,
         };
     }
 

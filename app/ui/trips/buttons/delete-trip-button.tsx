@@ -6,11 +6,11 @@ import {deleteTrip} from "@/lib/actions/trips-actions";
 
 interface DeleteButtonProps {
     tripID: string;
-    userID: string;
+    user_id: string;
     onDeleteSuccess?: () => void;
 }
 
-export function DeleteTripButton({ tripID, userID, onDeleteSuccess }: DeleteButtonProps) {
+export function DeleteTripButton({ tripID, user_id, onDeleteSuccess }: DeleteButtonProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -24,7 +24,7 @@ export function DeleteTripButton({ tripID, userID, onDeleteSuccess }: DeleteButt
         try {
             const deleteData = {
                 "tripID": tripID,
-                "userID": userID
+                "user_id": user_id
             }
             const result = await deleteTrip(deleteData);
 

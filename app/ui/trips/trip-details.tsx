@@ -80,7 +80,7 @@ export function TripDetails({query, trip, tripExperiences}: TripDetailsProps) {
                         {trip.experiences.length > 0 ? (
                             <ul className="flex flex-row flex-wrap gap-4 w-full space-y-1">
                                 {tripExperiences.map((exp: Experience) => (
-                                    <TripExperiencesCard key={exp.experienceID} experience={exp}/>
+                                    <TripExperiencesCard key={exp.experience_id} experience={exp}/>
                                 ))}
                             </ul>
                         ) : (

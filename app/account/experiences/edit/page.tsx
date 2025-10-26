@@ -14,7 +14,7 @@ export default async function EditExperiencePage(
     if ( !session ) { redirect('/login'); }
 
     // @ts-ignore
-    const userID = session.user.id;
+    const user_id = session.user.id;
     const searchParams = await props.searchParams;
     const query = searchParams?.q || '';
     const experience = await demoGetExperienceByID(query);
@@ -24,7 +24,7 @@ export default async function EditExperiencePage(
             <div className='text-4xl font-bold'>
                 Edit Experience
             </div>
-            <EditExperienceWrapper userID={userID} experience={experience}/>
+            <EditExperienceWrapper user_id={user_id} experience={experience}/>
         </div>
     )
 }

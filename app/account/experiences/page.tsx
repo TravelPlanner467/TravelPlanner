@@ -15,8 +15,8 @@ export default async function Page() {
         redirect('/account/login');
     }
 
-    const userID = session.user.id;
-    const experiences: Experience[] | ErrorResponse = await getUserExperiences(userID);
+    const user_id = session.user.id;
+    const experiences: Experience[] | ErrorResponse = await getUserExperiences(user_id);
 
     return (
         <div className="flex flex-col min-w-fit min-h-fit">
@@ -25,7 +25,7 @@ export default async function Page() {
                 <NewExperienceButton />
             </div>
             <div>
-                <UserExperiences userID={userID} experiences={experiences}/>
+                <UserExperiences user_id={user_id} experiences={experiences}/>
             </div>
         </div>
     );

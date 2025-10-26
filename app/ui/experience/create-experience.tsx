@@ -28,7 +28,7 @@ function ChangeMapView({ center }: ChangeMapViewProps) {
     return null;
 }
 
-export default function CreateExperience({ userID }: { userID: string }) {
+export default function CreateExperience({ user_id }: { user_id: string }) {
     // formData
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -303,7 +303,7 @@ export default function CreateExperience({ userID }: { userID: string }) {
         const createDate = new Date().toISOString();
 
         const formData = {
-            userID: userID,
+            user_id: user_id,
             title: title,
             description: description,
             experience_date: experienceDate,

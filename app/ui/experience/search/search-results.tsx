@@ -44,7 +44,7 @@ export function SearchResults({ query, experiences }: SearchResultsProps) {
             {/*Experience display List*/}
             <div className="space-y-2">
                 {currentExperiences.map((exp: Experience) => (
-                    <SearchResultsCard key={exp.experienceID} experience={exp} />
+                    <SearchResultsCard key={exp.experience_id} experience={exp} />
                 ))}
             </div>
 

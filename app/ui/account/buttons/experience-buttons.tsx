@@ -5,11 +5,11 @@ import {useRouter} from "next/navigation";
 import {deleteExperience} from "@/lib/actions/experience-actions";
 import {TrashIcon} from "@heroicons/react/24/outline";
 
-export function EditExperienceButton({userID, experienceID}: DeleteExperienceProps) {
+export function EditExperienceButton({user_id, experience_id}: DeleteExperienceProps) {
     const router = useRouter();
 
     function onEditClick() {
-        router.push(`/account/experiences/edit?q=${experienceID}`);
+        router.push(`/account/experiences/edit?q=${experience_id}`);
     }
 
     return (
@@ -23,8 +23,8 @@ export function EditExperienceButton({userID, experienceID}: DeleteExperiencePro
     )
 }
 
-export function DeleteExperienceButton({userID, experienceID}: DeleteExperienceProps) {
-    const formData: DeleteExperienceProps = {userID, experienceID}
+export function DeleteExperienceButton({user_id, experience_id}: DeleteExperienceProps) {
+    const formData: DeleteExperienceProps = {user_id, experience_id}
 
     function onDeleteClick() {
         const result = confirm("Are you sure you want to delete this experiences?");

@@ -17,6 +17,6 @@ const CreateExperienceClient = dynamic(
     }
 );
 
-export default function CreateExperienceWrapper({ userID }: { userID: string }) {
-    return <CreateExperienceClient userID={userID} />;
+export default function CreateExperienceWrapper({ user_id }: { user_id: string }) {
+    return <CreateExperienceClient user_id={user_id} />;
 }

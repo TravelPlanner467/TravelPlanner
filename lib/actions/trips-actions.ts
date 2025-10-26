@@ -44,10 +44,10 @@ export async function demoGetTripByID(tripID: string, userID: string): Promise<T
     return trip as Trip;
 }
 
-export async function demoGetTripExperiences(experienceIDs: string[]): Promise<Experience[] | ErrorResponse>  {
+export async function demoGetTripExperiences(experience_ids: string[]): Promise<Experience[] | ErrorResponse>  {
     const tripExperiences: Experience[] = []
 
-    for (const expID of experienceIDs) {
+    for (const expID of experience_ids) {
         const exp = await demoGetExperienceByID(expID);
         // Handle errors
         if (!exp || "error" in exp) {

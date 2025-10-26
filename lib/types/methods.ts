@@ -5,8 +5,8 @@ export type Session = typeof auth.$Infer.Session;
 
 // EXPERIENCE TYPE INTERFACES------------------------------------------------------------
 export interface Experience {
-    userID: string;
-    experienceID?: string;
+    user_id: string;
+    experience_id?: string;
     title: string;
     description?: string;
     experience_date: string;
@@ -21,13 +21,13 @@ export interface Experience {
 }
 
 export interface DeleteExperienceProps {
-    experienceID?: string;
-    userID: string
+    experience_id?: string;
+    user_id: string
 }
 
 export interface EditExperienceProps {
     experience: Experience | ErrorResponse;
-    userID: string;
+    user_id: string;
 }
 
 export interface NominatimResult {
@@ -58,7 +58,7 @@ export interface Trip {
 
 export interface DeleteTripsProps {
     tripID: string;
-    userID: string
+    user_id: string
 }
 
 

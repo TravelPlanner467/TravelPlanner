@@ -6,13 +6,13 @@ import UserExperiencesCard from "@/app/ui/account/experiences/user-experiences-c
 import {ErrorResponse, Experience} from "@/lib/types";
 
 interface UserExperienceProps {
-    userID: string;
+    user_id: string;
     experiences: Experience[] | ErrorResponse
 }
 
 const ITEMS_PER_PAGE = 6;
 
-export function UserExperiences({ userID, experiences }: UserExperienceProps) {
+export function UserExperiences({ user_id, experiences }: UserExperienceProps) {
     // IF REPLY ERROR
     if ("error" in experiences) {
         return (
@@ -48,7 +48,7 @@ export function UserExperiences({ userID, experiences }: UserExperienceProps) {
             {/*Experience display List*/}
             <div className="space-y-2">
                 {currentExperiences.map((exp: Experience) => (
-                    <UserExperiencesCard key={exp.experienceID} experience={exp} userID={userID}/>
+                    <UserExperiencesCard key={exp.experience_id} experience={exp} user_id={user_id}/>
                 ))}
             </div>
 
