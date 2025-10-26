@@ -104,10 +104,70 @@ export async function deleteExperience(formData: DeleteExperienceProps) {
     }
 }
 
+export async function getExperienceDetails(experience_id: string): Promise<Experience | ErrorResponse> {
+    try {
+        const response = await fetch(`http://localhost:5001/experiences/${experience_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            console.log(`OK: ${response.status}`)
+            const result = await response.json();
+            return result as Experience;
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function getAllExperiences(): Promise<Experience[] | ErrorResponse> {
+    try {
+        const response = await fetch(`http://localhost:5001/experiences/all`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            console.log(`OK: ${response.status}`)
+            const result = await response.json();
+            return result as Experience[];
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 // DEMO FUNCTIONS -----------------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------
-
 export async function demoGetExperiences(): Promise<Experience[] | ErrorResponse> {
     if (!experiences) {
         return {

@@ -2,7 +2,7 @@ import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
 import EditExperienceWrapper from "@/app/ui/account/experiences/edit-experience-wrapper";
-import {demoGetExperienceByID} from "@/lib/actions/experience-actions";
+import {demoGetExperienceByID, getExperienceDetails} from "@/lib/actions/experience-actions";
 
 export default async function EditExperiencePage(
     props: { searchParams?: Promise<{ q?: string }> }
@@ -17,7 +17,7 @@ export default async function EditExperiencePage(
     const user_id = session.user.id;
     const searchParams = await props.searchParams;
     const query = searchParams?.q || '';
-    const experience = await demoGetExperienceByID(query);
+    const experience = await getExperienceDetails(query);
 
     return (
         <div className="flex flex-col w-full text-center gap-2 items-center">
