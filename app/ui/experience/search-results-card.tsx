@@ -56,14 +56,14 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
             </div>
 
             {/*Photos*/}
-            {experience.photos && experience.photos.length > 0 && (
+            {experience.imageURLs && experience.imageURLs.length > 0 && (
                 <div className="flex items-center my-2 text-sm text-gray-500">
                     <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0"
                     >
                         <PhotoIcon/>
                     </svg>
 
-                    {experience.photos.length} {experience.photos.length === 1 ? 'photo' : 'photos'}
+                    {experience.imageURLs.length} {experience.imageURLs.length === 1 ? 'photo' : 'photos'}
                 </div>
             )}
         </div>

@@ -18,7 +18,7 @@
       "bridge",
       "viewpoint"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/golden-gate-1.jpg",
       "https://example.com/photos/golden-gate-2.jpg"
     ],
@@ -43,7 +43,7 @@
       "local",
       "seafood"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/pike-place-1.jpg"
     ],
     "rating": 4
@@ -67,7 +67,7 @@
       "nature",
       "challenging"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/angels-landing-1.jpg",
       "https://example.com/photos/angels-landing-2.jpg"
     ],
@@ -92,7 +92,7 @@
       "culture",
       "live performance"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/jazz-hall-1.jpg"
     ],
     "rating": 5
@@ -116,7 +116,7 @@
       "adventure",
       "alaska"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/glacier-bay-1.jpg"
     ],
     "rating": 5
@@ -140,7 +140,7 @@
       "local",
       "food cart"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/portland-food-1.jpg"
     ],
     "rating": 5
@@ -164,7 +164,7 @@
       "scenic",
       "nature"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/grand-canyon-sunrise-1.jpg"
     ],
     "rating": 5
@@ -188,7 +188,7 @@
       "exercise",
       "landmark"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/brooklyn-bridge-1.jpg"
     ],
     "rating": 5
@@ -212,7 +212,7 @@
       "culinary",
       "relaxation"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/napa-1.jpg"
     ],
     "rating": 5
@@ -236,7 +236,7 @@
       "adventure",
       "tropical"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/key-west-snorkel-1.jpg"
     ],
     "rating": 5
@@ -260,7 +260,7 @@
       "indoor",
       "education"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/art-institute-1.jpg"
     ],
     "rating": 5
@@ -284,7 +284,7 @@
       "aerial view",
       "bucket list"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/balloon-1.jpg"
     ],
     "rating": 5
@@ -308,7 +308,7 @@
       "guided tour",
       "scenic"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/antelope-canyon-1.jpg"
     ],
     "rating": 5
@@ -332,7 +332,7 @@
       "boat tour",
       "nature"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/monterey-whales-1.jpg"
     ],
     "rating": 5
@@ -356,7 +356,7 @@
       "education",
       "landmark"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/boston-trail-1.jpg"
     ],
     "rating": 5
@@ -380,7 +380,7 @@
       "desert",
       "outdoor"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/moab-bike-1.jpg"
     ],
     "rating": 5
@@ -404,7 +404,7 @@
       "nature",
       "landmark"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/dc-blossoms-1.jpg"
     ],
     "rating": 5
@@ -428,7 +428,7 @@
       "local",
       "Texas"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/austin-bbq-1.jpg"
     ],
     "rating": 5
@@ -452,7 +452,7 @@
       "desert",
       "nature"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/death-valley-stars-1.jpg"
     ],
     "rating": 5
@@ -476,7 +476,7 @@
       "walking tour",
       "spooky"
     ],
-    "photos": [
+    "imageURLs": [
       "https://example.com/photos/savannah-ghost-1.jpg"
     ],
     "rating": 5
