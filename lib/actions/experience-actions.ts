@@ -58,7 +58,7 @@ export async function demoGetUserExperiences(userID: string): Promise<Experience
     return matches as Experience[];
 }
 
-export async function createExperience(formData: Experience) {
+export async function createExperience(formData: Experience): Promise<any | { error: string; message: string }> {
     console.log(formData);
     try {
         const base = process.env.EXPERIENCES_API_URL || 'http://localhost:5001';
@@ -86,12 +86,16 @@ export async function createExperience(formData: Experience) {
             console.log("sent JSON: ", payload)
             const result = await response.json();
             console.log('Create experience successful:', result);
+            return result;
         } else {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const msg = `HTTP error! status: ${response.status}`;
+            console.error(msg);
+            return { error: 'HTTPError', message: msg };
         }
 
     } catch (error) {
         console.error('Upload failed:', error);
+        return { error: 'UnknownError', message: String(error) };
     }
 }
 
@@ -104,7 +108,25 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
 
         if (response.ok) {
             const result = await response.json();
-            return result as Experience[];
+            // Map microservice rows to app Experience type shape expected by UI
+            const mapped: Experience[] = (result as any[]).map((row: any) => ({
+                experienceID: String(row.id),
+                userID: String(row.creator_id),
+                title: row.title ?? '',
+                description: row.description ?? '',
+                experience_date: row.date ?? '',
+                address: row.address ?? '',
+                coordinates: {
+                    latitude: row.latitude ?? null,
+                    longitude: row.longitude ?? null,
+                },
+                photos: row.photos ?? [],
+                keywords: row.keywords ?? [],
+                imageURL: row.imageURL ?? [],
+                create_date: row.created_at ?? '',
+                rating: row.rating ?? 0,
+            }));
+            return mapped;
         } else {
             console.error(`HTTP response error! status: ${response.status}`);
             return {

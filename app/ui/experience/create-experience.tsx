@@ -7,6 +7,7 @@ import { LatLng } from "leaflet";
 import 'leaflet/dist/leaflet.css';
 import {StarRating} from "@/app/ui/experience/star-rating";
 import { NominatimResult, MapClickHandlerProps, ChangeMapViewProps} from '@/lib/types'
+import { useRouter } from "next/navigation";
 
 
 // HELPER COMPONENT: Handles map clicks
@@ -29,6 +30,7 @@ function ChangeMapView({ center }: ChangeMapViewProps) {
 }
 
 export default function CreateExperience({ userID }: { userID: string }) {
+    const router = useRouter();
     // formData
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -288,7 +290,7 @@ export default function CreateExperience({ userID }: { userID: string }) {
     };
 
     // Form submission
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         // Validate coordinates
@@ -318,7 +320,12 @@ export default function CreateExperience({ userID }: { userID: string }) {
         };
 
         console.log(formData);
-        createExperience(formData);
+        const result = await createExperience(formData as any);
+        if (result && !(result as any).error) {
+            router.push('/account/experiences');
+        } else {
+            alert(`Failed to create experience: ${(result as any)?.message ?? 'Unknown error'}`);
+        }
 
     };
 

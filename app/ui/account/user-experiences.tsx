@@ -15,8 +15,27 @@ const ITEMS_PER_PAGE = 6;
 export function UserExperiences({ userID, experiences }: UserExperienceProps) {
     if ("error" in experiences) {
         return (
-            <div>
-                TODO: IMPLEMENT EXPERIENCES FETCH ERROR
+            <div className="min-h-[40vh] w-full flex items-center justify-center">
+                <div className="max-w-xl w-full border border-red-200 bg-red-50 text-red-700 rounded-md p-4 flex flex-col gap-3">
+                    <div className="text-lg font-semibold">Failed to load experiences</div>
+                    <div className="text-sm break-words">
+                        {experiences.message || 'An unknown error occurred while fetching your experiences.'}
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                        <button
+                            className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                            onClick={() => window.location.reload()}
+                        >
+                            Retry
+                        </button>
+                        <a
+                            href="/experience/create"
+                            className="px-3 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
+                        >
+                            Create Experience
+                        </a>
+                    </div>
+                </div>
             </div>
         );
     }
