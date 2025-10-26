@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import {MapPinIcon, PhotoIcon } from "@heroicons/react/16/solid";
 import {Experience} from "@/lib/types";
+import {DeleteExperienceButton} from "@/app/ui/account/buttons/delete-experience-button";
+import {EditExperienceButton} from "@/app/ui/account/buttons/edit-experience-button";
 
 interface ExperienceCardProps {
     userID: string;
@@ -10,28 +12,28 @@ interface ExperienceCardProps {
 }
 
 export default function UserExperiencesCard({ experience, userID }: ExperienceCardProps) {
-    const router = useRouter();
     const experienceDate = new Date(experience.experience_date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     });
 
-    const handleClick = () => {
-        router.push(`/account/experience/edit?q=${experience.experienceID}`);
-    };
-
 
     return (
         <div
-            onClick={handleClick}
             className="bg-white rounded-lg p-3 border border-gray-200
-            transition-all duration-200  hover:shadow-lg hover:scale-[1.01]"
+            transition-all duration-200  hover:shadow-lg"
         >
             {/*Top Row*/}
             <div className="flex justify-between items-start my-2">
-                <h3 className="text-2xl font-semibold text-gray-900">{experience.title}</h3>
-                <p className="text-sm text-gray-500 whitespace-nowrap ml-4">{experienceDate}</p>
+                <div className="flex flex-row">
+                    <h3 className="text-2xl font-semibold text-gray-900">{experience.title}</h3>
+                    <p className="text-sm text-gray-500 whitespace-nowrap ml-4">{experienceDate}</p>
+                </div>
+                <div className="flex flex-row gap-2">
+                    <EditExperienceButton experienceID={experience.experienceID} userID={userID} />
+                    <DeleteExperienceButton experienceID={experience.experienceID} userID={userID} />
+                </div>
             </div>
 
             {/*Description*/}

@@ -1,10 +1,11 @@
 'use client'
 
 import dynamic from 'next/dynamic';
+import {EditExperienceProps} from "@/lib/types";
 
 // dynamic wrapper for handling "leaflet"
-const CreateExperienceClient = dynamic(
-    () => import('./create-experience'),
+const EditExperienceClient = dynamic(
+    () => import('./edit-experience'),
     {
         ssr: false,
         loading: () => (
@@ -17,6 +18,6 @@ const CreateExperienceClient = dynamic(
     }
 );
 
-export default function CreateExperienceWrapper({ userID }: { userID: string }) {
-    return <CreateExperienceClient userID={userID} />;
+export default function EditExperienceWrapper({ userID, experience }: EditExperienceProps) {
+    return <EditExperienceClient userID={userID} experience={experience}/>;
 }

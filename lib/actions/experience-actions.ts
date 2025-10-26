@@ -1,7 +1,7 @@
 'use server'
 
 import experiences from "@/public/experiences.json"
-import {Experience, ErrorResponse } from "@/lib/types";
+import {Experience, ErrorResponse, DeleteExperienceProps} from "@/lib/types";
 
 export async function demoGetExperiences(): Promise<Experience[] | ErrorResponse> {
     if (!experiences) {
@@ -91,6 +91,41 @@ export async function createExperience(formData: Experience) {
             message: `${error}`,
         };
     }
+}
+
+export async function deleteExperience(formData: DeleteExperienceProps) {
+    console.log(formData);
+    // try {
+    //     // TODO: REPLACE URL WITH API ENDPOINT TO CREATE EXPERIENCES
+    //     const response = await fetch('http://localhost:8001/deleteExperience', {
+    //         method: 'DELETE',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(formData)
+    //     });
+    //
+    //     if (response.ok) {
+    //         console.log("sent JSON: ", formData)
+    //         const result = await response.json();
+    //         console.log('Delete Successful successful:', result);
+    //         setTimeout(() => {}, 2000);
+    //
+    //     } else {
+    //         console.error(`HTTP error! status: ${response.status}`);
+    //         return {
+    //             error: "HTTP response error",
+    //             message: `${response.status}`,
+    //         };
+    //     }
+    //
+    // } catch (error) {
+    //     console.error('Upload failed:', error);
+    //     return {
+    //         error: "HTTP response error",
+    //         message: `${error}`,
+    //     };
+    // }
 }
 
 export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
