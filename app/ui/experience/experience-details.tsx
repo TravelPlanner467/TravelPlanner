@@ -83,11 +83,11 @@ export function ExperienceDetailsContent({ experience }: ExperienceDetailsProps)
                     </div>
 
                     {/*Photos*/}
-                    {experience.photos && experience.photos.length > 0 && (
+                    {experience.imageURLs && experience.imageURLs.length > 0 && (
                         <div>
                             <h2 className="text-xl font-semibold text-gray-900 mb-3">Photos</h2>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {experience.photos?.map((photo, index) => (
+                                {experience.imageURLs?.map((photo, index) => (
                                     <div
                                         key={index}
                                         className="aspect-square bg-gray-200 flex items-center justify-center"

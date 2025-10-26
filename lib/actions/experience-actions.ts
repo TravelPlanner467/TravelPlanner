@@ -77,11 +77,19 @@ export async function createExperience(formData: Experience) {
             setTimeout(() => {}, 2000);
 
         } else {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            console.error(`HTTP error! status: ${response.status}`);
+            return {
+                error: "HTTP response error",
+                message: `${response.status}`,
+            };
         }
 
     } catch (error) {
         console.error('Upload failed:', error);
+        return {
+            error: "HTTP response error",
+            message: `${error}`,
+        };
     }
 }
 
@@ -104,6 +112,7 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
             return result as Experience[];
 
         } else {
+            console.log("sent JSON: ", formData)
             console.error(`HTTP response error! status: ${response.status}`);
             return {
                 error: "HTTP response error",
