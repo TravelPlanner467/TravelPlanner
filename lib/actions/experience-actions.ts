@@ -61,21 +61,31 @@ export async function demoGetUserExperiences(userID: string): Promise<Experience
 export async function createExperience(formData: Experience) {
     console.log(formData);
     try {
-        // TODO: REPLACE URL WITH API ENDPOINT TO CREATE EXPERIENCES
-        const response = await fetch('http://localhost:8001/upload', {
+        const base = process.env.EXPERIENCES_API_URL || 'http://localhost:5001';
+        // Map client formData shape to microservice schema
+        const payload = {
+            title: (formData as any).title,
+            description: (formData as any).description ?? '',
+            date: (formData as any).experience_date,
+            address: (formData as any).address ?? '',
+            latitude: (formData as any).coordinates?.latitude,
+            longitude: (formData as any).coordinates?.longitude,
+        };
+        const userIdForHeader = (formData as any).userID;
+
+        const response = await fetch(`${base}/experiences`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-User-Id': String(userIdForHeader || ''),
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(payload),
         });
 
         if (response.ok) {
-            console.log("sent JSON: ", formData)
+            console.log("sent JSON: ", payload)
             const result = await response.json();
-            console.log('Upload successful:', result);
-            setTimeout(() => {}, 2000);
-
+            console.log('Create experience successful:', result);
         } else {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -86,23 +96,15 @@ export async function createExperience(formData: Experience) {
 }
 
 export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
-    const formData = {userID: userID}
-
     try {
-        // TODO: REPLACE URL WITH API ENDPOINT TO FETCH EXPERIENCES PER userID
-        const response = await fetch('http://localhost:8001/FetchExperiencesByID', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
+        const base = process.env.EXPERIENCES_API_URL || 'http://localhost:5001';
+        const response = await fetch(`${base}/experiences/user/${encodeURIComponent(userID)}`, {
+            cache: 'no-store',
         });
 
         if (response.ok) {
-            console.log("sent JSON: ", formData)
             const result = await response.json();
             return result as Experience[];
-
         } else {
             console.error(`HTTP response error! status: ${response.status}`);
             return {
@@ -112,7 +114,7 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
         }
 
     } catch (error) {
-        console.error('Upload failed:', error);
+        console.error('Fetch failed:', error);
         return {
             error: "Unknown Error",
             message: `${error}`,
