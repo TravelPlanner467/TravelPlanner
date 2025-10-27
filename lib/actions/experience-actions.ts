@@ -6,7 +6,7 @@ import {DeleteExperienceProps, ErrorResponse, Experience, PythonTester} from "@/
 export async function createExperience(formData: Experience) {
     console.log("Attempting to create experience");
     try {
-        const response = await fetch('http://localhost:3000/api/experiences/experiences', {
+        const response = await fetch('http://localhost:5001/experiences', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ export async function createExperience(formData: Experience) {
 
 export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:3000/api/experiences/experiences/user-experiences`, {
+        const response = await fetch(`http://localhost:5001/experiences/user-experiences`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
 export async function deleteExperience(formData: DeleteExperienceProps) {
     try {
         // TODO: REPLACE URL WITH API ENDPOINT TO CREATE EXPERIENCES
-        const response = await fetch(`http://localhost:3000/api/experiences/experiences/${formData.experience_id}`, {
+        const response = await fetch(`http://localhost:5001/experiences/${formData.experience_id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export async function deleteExperience(formData: DeleteExperienceProps) {
 
 export async function getExperienceDetails(experience_id: string): Promise<Experience | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:3000/api/experiences/experiences/${experience_id}`, {
+        const response = await fetch(`http://localhost:5001/experiences/${experience_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export async function getExperienceDetails(experience_id: string): Promise<Exper
 
 export async function getAllExperiences(): Promise<Experience[] | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:3000/api/experiences/experiences/all`, {
+        const response = await fetch(`http://localhost:5001/experiences/all`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
