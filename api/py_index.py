@@ -12,7 +12,9 @@ app.register_blueprint(experiences_bp, url_prefix='/py/experiences')
 
 @app.route('/py', methods=['GET'])
 def root():
-    return jsonify({"message": "Flask Index Root"})
+    return jsonify({"message": "Flask Index Root",
+                    "available_routes": [str(rule) for rule in app.url_map.iter_rules()]
+                    })
 
 # Catch-all for debugging
 @app.route('/py/debug', defaults={'path': ''})

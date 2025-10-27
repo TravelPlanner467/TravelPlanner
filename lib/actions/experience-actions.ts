@@ -136,7 +136,7 @@ export async function getExperienceDetails(experience_id: string): Promise<Exper
 
 export async function getAllExperiences(): Promise<Experience[] | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:5001/experiences/all`, {
+        const response = await fetch(`http://localhost:3000/py/experiences/all`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
