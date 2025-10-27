@@ -1,7 +1,7 @@
 'use server'
 
 import experiences from "@/public/experiences.json"
-import {Experience, ErrorResponse, DeleteExperienceProps} from "@/lib/types";
+import {DeleteExperienceProps, ErrorResponse, Experience, PythonTester} from "@/lib/types";
 
 export async function createExperience(formData: Experience) {
     console.log("Attempting to create experience");
@@ -40,7 +40,7 @@ export async function createExperience(formData: Experience) {
 
 export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:5001/experiences/user-experiences`, {
+        const response = await fetch(`http://localhost:3000/api/experiences/user-experiences`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
 export async function deleteExperience(formData: DeleteExperienceProps) {
     try {
         // TODO: REPLACE URL WITH API ENDPOINT TO CREATE EXPERIENCES
-        const response = await fetch(`http://localhost:5001/experiences/${formData.experience_id}`, {
+        const response = await fetch(`http://localhost:3000/api/experiences/${formData.experience_id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export async function deleteExperience(formData: DeleteExperienceProps) {
 
 export async function getExperienceDetails(experience_id: string): Promise<Experience | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:5001/experiences/${experience_id}`, {
+        const response = await fetch(`http://localhost:3000/api/experiences/${experience_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export async function getExperienceDetails(experience_id: string): Promise<Exper
 
 export async function getAllExperiences(): Promise<Experience[] | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:5001/experiences/all`, {
+        const response = await fetch(`http://localhost:3000/api/experiences/all`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -221,4 +221,31 @@ export async function demoGetUserExperiences(user_id: string): Promise<Experienc
     }
 
     return matches as Experience[];
+}
+
+export async function demoFlaskTester(): Promise<PythonTester | ErrorResponse>{
+    try {
+        const response = await fetch(`http://localhost:3000/api/hello`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (response.ok) {
+            console.log(`OK: ${response.status}`)
+            return await response.json()
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
 }

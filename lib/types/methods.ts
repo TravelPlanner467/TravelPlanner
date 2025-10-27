@@ -67,3 +67,9 @@ export interface ErrorResponse {
     error: string;
     message?: string;
 }
+
+
+// TESTER
+export interface PythonTester {
+    message: string;
+}
