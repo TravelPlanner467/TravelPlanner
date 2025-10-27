@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "flask-dev": "FLASK_DEBUG=1 pip3 install -r requirements.txt && python3 -m flask --app api/index run -p 5328",
-    "next-dev": "next dev --turbopack",
+    "flask-dev": "cross-env FLASK_DEBUG=1 NODE_ENV=development pip3 install -r requirements.txt && python3 -m flask --app api/py_index run -p 5328",
+    "next-dev": "cross-env NODE_ENV=development next dev --turbopack",
     "dev": "concurrently \"pnpm run next-dev\" \"pnpm run flask-dev\"",
     "build": "next build",
     "start": "next start",
@@ -12,37 +12,38 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@prisma/client": "^6.17.1",
+    "@prisma/client": "^6.18.0",
     "@react-google-maps/api": "^2.20.7",
     "@tailwindcss/forms": "^0.5.10",
     "autoprefixer": "10.4.20",
     "bcrypt": "^5.1.1",
-    "better-auth": "^1.3.27",
+    "better-auth": "^1.3.32",
     "clsx": "^2.1.1",
     "components": "link:@/components",
-    "concurrently": "^8.0.1",
+    "concurrently": "^8.2.2",
     "flask": "^0.2.10",
     "google-maps": "^4.3.3",
     "leaflet": "^1.9.4",
     "next": "latest",
     "next-auth": "5.0.0-beta.25",
     "postcss": "8.5.1",
-    "postgres": "^3.4.5",
-    "prisma": "^6.17.1",
+    "postgres": "^3.4.7",
+    "prisma": "^6.18.0",
     "react": "latest",
     "react-dom": "latest",
     "react-leaflet": "^5.0.0",
     "tailwindcss": "3.4.17",
     "typescript": "5.7.3",
-    "use-debounce": "^10.0.4",
-    "zeromq": "^6.4.2",
-    "zod": "^3.24.1"
+    "use-debounce": "^10.0.6",
+    "zeromq": "^6.5.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/leaflet": "^1.9.21",
     "@types/node": "22.10.7",
     "@types/react": "19.0.7",
-    "@types/react-dom": "19.0.3"
+    "@types/react-dom": "19.0.3",
+    "cross-env": "^10.1.0"
   }
 }

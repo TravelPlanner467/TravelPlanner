@@ -1,11 +1,13 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
+from api.py_test import test_bp
 
 app = Flask(__name__)
+CORS(app)
+
+# Register blueprint
+app.register_blueprint(test_bp, url_prefix='/test')
 
 @app.route('/')
 def root():
-    return jsonify({"message": "Python API works!"})
-
-@app.route('/hello')
-def hello():
-    return jsonify({"message": "Hello endpoint works!"})
+    return jsonify({"message": "Flask is running"})
