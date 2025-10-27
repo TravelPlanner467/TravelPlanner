@@ -17,7 +17,7 @@ def root_hello():
     return jsonify({"message": "root_hello"})
 
 # Catch-all for debugging
-@app.route('/', defaults={'path': ''})
+@app.route('/debug', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
     return jsonify({
