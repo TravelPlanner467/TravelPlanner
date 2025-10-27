@@ -1,10 +1,5 @@
 {
-  "functions": {
-    "functions/**/*.py": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "source": "/api/py/:path*",
@@ -12,6 +7,3 @@
     }
   ]
 }
-
-
-
