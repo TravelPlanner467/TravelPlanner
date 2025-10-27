@@ -3,7 +3,11 @@
   "rewrites": [
     {
       "source": "/py/:path*",
-      "destination": "/api/py_:path*"
+      "destination": "/api/py_:path"
+    },
+    {
+      "source": "/py",
+      "destination": "/api/py_index"
     }
   ]
 }
