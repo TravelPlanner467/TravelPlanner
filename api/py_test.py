@@ -1,13 +1,8 @@
 from flask import jsonify, Flask
+from flask_cors import CORS
 
 app = Flask(__name__)
-
-### CORS headers
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    return response
+CORS(app)
 
 @app.route('/', methods=['GET'])
 def test_root():
