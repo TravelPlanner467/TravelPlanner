@@ -34,7 +34,7 @@ def require_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route('/api/experiences/all', methods=['GET'])
+@app.route('/experiences/all', methods=['GET'])
 def get_all_experiences():
     """Retrieve all experiences.
 
@@ -369,8 +369,8 @@ def health():
     return jsonify({'status': 'healthy', 'service': 'experiences'}), 200
 
 
-# if __name__ == '__main__':
-#     # Initialize the database schema on startup
-#     init_db()
-#     # Run the Flask development server on port 5001
-#     app.run(debug=True, port=5001)
+if __name__ == '__main__':
+    # Initialize the database schema on startup
+    init_db()
+    # Run the Flask development server on port 5001
+    app.run(debug=True, port=5001)
