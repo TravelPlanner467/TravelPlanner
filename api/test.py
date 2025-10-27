@@ -1,11 +1,11 @@
-from flask import Blueprint, jsonify
+from flask import jsonify, Flask
 
-test_bp = Blueprint('test', __name__)
+app = Flask(__name__)
 
-@test_bp.route('/', methods=['GET'])
+@app.route('/', methods=['GET'])
 def test_root():
     return jsonify({"message": "Hello from Test!"})
 
-@test_bp.route('/hello', methods=['GET'])
+@app.route('/hello', methods=['GET'])
 def test_hello():
     return jsonify({"message": "Hello from Test/Hello!"})
