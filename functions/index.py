@@ -4,8 +4,8 @@ from experiences import experiences_bp
 
 app = Flask(__name__)
 
-# Register the test blueprint
-app.register_blueprint(experiences_bp, url_prefix='/experiences')
+# # Register the test blueprint
+# app.register_blueprint(experiences_bp, url_prefix='/experiences')
 
 @app.route('/', methods=['GET'])
 def test_root():
