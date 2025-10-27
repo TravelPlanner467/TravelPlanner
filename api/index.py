@@ -1,6 +1,5 @@
-from flask import Flask
+from flask import Flask, jsonify
 
-from api import experiences
 from test import test_bp
 from experiences import experiences_bp
 
@@ -11,9 +10,12 @@ app.register_blueprint(test_bp, url_prefix='/test')
 app.register_blueprint(experiences_bp, url_prefix='/experiences')
 
 @app.route('/', methods=['GET'])
+def test_root():
+    return jsonify({"message": "Hello from Index!"})
+
 @app.route('/hello', methods=['GET'])
-def index_routes():
-    return {"message": "Hello from Index!"}
+def test_hello():
+    return jsonify({"message": "Hello from Index/Hello!"})
 
 @app.route('/health', methods=['GET'])
 def health():

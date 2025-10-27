@@ -222,6 +222,37 @@ def delete_experience(experience_id):
     finally:
         conn.close()
 
+@app.route('/experiences/user-experiences/', methods=['GET'])
+@require_auth
+def get_user_experiences():
+    """Retrieve all experiences created by a specific user.
+
+    Fetches all experiences where the user_id matches the provided user_id,
+    ordered by creation date (newest first).
+
+    Args:
+        user_id (STR): The ID of the user whose experiences to retrieve
+
+    Returns:
+        tuple: JSON array of experience objects and HTTP 200
+    """
+    user_id = g.user_id
+
+    conn = psycopg2.connect(DATABASE_URL)
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                        SELECT *
+                        FROM experiences
+                        WHERE user_id = %s
+                        ORDER BY create_date DESC
+                        """, (user_id,))
+
+            experiences = cur.fetchall()
+    finally:
+        conn.close()
+
+    return jsonify([dict(experience) for experience in experiences]), 200
 
 # @experiences_bp.route('/experiences/<int:experience_id>', methods=['PUT'])
 # @require_auth
