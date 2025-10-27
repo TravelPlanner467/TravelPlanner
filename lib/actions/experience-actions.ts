@@ -6,7 +6,7 @@ import {DeleteExperienceProps, ErrorResponse, Experience, PythonTester} from "@/
 export async function createExperience(formData: Experience) {
     console.log("Attempting to create experience");
     try {
-        const response = await fetch('http://localhost:5001/experiences', {
+        const response = await fetch('http://localhost:3000/api/experiences', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
