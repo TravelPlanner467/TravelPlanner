@@ -2,12 +2,14 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, g
+from flask import Flask, request, jsonify, g, Blueprint
 from functools import wraps
 from psycopg2.extras import RealDictCursor
 
 # Initialize Flask application
 app = Flask(__name__)
+
+experiences_bp = Blueprint('experiences', __name__)
 
 # Load environment variables
 load_dotenv()
@@ -34,7 +36,7 @@ def require_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route('/experiences/all', methods=['GET'])
+@experiences_bp.route('/experiences/all', methods=['GET'])
 def get_all_experiences():
     """Retrieve all experiences.
 
@@ -60,7 +62,7 @@ def get_all_experiences():
     # Convert Row objects to dictionaries for JSON serialization
     return jsonify([dict(experience) for experience in experiences]), 200
 
-@app.route('/experiences/user-experiences/', methods=['GET'])
+@experiences_bp.route('/experiences/user-experiences/', methods=['GET'])
 @require_auth
 def get_user_experiences():
     """Retrieve all experiences created by a specific user.
@@ -92,7 +94,7 @@ def get_user_experiences():
 
     return jsonify([dict(experience) for experience in experiences]), 200
 
-@app.route('/experiences/<int:experience_id>', methods=['GET'])
+@experiences_bp.route('/experiences/<int:experience_id>', methods=['GET'])
 def get_experience_details(experience_id):
     """Retrieve a specific experience by ID.
 
@@ -115,7 +117,7 @@ def get_experience_details(experience_id):
     finally:
         conn.close()
 
-@app.route('/experiences', methods=['POST'])
+@experiences_bp.route('/experiences', methods=['POST'])
 @require_auth
 def create_experience():
     """Create a new experience.
@@ -180,7 +182,7 @@ def create_experience():
     finally:
         conn.close()
 
-@app.route('/experiences/<int:experience_id>', methods=['DELETE'])
+@experiences_bp.route('/experiences/<int:experience_id>', methods=['DELETE'])
 @require_auth
 def delete_experience(experience_id):
     """Delete an experience.
@@ -221,7 +223,7 @@ def delete_experience(experience_id):
         conn.close()
 
 
-# @app.route('/experiences/<int:experience_id>', methods=['PUT'])
+# @experiences_bp.route('/experiences/<int:experience_id>', methods=['PUT'])
 # @require_auth
 # def update_experience(experience_id):
 #     """Update an existing experience.
@@ -298,7 +300,7 @@ def delete_experience(experience_id):
 #         'created_at': experience['created_at']
 #     }), 200
 
-# @app.route('/experiences/search', methods=['GET'])
+# @experiences_bp.route('/experiences/search', methods=['GET'])
 # def search_experiences():
 #     """Search for experiences by title or description.
 
@@ -357,7 +359,7 @@ def init_db():
     finally:
         conn.close()
 
-@app.route('/health', methods=['GET'])
+@experiences_bp.route('/health', methods=['GET'])
 def health():
     """Health check endpoint.
 
@@ -368,9 +370,6 @@ def health():
     """
     return jsonify({'status': 'healthy', 'service': 'experiences'}), 200
 
-
-if __name__ == '__main__':
-    # Initialize the database schema on startup
-    init_db()
-    # Run the Flask development server on port 5001
-    app.run(debug=True, port=5001)
+@experiences_bp.route('/', methods=['GET'])
+def experiences_root():
+    return jsonify({"message": "Hello from /Experiences!"})
