@@ -8,6 +8,10 @@ CORS(app)
 # Register blueprint
 app.register_blueprint(test_bp, url_prefix='/test')
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def root():
     return jsonify({"message": "Flask is running"})
+
+@app.route('/hello', methods=['GET'])
+def root_hello():
+    return jsonify({"message": "root_hello"})
