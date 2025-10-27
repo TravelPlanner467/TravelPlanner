@@ -1,17 +1,17 @@
 from flask import Flask, jsonify
 
-from experiences import experiences_bp
-
 app = Flask(__name__)
 
-# # Register the test blueprint
-# app.register_blueprint(experiences_bp, url_prefix='/experiences')
-
 @app.route('/', methods=['GET'])
-def test_root():
-    return jsonify({"message": "Hello from Index!"})
+@app.route('/index', methods=['GET'])
+def root():
+    return jsonify({
+        "message": "Python API root",
+        "endpoints": ["/py/index", "/py/test"]
+    })
 
 @app.route('/hello', methods=['GET'])
+@app.route('/index/hello', methods=['GET'])
 def test_hello():
     return jsonify({"message": "Hello from Index/Hello!"})
 
