@@ -18,3 +18,6 @@ def test_hello():
 @app.route('/health', methods=['GET'])
 def health():
     return {'status': 'healthy', 'service': 'index'}, 200
+
+if __name__ == "__main__":
+    app.run()

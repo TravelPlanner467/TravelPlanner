@@ -9,3 +9,6 @@ def test_root():
 @app.route('/hello', methods=['GET'])
 def test_hello():
     return jsonify({"message": "Hello from Test/Hello!"})
+
+if __name__ == "__main__":
+    app.run()
