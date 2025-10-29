@@ -10,7 +10,7 @@ import {
 export async function createExperience(formData: CreateExperienceProps) {
     console.log("Attempting to create experience");
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/create`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/create`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -43,8 +43,9 @@ export async function createExperience(formData: CreateExperienceProps) {
 }
 
 export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
+    console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/user-experiences`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/user-experiences`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -76,7 +77,7 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
 
 export async function deleteExperience(formData: DeleteExperienceProps) {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/delete/${formData.experience_id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/delete/${formData.experience_id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -109,7 +110,7 @@ export async function deleteExperience(formData: DeleteExperienceProps) {
 
 export async function getExperienceDetails(experience_id: string): Promise<Experience | ErrorResponse> {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/details/${experience_id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/details/${experience_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -140,7 +141,7 @@ export async function getExperienceDetails(experience_id: string): Promise<Exper
 
 export async function getAllExperiences(): Promise<Experience[] | ErrorResponse> {
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/all`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/all`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -172,7 +173,7 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
 export async function updateExperience(formData: Experience) {
     console.log("Attempting to edit experience");
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/update/`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/update/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
