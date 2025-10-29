@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "flask-dev": "cross-env FLASK_DEBUG=1 NODE_ENV=development pip3 install -r requirements.txt && python3 -m flask --app api/py_index run -p 5328",
-    "flask-prod": "gunicorn --bind 0.0.0.0:5328 api.py_index:app",
     "next-dev": "cross-env NODE_ENV=development next dev --turbopack",
     "dev": "concurrently \"pnpm run next-dev\" \"pnpm run flask-dev\"",
     "build": "next build",
@@ -23,7 +22,6 @@
     "concurrently": "^8.2.2",
     "flask": "^0.2.10",
     "google-maps": "^4.3.3",
-    "gunicorn": "0.0.1-security",
     "leaflet": "^1.9.4",
     "next": "latest",
     "next-auth": "5.0.0-beta.25",

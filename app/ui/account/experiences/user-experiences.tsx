@@ -3,34 +3,16 @@ import { useState } from 'react';
 
 import Pagination from "@/app/ui/components/pagination";
 import UserExperiencesCard from "@/app/ui/account/experiences/user-experiences-card";
-import {ErrorResponse, Experience} from "@/lib/types";
+import {Experience} from "@/lib/types";
 
 interface UserExperienceProps {
     user_id: string;
-    experiences: Experience[] | ErrorResponse
+    experiences: Experience[]
 }
 
 const ITEMS_PER_PAGE = 6;
 
 export function UserExperiences({ user_id, experiences }: UserExperienceProps) {
-    // IF REPLY ERROR
-    if ("error" in experiences) {
-        return (
-            <div>
-                TODO: IMPLEMENT EXPERIENCES FETCH ERROR
-            </div>
-        );
-    }
-
-    // IF NO EXPERIENCES FOUND (but not an error)
-    if (experiences.length === 0) {
-        return (
-            <div>
-                TODO: NO EXPERIENCES FOUND FOR THIS USER
-            </div>
-        )
-    }
-
     // Pagination calculations
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(experiences.length / ITEMS_PER_PAGE);
