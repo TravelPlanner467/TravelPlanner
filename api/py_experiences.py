@@ -65,7 +65,7 @@ def get_all_experiences():
     return jsonify([dict(experience) for experience in experiences]), 200
 
 
-@experiences_bp.route('/user-experiences/', methods=['GET'])
+@experiences_bp.route('/user-experiences', methods=['GET'])
 @require_auth
 def get_user_experiences():
     """Retrieve all experiences created by a specific user.
@@ -97,7 +97,7 @@ def get_user_experiences():
 
     return jsonify([dict(experience) for experience in experiences]), 200
 
-@experiences_bp.route('/batch-experiences/', methods=['POST'])
+@experiences_bp.route('/batch-experiences', methods=['POST'])
 @require_auth
 def get_batch_experiences():
     """Retrieve all experiences requested by a specific user.

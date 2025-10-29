@@ -43,7 +43,6 @@ export async function createExperience(formData: CreateExperienceProps) {
 }
 
 export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
-    console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/user-experiences`, {
             method: 'GET',
