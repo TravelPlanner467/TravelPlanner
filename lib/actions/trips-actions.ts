@@ -15,7 +15,7 @@ import {demoGetExperienceByID} from "@/lib/actions/experience-actions";
 
 export async function getUserTrips(userID: string) {
     try {
-        const response = await fetch(`http://localhost:3000/py/trips/user-trips`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/trips/user-trips`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export async function getUserTrips(userID: string) {
 export async function createTrip(formData: any) {
     console.log(formData);
     try {
-        const response = await fetch('http://localhost:3000/py/trips/create-trip', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/trips/create-trip`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export async function createTrip(formData: any) {
 export async function getTripDetails(formData: TripIDProps) {
     console.log("Getting Trip details: ", formData);
     try {
-        const response = await fetch(`http://localhost:3000/py/trips/get-trip-details/${formData.trip_id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/trips/get-trip-details/${formData.trip_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ export async function getTripDetails(formData: TripIDProps) {
 export async function getTripExperienceDetails(formData: GetBatchExperiencesProps) {
     console.log("Getting Trip-Experiences details: ", formData);
     try {
-        const response = await fetch(`http://localhost:3000/py/experiences/batch-experiences/`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/batch-experiences`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export async function getTripExperienceDetails(formData: GetBatchExperiencesProp
 export async function deleteTrip (formData: TripIDProps) {
     console.log("Deleting Trip: ", formData);
     try {
-        const response = await fetch(`http://localhost:3000/py/trips/delete-trip/${formData.trip_id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/trips/delete-trip/${formData.trip_id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ export async function deleteTrip (formData: TripIDProps) {
 export async function addExperienceToTrip(formData: ExperienceTripProps) {
     console.log(formData);
     try {
-        const response = await fetch(`http://localhost:3000/py/trips/add-experience`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/trips/add-experience`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ export async function addExperienceToTrip(formData: ExperienceTripProps) {
 
 export async function removeExperienceFromTrip(formData: ExperienceTripProps) {
     try {
-        const response = await fetch(`http://localhost:3000/py/trips/remove-experience`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/trips/remove-experience`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

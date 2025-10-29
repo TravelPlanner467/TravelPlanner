@@ -1,12 +1,16 @@
 'use server'
 
 import experiences from "@/public/experiences.json"
-import {CreateExperienceProps, DeleteExperienceProps, ErrorResponse, Experience} from "@/lib/types";
+import {
+    CreateExperienceProps,
+    DeleteExperienceProps,
+    ErrorResponse,
+    Experience} from "@/lib/types";
 
 export async function createExperience(formData: CreateExperienceProps) {
     console.log("Attempting to create experience");
     try {
-        const response = await fetch('http://localhost:3000/py/experiences/create', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/create`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,7 +44,7 @@ export async function createExperience(formData: CreateExperienceProps) {
 
 export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:3000/py/experiences/user-experiences`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/user-experiences`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -72,8 +76,7 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
 
 export async function deleteExperience(formData: DeleteExperienceProps) {
     try {
-        // TODO: REPLACE URL WITH API ENDPOINT TO CREATE EXPERIENCES
-        const response = await fetch(`http://localhost:3000/py/experiences/delete/${formData.experience_id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/delete/${formData.experience_id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -106,7 +109,7 @@ export async function deleteExperience(formData: DeleteExperienceProps) {
 
 export async function getExperienceDetails(experience_id: string): Promise<Experience | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:3000/py/experiences/details/${experience_id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/details/${experience_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -137,7 +140,7 @@ export async function getExperienceDetails(experience_id: string): Promise<Exper
 
 export async function getAllExperiences(): Promise<Experience[] | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:3000/py/experiences/all`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/all`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -169,7 +172,7 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
 export async function updateExperience(formData: Experience) {
     console.log("Attempting to edit experience");
     try {
-        const response = await fetch(`http://localhost:3000/py/experiences/update/`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/py/experiences/update/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -215,7 +218,6 @@ export async function demoGetExperiences(): Promise<Experience[] | ErrorResponse
 
     return experiences as Experience[];
 }
-
 export async function demoGetExperienceByID(experience_id: string): Promise<Experience | ErrorResponse> {
     const experiences = await demoGetExperiences();
     if ("error" in experiences) {
@@ -236,7 +238,6 @@ export async function demoGetExperienceByID(experience_id: string): Promise<Expe
 
     return experience as Experience;
 }
-
 export async function demoGetUserExperiences(user_id: string): Promise<Experience[] | ErrorResponse> {
     const experiences = await demoGetExperiences();
     if ("error" in experiences) {
