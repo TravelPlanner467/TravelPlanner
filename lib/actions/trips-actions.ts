@@ -2,10 +2,242 @@
 
 import trips from "@/public/trips.json"
 import experiences from "@/public/experiences.json";
-import {Trip, ErrorResponse, Experience, DeleteTripsProps} from "@/lib/types";
+import {
+    Trip,
+    TripIDProps,
+    ErrorResponse,
+    Experience,
+    ExperienceTripProps,
+    GetBatchExperiencesProps
+} from "@/lib/types";
 import {demoGetExperienceByID} from "@/lib/actions/experience-actions";
 
-export async function demoGetTrips(userID: string): Promise<Trip[] | ErrorResponse>  {
+
+export async function getUserTrips(userID: string) {
+    try {
+        const response = await fetch(`http://localhost:3000/py/trips/user-trips`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": userID,
+            },
+        });
+
+        const result = await response.json();
+        return result;
+
+    } catch (error: any) {
+        console.error(error.message);
+        return null;
+    }
+}
+
+export async function createTrip(formData: any) {
+    console.log(formData);
+    try {
+        const response = await fetch('http://localhost:3000/py/trips/create-trip', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.user_id,
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Upload successful:', result);
+            setTimeout(() => {}, 2000);
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('Upload failed:', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function getTripDetails(formData: TripIDProps) {
+    console.log("Getting Trip details: ", formData);
+    try {
+        const response = await fetch(`http://localhost:3000/py/trips/get-trip-details/${formData.trip_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.user_id,
+            },
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`OK: ${response.status}`)
+            console.log('message:', result);
+            return result as Trip;
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function getTripExperienceDetails(formData: GetBatchExperiencesProps) {
+    console.log("Getting Trip-Experiences details: ", formData);
+    try {
+        const response = await fetch(`http://localhost:3000/py/experiences/batch-experiences/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.user_id,
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`OK: ${response.status}`)
+            console.log('message:', result);
+            return result as Experience[];
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function deleteTrip (formData: TripIDProps) {
+    console.log("Deleting Trip: ", formData);
+    try {
+        const response = await fetch(`http://localhost:3000/py/trips/delete-trip/${formData.trip_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.user_id,
+            },
+        });
+
+        if (response.ok) {
+            console.log("sent DATA: ", formData)
+            const result = await response.json();
+            console.log('Delete Successful:', result);
+            setTimeout(() => {}, 2000);
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('Delete failed:', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function addExperienceToTrip(formData: ExperienceTripProps) {
+    console.log(formData);
+    try {
+        const response = await fetch(`http://localhost:3000/py/trips/add-experience`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.user_id,
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`OK: ${response.status}`)
+            console.log('message:', result);
+            return result as Trip;
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function removeExperienceFromTrip(formData: ExperienceTripProps) {
+    try {
+        const response = await fetch(`http://localhost:3000/py/trips/remove-experience`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.user_id,
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`OK: ${response.status}`)
+            console.log('message:', result);
+            return result as Trip;
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Unknown Error",
+            message: `${error}`,
+        };
+    }
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// DEMO FUNCTIONS -----------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+export async function demoGetTrips(user_id: string): Promise<Trip[] | ErrorResponse>  {
     if (!experiences) {
         return {
             error: "TripsNotFound",
@@ -14,36 +246,34 @@ export async function demoGetTrips(userID: string): Promise<Trip[] | ErrorRespon
     }
 
     // Filter Trips by userID
-    const userTrips = trips.filter((trip) => trip.userID === userID);
+    const userTrips = trips.filter((trip) => trip.user_id === user_id);
 
     // Return an error message if no results found
     if (userTrips.length === 0) {
         return {
             error: "TripsNotFound",
-            message: `No trips found for userID: ${userID}`,
+            message: `No trips found for userID: ${user_id}`,
         };
     }
 
     return userTrips;
 }
-
-export async function demoGetTripByID(tripID: string, userID: string): Promise<Trip | ErrorResponse>  {
-    const trips = await demoGetTrips(userID)
+export async function demoGetTripByID(trip_id: string, user_id: string): Promise<Trip | ErrorResponse>  {
+    const trips = await demoGetTrips(user_id)
     if ("error" in trips) {
         return trips;
     }
 
-    const trip = trips.find((trip) => trip.tripID === tripID);
+    const trip = trips.find((trip) => trip.trip_id === trip_id);
     if (!trip) {
         return {
             error: "TripNotFound",
-            message: `No Trip Found with ID: ${tripID}`,
+            message: `No Trip Found with ID: ${trip_id}`,
         };
     }
 
     return trip as Trip;
 }
-
 export async function demoGetTripExperiences(experience_ids: string[]): Promise<Experience[] | ErrorResponse>  {
     const tripExperiences: Experience[] = []
 
@@ -61,94 +291,3 @@ export async function demoGetTripExperiences(experience_ids: string[]): Promise<
 
     return tripExperiences as Experience[];
 }
-
-export async function demoDeleteTrip() {
-
-}
-
-
-export async function getUserTrips() {
-    const url = 'http://localhost:8000/load'
-    try {
-        console.log('Fetching all User Trips')
-        const response = await fetch(url, {
-            method: 'GET',
-        });
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-
-        const text = await response.text();
-        return JSON.parse(text);
-
-    } catch (error: any) {
-        console.error(error.message);
-        return null;
-    }
-}
-
-export const uploadTrip = async (jsonData: any) => {
-    try {
-        const response = await fetch('http://localhost:8000/upload', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(jsonData)
-        });
-
-        console.log("generated JSON: ", jsonData)
-
-        if (response.ok) {
-            console.log("generated JSON: ", jsonData)
-            const result = await response.json();
-
-            console.log('Upload successful:', result);
-            setTimeout(() => {}, 2000);
-
-        } else {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-    } catch (error) {
-        console.error('Upload failed:', error);
-    }
-};
-
-export const deleteTrip = async (deleteData: DeleteTripsProps) => {
-    try {
-        const response = await fetch('http://localhost:8000/delete', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(deleteData)
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Handle cases without a body
-        let result;
-        try {
-            const text = await response.text();
-            result = text ? JSON.parse(text) : {};
-        } catch (parseError) {
-            console.warn('No JSON response from delete endpoint:', parseError);
-            result = {};
-        }
-
-        return {
-            success: true,
-            data: result
-        };
-    } catch (error) {
-        console.error('Error deleting calculation:', error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'An unknown error occurred'
-        };
-    }
-}
-
-

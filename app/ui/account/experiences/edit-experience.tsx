@@ -2,13 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
-import {createExperience} from "@/lib/actions/experience-actions";
+import {updateExperience} from "@/lib/actions/experience-actions";
 import { LatLng } from "leaflet";
 import 'leaflet/dist/leaflet.css';
 import {StarRating} from "@/app/ui/experience/star-rating";
 import {NominatimResult, MapClickHandlerProps, ChangeMapViewProps, EditExperienceProps} from '@/lib/types'
-import Link from "next/link";
-
 
 // HELPER COMPONENT: Handles map clicks
 function MapClickHandler({ onMapClick }: MapClickHandlerProps) {
@@ -30,24 +28,6 @@ function ChangeMapView({ center }: ChangeMapViewProps) {
 }
 
 export default function EditExperience({ user_id, experience }: EditExperienceProps) {
-    if ("error" in experience) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                        TODO: Create "No Experience Found" component
-                    </h1>
-                    <Link
-                        href={`/public`}
-                        className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-                    >
-                        Return to Home (TODO)
-                    </Link>
-                </div>
-            </div>
-        );
-    }
-
     // formData
     const [title, setTitle] = useState(experience.title);
     const [description, setDescription] = useState(experience.description);
@@ -76,6 +56,8 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
     const roundCoordinate = (coord: number, decimals: number = 6): number => {
         return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
     };
+
+    console.log(experienceDate)
 
     // Helper to get numeric coordinates for map display
     const getNumericCoordinates = (): [number, number] => {
@@ -324,6 +306,7 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
 
         const formData = {
             user_id: user_id,
+            experience_id: experience.experience_id,
             title: title,
             description: description,
             experience_date: experienceDate,
@@ -338,7 +321,7 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
         };
 
         console.log(formData);
-        createExperience(formData);
+        updateExperience(formData);
 
     };
 

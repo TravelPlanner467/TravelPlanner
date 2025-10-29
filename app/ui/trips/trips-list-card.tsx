@@ -2,20 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import {MapPinIcon} from "@heroicons/react/16/solid";
-import {ErrorResponse, Trip} from "@/lib/types";
+import {ErrorResponse, UserTripsProps,} from "@/lib/types";
 
 interface TripCardProps {
-    trip: Trip | ErrorResponse;
+    trip: UserTripsProps
 }
 
 export default function TripsListCard({ trip }: TripCardProps) {
-    if ("error" in trip) {
-        return (
-            <div>
-                TODO: IMPLEMENT NO TRIP FOUND ERROR CARD
-            </div>
-        )
-    }
     const router = useRouter();
 
     // TRIP DATES HANDLER
@@ -44,7 +37,7 @@ export default function TripsListCard({ trip }: TripCardProps) {
     };
 
     const handleClick = () => {
-        router.push(`/trips/details?q=${trip.tripID}`);
+        router.push(`/trips/details?q=${trip.trip_id}`);
     };
 
     return (
@@ -62,20 +55,17 @@ export default function TripsListCard({ trip }: TripCardProps) {
             </div>
 
             {/*Description*/}
-            {trip.description && (
-                <p className="text-gray-700 mb-4 leading-relaxed">{trip.description}</p>
-            )}
+            <p className="text-gray-700 mb-4 leading-relaxed">
+                {trip.description || "No description"}
+            </p>
 
-            {!trip.description && (
-                <span className="text-sm text-gray-400 italic">No description</span>
-            )}
 
             <div className="flex items-center text-sm text-gray-600">
                 <svg className="w-5 h-5 mr-2">
                     <MapPinIcon/>
                 </svg>
                 <p>
-                    {trip.experiences.length} {trip.experiences.length === 1 ? 'experience' : 'experiences'}
+                    {trip.experience_count} {trip.experience_count === 1 ? 'experience' : 'experiences'}
                 </p>
             </div>
         </div>

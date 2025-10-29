@@ -1,25 +1,19 @@
 'use client'
 
 import {DeleteExperienceProps} from "@/lib/types";
-import {useRouter} from "next/navigation";
 import {deleteExperience} from "@/lib/actions/experience-actions";
 import {TrashIcon} from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 export function EditExperienceButton({user_id, experience_id}: DeleteExperienceProps) {
-    const router = useRouter();
-
-    function onEditClick() {
-        router.push(`/account/experiences/edit?q=${experience_id}`);
-    }
-
     return (
-        <button
-            onClick={onEditClick}
+        <Link
+            href={`/account/experiences/edit?q=${experience_id}`}
             className="bg-white rounded-lg px-3 py-2 text-sm border border-gray-200
             transition-all hover:shadow-lg hover:scale-[1.01]"
         >
                 Edit
-        </button>
+        </Link>
     )
 }
 
@@ -48,13 +42,14 @@ export function DeleteExperienceButton({user_id, experience_id}: DeleteExperienc
 }
 
 export function NewExperienceButton() {
-    const router = useRouter();
     return (
-        <button
-            onClick={() => router.push("/experience/create")}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+        <Link
+            href={"/experience/create"}
+            className="w-[200px] px-6 py-2 text-center
+                  border border-blue-800 shadow-sm rounded-lg
+                  hover:shadow-lg hover:scale-[1.01]"
         >
             + New Experience
-        </button>
+        </Link>
     )
 }

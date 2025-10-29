@@ -2,56 +2,62 @@
 
 import {ErrorResponse, Experience, Trip} from "@/lib/types";
 import {CalendarDaysIcon} from "@heroicons/react/16/solid";
-import Link from "next/link";
 import TripExperiencesCard from "@/app/ui/trips/trip-experiences-card";
-import SearchResultsCard from "@/app/ui/experience/search/search-results-card";
+import {DeleteTripButton, EditTripButton} from "@/app/ui/trips/buttons/trip-buttons";
 
 interface TripDetailsProps {
-    query: string;
-    trip: Trip | ErrorResponse;
+    trip: Trip;
     tripExperiences: Experience[] | ErrorResponse;
+    session_user_id: string;
 }
 
-export function TripDetails({query, trip, tripExperiences}: TripDetailsProps) {
-    if ("error" in trip || "error" in tripExperiences) {
+export function TripDetails({trip, tripExperiences, session_user_id}: TripDetailsProps) {
+    // Format dates
+    const formatDate = (date: string | null) => {
+        return date
+            ? new Date(date).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            })
+            : "Unknown";
+    };
+
+    const startDate = formatDate(trip.start_date);
+    const endDate = formatDate(trip.end_date);
+
+    // Render TripExperiences
+    function renderExperiences() {
+        // tripExperiences fetch error
+        if ('error' in tripExperiences) {
+            return <p className="text-red-500">Error fetching trip experiences.</p>;
+        }
+
+        // if no tripExperiences found in trip
+        if (!tripExperiences.length) {
+            return <p className="text-gray-500">No experiences linked to this trip.</p>;
+        }
+
         return (
-            <div>
-                {/*<div>*/}
-                {/*    error: {trip.error}*/}
-                {/*</div>*/}
-                {/*<div>*/}
-                {/*    message: {trip.message}*/}
-                {/*</div>*/}
-                <div>
-                    TODO: IMPLEMENT TRIP DETAILS NOT FOUND ERROR CARD
-                </div>
-            </div>
-        )
+            <ul className="flex flex-row flex-wrap gap-4 w-full space-y-1">
+                {tripExperiences.map((exp: Experience) => (
+                    <TripExperiencesCard
+                        key={exp.experience_id}
+                        experience={exp}
+                        session_user_id={session_user_id}
+                        trip_id={trip.trip_id}
+                    />
+                ))}
+            </ul>
+        );
     }
 
-    // Format start and end dates
-    const startDate = trip.start_date
-        ? new Date(trip.start_date).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        })
-        : "Unknown";
-
-    const endDate = trip.end_date
-        ? new Date(trip.end_date).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        })
-        : "Unknown";
-
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-4xl mx-auto px-4 py-12">
-                <div className="bg-white rounded-lg shadow-lg p-8">
-                    {/* Header */}
-                    <div className="mb-6">
+        <div className="w-full p-4">
+            <div className="bg-white rounded-lg shadow-md p-8">
+                {/* Top Row */}
+                <div className="flex flex-row justify-between items-center mb-6">
+                    <div>
                         <h1 className="text-4xl font-bold text-gray-900 mb-2">
                             {trip.title}
                         </h1>
@@ -62,41 +68,26 @@ export function TripDetails({query, trip, tripExperiences}: TripDetailsProps) {
                             </p>
                         </div>
                     </div>
-
-                    {/* Description */}
-                    {trip.description && (
-                        <div className="prose max-w-none mb-6">
-                            <p className="text-lg text-gray-700 leading-relaxed">
-                                {trip.description}
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Experiences */}
-                    <div className="mb-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-3">
-                            Experiences
-                        </h2>
-                        {trip.experiences.length > 0 ? (
-                            <ul className="flex flex-row flex-wrap gap-4 w-full space-y-1">
-                                {tripExperiences.map((exp: Experience) => (
-                                    <TripExperiencesCard key={exp.experience_id} experience={exp}/>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-gray-500">
-                                No experiences linked to this trip.
-                            </p>
-                        )}
+                    <div className="flex flex-row gap-2">
+                        <EditTripButton trip_id={trip.trip_id} />
+                        <DeleteTripButton trip_id={trip.trip_id} user_id={trip.user_id} />
                     </div>
                 </div>
 
-                <Link
-                    href={`/trips`}
-                    className="mt-8 inline-block bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
-                >
-                    Return to My Trips
-                </Link>
+                {/* Description */}
+                <div className="mb-6">
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                        {trip.description || "No description"}
+                    </p>
+                </div>
+
+                 {/*Experiences*/}
+                <div className="mb-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-3">
+                        Experiences
+                    </h2>
+                    {renderExperiences()}
+                </div>
             </div>
         </div>
     );

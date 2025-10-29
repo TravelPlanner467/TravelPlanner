@@ -1,52 +1,65 @@
-import {TripDetails} from "@/app/ui/trips/trip-details";
-import {demoGetTripByID, demoGetTripExperiences} from "@/lib/actions/trips-actions";
-import {ErrorResponse, Experience, Trip} from "@/lib/types";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
+import {redirect} from "next/navigation";
+import {TripDetails} from "@/app/ui/trips/trip-details";
+import {getTripDetails, getTripExperienceDetails} from "@/lib/actions/trips-actions";
+import {ErrorResponse, Experience, GetBatchExperiencesProps, TripIDProps, Trip} from "@/lib/types";
+import {NavButton} from "@/app/ui/components/buttons/nav-buttons";
+import {Suspense} from "react";
+
 
 export default async function Page(
     props: { searchParams?: Promise<{ q?: string }> }
 ) {
-    // GET USER SESSION DATA
-    const session = await auth.api.getSession(
-        {headers: await headers()}
-    );
-    //@ts-ignore
+    // Authentication check
+    const session = await auth.api.getSession({headers: await headers()});
+    if (!session) {
+        redirect('/account/login');
+    }
+
+    // Extract query params and user ID
+    const searchParams = await props.searchParams;
+    const trip_id = searchParams?.q || '';
     const user_id = session.user.id;
 
-    // get search parameters from URL
-    const searchParams = await props.searchParams;
-    const query = searchParams?.q || '';
-
-    // use server actions to get Trip Details Data
-    const trip: Trip | ErrorResponse = await demoGetTripByID(query, user_id);
+    // Fetch Trip Details
+    const tripFormData: TripIDProps = {
+        trip_id: trip_id,
+        user_id: user_id,
+    }
+    const trip: Trip | ErrorResponse = await getTripDetails(tripFormData);
 
     // ERROR PAGE IF TRIP IS NOT FOUND
     if ("error" in trip) {
         return (
-            <div>
-                TODO: IMPLEMENT TRIP DETAILS FETCH ERROR CARD
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-red-500">
+                    Error loading trip details.
+                </p>
             </div>
-        )}
+        );
+    }
 
     // Load experiences associated with the trip
-    const tripExpIDs = trip.experiences
-    const tripExperiences: Experience[] | ErrorResponse = await demoGetTripExperiences(tripExpIDs);
+    const tripExperienceIDs: GetBatchExperiencesProps = {
+        experience_ids: trip.experiences,
+        user_id: user_id,
+    };
+    const tripExperiences: Experience[] | ErrorResponse = await getTripExperienceDetails(tripExperienceIDs);
 
     return (
-        <div className="min-h-screen min-w-screen">
-            <div className="flex flex-col items-center justify-center gap-12 mt-4">
-                <h2 className="text-4xl font-bold leading-tight">
-                    Trip Details
-                </h2>
-                <div className="flex flex-col gap-4">
-                    <TripDetails query={query}
-                                 trip={trip}
-                                 tripExperiences={tripExperiences}
+        <main className="min-h-screen min-w-screen">
+            <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
+                <div className="flex flex-col gap-4 items-center justify-center">
+                    <TripDetails
+                        trip={trip}
+                        tripExperiences={tripExperiences}
+                        session_user_id={user_id}
                     />
+                    <NavButton link={"/trips"} text={"My Trips"} />
                 </div>
-            </div>
-        </div>
+            </Suspense>
+        </main>
 
     );
 }

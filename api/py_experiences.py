@@ -32,9 +32,11 @@ def require_auth(f):
         return f(*args, **kwargs)
     return decorated
 
+
 @experiences_bp.route('', methods=['GET'])
 def experiences_root():
     return jsonify({"message": "Hello from Experiences"})
+
 
 @experiences_bp.route('/all', methods=['GET'])
 def get_all_experiences():
@@ -61,6 +63,7 @@ def get_all_experiences():
 
     # Convert Row objects to dictionaries for JSON serialization
     return jsonify([dict(experience) for experience in experiences]), 200
+
 
 @experiences_bp.route('/user-experiences/', methods=['GET'])
 @require_auth
@@ -94,7 +97,50 @@ def get_user_experiences():
 
     return jsonify([dict(experience) for experience in experiences]), 200
 
-@experiences_bp.route('/<int:experience_id>', methods=['GET'])
+@experiences_bp.route('/batch-experiences/', methods=['POST'])
+@require_auth
+def get_batch_experiences():
+    """Retrieve all experiences requested by a specific user.
+
+    Fetches all experiences where the user_id matches the provided user_id,
+    ordered by creation date (newest first).
+
+    Args:
+        user_id (STR): The ID of the user whose experiences to retrieve
+
+    Returns:
+        tuple: JSON array of experience objects and HTTP 200
+    """
+    data=request.get_json()
+    print(f"Received  {data}")
+
+    user_id = data['user_id']
+    experience_ids = data['experience_ids']
+
+    header_user_id = g.user_id
+
+    # Return empty list if no IDs provided
+    if not experience_ids:
+        return jsonify([]), 200
+
+    conn = psycopg2.connect(DATABASE_URL)
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                        SELECT *
+                        FROM experiences
+                        WHERE experience_id = ANY(%s)
+                        ORDER BY create_date DESC
+                        """, (experience_ids,))
+
+            experiences = cur.fetchall()
+            return jsonify([dict(experience) for experience in experiences]), 200
+
+    finally:
+        conn.close()
+
+
+@experiences_bp.route('/details/<int:experience_id>', methods=['GET'])
 def get_experience_details(experience_id):
     """Retrieve a specific experience by ID.
 
@@ -113,11 +159,17 @@ def get_experience_details(experience_id):
             experience = cur.fetchone()
             if not experience:
                 return jsonify({'error': 'Experience not found'}), 404
+
+            # Convert datetime fields to ISO 8601
+            if experience.get('experience_date'):
+                experience['experience_date'] = experience['experience_date'].isoformat()
+
         return jsonify(experience), 200
     finally:
         conn.close()
 
-@experiences_bp.route('', methods=['POST'])
+
+@experiences_bp.route('/create', methods=['PUT'])
 @require_auth
 def create_experience():
     """Create a new experience.
@@ -158,12 +210,6 @@ def create_experience():
         return jsonify({'error': 'user_id Unauthorized'}), 403
 
     # REMOVED COORDINATE VALIDATION B/C IT ALREADY GETS HANDLED ON THE FRONTEND
-    # def in_range(v, lo, hi):
-    #     return isinstance(v, (int, float)) and lo <= float(v) <= hi
-    # if latitude is not None and not in_range(latitude, -90, 90):
-    #     return jsonify({'error': 'latitude must be between -90 and 90'}), 400
-    # if longitude is not None and not in_range(longitude, -180, 180):
-    #     return jsonify({'error': 'longitude must be between -180 and 180'}), 400
 
     conn = psycopg2.connect(DATABASE_URL)
     try:
@@ -179,10 +225,17 @@ def create_experience():
         conn.commit()
         # Return the created experience with HTTP 201 Created status
         return jsonify(added_row), 201
+
+    except psycopg2.Error as e:
+        conn.rollback()
+        print(f"Database error: {e}")
+        return None
+
     finally:
         conn.close()
 
-@experiences_bp.route('/<int:experience_id>', methods=['DELETE'])
+
+@experiences_bp.route('/delete/<int:experience_id>', methods=['DELETE'])
 @require_auth
 def delete_experience(experience_id):
     """Delete an experience.
@@ -218,6 +271,89 @@ def delete_experience(experience_id):
             cur.execute('DELETE FROM experiences where experience_id = %s', (experience_id,))
         conn.commit()
         return jsonify({'message': 'Experience deleted'}), 200
+
+    finally:
+        conn.close()
+
+
+@experiences_bp.route('/update', methods=['PUT'])
+@require_auth
+def update_experience():
+    """Update an existing experience.
+
+    Requires authentication via X-User-Id header. Only the experience creator
+    can update their own experiences.
+
+    Args:
+        experience_id (int): The unique identifier of the experience to update
+
+    Optional JSON fields:
+        - title (str): Updated experience title
+        - description (str): Updated experience description
+        - date (str): Updated experience date
+
+    Returns:
+        tuple: JSON object with updated experience data and HTTP 200,
+               or error message with HTTP 404/403
+    """
+    data = request.get_json()
+    user_id = data['user_id']
+    experience_id = data['experience_id']
+    header_user_id = g.user_id
+
+    conn = psycopg2.connect(DATABASE_URL)
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute('''
+                        SELECT * FROM experiences 
+                        WHERE experience_id = %s''', (experience_id,))
+
+            experience = cur.fetchone()
+
+            # Check if experience exists
+            if not experience:
+                conn.close()
+                return jsonify({'error': 'Experience not found'}), 404
+
+            # Verify user is the creator of the experience
+            if experience['user_id'] != user_id:
+                conn.close()
+                return jsonify({'error': 'User Unauthorized'}), 403
+
+            # Extract experience data from request
+            title = data['title']
+            description = data.get('description', '')  # Default to empty string if not provided
+            date = data['experience_date']
+            address = data.get('address', experience['address'])
+            latitude = data.get('latitude', experience['latitude'])
+            longitude = data.get('longitude', experience['longitude'])
+            keywords = data.get('keywords', experience.get('keywords', []))
+
+            # Update the experience in the database
+            cur.execute('''
+                UPDATE experiences
+                SET title = %s,
+                    description = %s,
+                    experience_date = %s,
+                    address = %s,
+                    latitude = %s,
+                    longitude = %s,
+                    keywords = %s
+                WHERE experience_id = %s 
+                RETURNING experience_id, title, description, experience_date, address, 
+                          latitude, longitude, keywords, user_id, create_date
+            ''', (title, description, date, address, latitude, longitude, keywords, experience_id))
+
+            edited_row = cur.fetchone()
+            conn.commit()
+
+            # Return the updated experience
+            return jsonify(edited_row), 200
+
+    except Exception as e:
+        conn.rollback()
+        print(f"Error updating experience: {str(e)}")
+        return jsonify({'error': 'Failed to update experience'}), 500
 
     finally:
         conn.close()

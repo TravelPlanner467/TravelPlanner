@@ -1,7 +1,7 @@
 [
   {
-    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
-    "tripID": "1",
+    "user_id": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
+    "trip_id": "1",
     "title": "California Coast Adventure",
     "description": "A scenic road trip along Highway 1 visiting Big Sur, Monterey, and Santa Barbara.",
     "start_date": "2025-08-14T10:00:00Z",
@@ -9,8 +9,8 @@
     "experiences": ["1", "8", "14", "9"]
   },
   {
-    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
-    "tripID": "2",
+    "user_id": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
+    "trip_id": "2",
     "title": "Pacific Northwest Journey",
     "description": "Exploring Seattle, Portland, and Mount Rainier — a mix of food, nature, and local culture.",
     "start_date": "2025-07-05T09:30:00Z",
@@ -18,8 +18,8 @@
     "experiences": ["2", "6", "7"]
   },
   {
-    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
-    "tripID": "3",
+    "user_id": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
+    "trip_id": "3",
     "title": "Utah National Parks Expedition",
     "description": "Visited Zion, Bryce Canyon, and Arches with incredible hikes and canyon views.",
     "start_date": "2025-05-21T08:00:00Z",
@@ -27,8 +27,8 @@
     "experiences": ["3", "16", "13"]
   },
   {
-    "userID": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
-    "tripID": "4",
+    "user_id": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",
+    "trip_id": "4",
     "title": "Deep South Music Trail",
     "description": "A soulful trip from Memphis to New Orleans through the birthplace of blues and jazz.",
     "start_date": "2025-10-02T12:00:00Z",
@@ -36,8 +36,8 @@
     "experiences": ["4", "18"]
   },
   {
-    "userID": "tEqrKTYACAg52uk",
-    "tripID": "5",
+    "user_id": "tEqrKTYACAg52uk",
+    "trip_id": "5",
     "title": "New England Fall Colors Tour",
     "description": "A drive through Vermont, New Hampshire, and Maine during peak autumn foliage season.",
     "start_date": "2025-09-20T09:00:00Z",
@@ -45,8 +45,8 @@
     "experiences": ["15", "20"]
   },
   {
-    "userID": "tEqrKACAg52uk",
-    "tripID": "6",
+    "user_id": "tEqrKACAg52uk",
+    "trip_id": "6",
     "title": "Desert Wonders of Arizona",
     "description": "Adventurous trip covering Phoenix, Sedona, and the Grand Canyon sunrise trail.",
     "start_date": "2025-04-18T10:00:00Z",
@@ -54,8 +54,8 @@
     "experiences": ["7", "13"]
   },
   {
-    "userID": "tEqrKTYNACAg52uk",
-    "tripID": "7",
+    "user_id": "tEqrKTYNACAg52uk",
+    "trip_id": "7",
     "title": "Florida Keys Getaway",
     "description": "Relaxation and water adventures from Miami to Key West.",
     "start_date": "2025-06-10T08:00:00Z",
@@ -63,8 +63,8 @@
     "experiences": ["10", "19"]
   },
   {
-    "userID": "tEqrKTYULMACAg52uk",
-    "tripID": "8",
+    "user_id": "tEqrKTYULMACAg52uk",
+    "trip_id": "8",
     "title": "Cultural Tour of Chicago & Boston",
     "description": "Explored art, architecture, and history in two of America’s most iconic cities.",
     "start_date": "2025-03-25T11:00:00Z",
@@ -72,8 +72,8 @@
     "experiences": ["11", "15"]
   },
   {
-    "userID": "tEqrKTYUIJNACAg52uk",
-    "tripID": "9",
+    "user_id": "tEqrKTYUIJNACAg52uk",
+    "trip_id": "9",
     "title": "Alaskan Wildlife Expedition",
     "description": "An awe-inspiring journey through the fjords, glaciers, and national parks of Alaska.",
     "start_date": "2025-07-14T09:00:00Z",
@@ -81,8 +81,8 @@
     "experiences": ["5"]
   },
   {
-    "userID": "tEqrKTYULMhIJNACAg52uk",
-    "tripID": "10",
+    "user_id": "tEqrKTYULMhIJNACAg52uk",
+    "trip_id": "10",
     "title": "Eastern USA History Trail",
     "description": "A heritage exploration covering Washington D.C., Philadelphia, and Boston.",
     "start_date": "2025-05-02T10:30:00Z",

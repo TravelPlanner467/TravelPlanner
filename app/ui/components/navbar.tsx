@@ -19,16 +19,16 @@ export default function Navbar({ session }: { session: Session | null }) {
       </Link>
 
       <div className="flex grow flex-row justify-end md:flex-row">
-          {session && (
-              <Link
-                  key="dev"
-                  href="/dev"
-                  className="flex items-center justify-center gap-2 p-3 text-sm font-medium hover:bg-gray-300"
-              >
-                  < LinkSlashIcon className="w-6" />
-                  <p className="hidden md:block">DEVELOPMENT</p>
-              </Link>
-          )}
+          {/*{session && (*/}
+          {/*    <Link*/}
+          {/*        key="dev"*/}
+          {/*        href="/dev"*/}
+          {/*        className="flex items-center justify-center gap-2 p-3 text-sm font-medium hover:bg-gray-300"*/}
+          {/*    >*/}
+          {/*        < LinkSlashIcon className="w-6" />*/}
+          {/*        <p className="hidden md:block">DEVELOPMENT</p>*/}
+          {/*    </Link>*/}
+          {/*)}*/}
 
           {session && (
               <Link

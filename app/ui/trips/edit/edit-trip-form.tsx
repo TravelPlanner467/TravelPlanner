@@ -1,19 +1,24 @@
 'use client'
 
 import React, { useState } from "react";
-import { uploadTrip } from "@/lib/actions/trips-actions";
+import { createTrip } from "@/lib/actions/trips-actions";
+import {CreateTripProps, EditTripProps} from "@/lib/types";
 
-interface TripData {
-    title: string;
-    description: string;
+interface EditTripFormProps {
+    user_id: string
+    trip: EditTripProps
 }
 
-export function NewTripForm() {
+export function EditTripFormProps( {user_id, trip}: EditTripFormProps) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<string>('');
-    const [tripData, setTripData] = useState<TripData>({
+    const [tripData, setTripData] = useState<CreateTripProps>({
         title: '',
         description: '',
+        start_date: '',
+        end_date: '',
+        user_id: user_id,
+        create_date: new Date().toISOString(),
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -29,7 +34,7 @@ export function NewTripForm() {
         setIsUploading(true);
 
         try {
-            await uploadTrip(tripData);
+            await createTrip(tripData);
             setUploadStatus('Trip created successfully!');
             window.location.reload();
         } catch (error) {
@@ -45,15 +50,6 @@ export function NewTripForm() {
                 className=""
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Close Button */}
-                {/*<button*/}
-                {/*    type="button"*/}
-                {/*    onClick={() => onClose()}*/}
-                {/*    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"*/}
-                {/*    aria-label="Close"*/}
-                {/*>*/}
-                {/*    <span className="text-2xl">×</span>*/}
-                {/*</button>*/}
 
                 <h2 className="text-2xl font-bold mb-6">Create a Trip</h2>
 
@@ -87,6 +83,32 @@ export function NewTripForm() {
                             onChange={handleInputChange}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             placeholder="Describe your trip plans..."
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="start_date" className="block text-sm font-medium text-gray-700">
+                            Start Date
+                        </label>
+                        <input
+                            type="date"
+                            id="start_date"
+                            name="start_date"
+                            value={tripData.start_date}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="start_date" className="block text-sm font-medium text-gray-700">
+                            End Date
+                        </label>
+                        <input
+                            type="date"
+                            id="end_date"
+                            name="end_date"
+                            value={tripData.end_date}
+                            onChange={handleInputChange}
                         />
                     </div>
 
