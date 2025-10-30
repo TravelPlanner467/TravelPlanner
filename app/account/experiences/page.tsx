@@ -5,6 +5,7 @@ import {UserExperiences} from "@/app/ui/account/experiences/user-experiences";
 import {getUserExperiences} from "@/lib/actions/experience-actions";
 import {NewExperienceButton} from "@/app/ui/account/buttons/experience-buttons";
 import {ErrorResponse, Experience} from "@/lib/types";
+import {GoBackButton} from "@/app/ui/components/buttons/nav-buttons";
 
 export default async function Page() {
     const session = await auth.api.getSession(
@@ -18,12 +19,17 @@ export default async function Page() {
     const user_id = session.user.id;
     const experiences: Experience[] | ErrorResponse = await getUserExperiences(user_id);
 
-    // Early return on error
+    // Early return for experience fetch error
     if ("error" in experiences) {
         return (
-            <div>
-                TODO: IMPLEMENT EXPERIENCES FEsadfadsaTCH ERROR
-                {experiences.message}
+            <div className="min-h-screen mx-auto p-10">
+                <h1 className="text-lg font-bold text-red-500">
+                    {experiences.error}
+                </h1>
+                <p className="text-gray-600 mb-6">
+                    {experiences.message}
+                </p>
+                <GoBackButton text={"Return Home"} />
             </div>
         );
     }
@@ -31,19 +37,27 @@ export default async function Page() {
     // IF NO EXPERIENCES FOUND
     if (experiences.length === 0) {
         return (
-            <div>
-                TODO: NO EXPERIENCES FOUND FOR THIS USER
+            <div className="flex flex-col min-w-fit min-h-fit p-4">
+                <div className="flex flex-row justify-start items-center gap-6">
+                    <h1 className="text-4xl font-bold">My Experiences</h1>
+                    <NewExperienceButton />
+                </div>
+                <div className="pt-4">
+                    <p className="text-lg font-bold text-gray-500">
+                        No user experiences found. Create one now!
+                    </p>
+                </div>
             </div>
-        )
+        );
     }
 
     return (
-        <div className="flex flex-col min-w-fit min-h-fit">
-            <div className="flex flex-row justify-between items-center my-6">
+        <div className="flex flex-col min-w-fit min-h-fit p-4">
+            <div className="flex flex-row justify-start items-center gap-6">
                 <h1 className="text-4xl font-bold">My Experiences</h1>
                 <NewExperienceButton />
             </div>
-            <div>
+            <div className="pt-4">
                 <UserExperiences user_id={user_id} experiences={experiences}/>
             </div>
         </div>

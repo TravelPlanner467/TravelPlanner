@@ -17,7 +17,7 @@ export default async function CreateExperiencePage() {
     const user_id = session.user.id;
 
     return (
-        <div className="flex flex-col w-full text-center gap-2 items-center">
+        <div className="flex flex-col w-full items-center justify-center p-4">
             <div className='text-4xl font-bold'>
                 Create Experience
             </div>

@@ -313,7 +313,7 @@ export default function CreateExperience({ user_id }: { user_id: string }) {
             // images: images || undefined,
             // imageURL: imageURLS,
             create_date: createDate,
-            rating: rating,
+            user_rating: rating,
             keywords: keywords
         };
 

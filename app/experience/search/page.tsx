@@ -9,6 +9,16 @@ export default async function SearchResultsPage(
     const query = searchParams?.q || '';
     const experiences: Experience[] | ErrorResponse = await getAllExperiences();
 
+    if ("error" in experiences) {
+        return (
+            <div className="min-h-screen mx-auto p-10">
+                <p className="text-lg font-bold text-red-500">
+                    Error fetching experiences
+                </p>
+            </div>
+        );
+    }
+
     return (
         <main className="flex flex-col min-w-fit min-h-fit">
             <SearchResults query={query} experiences={experiences}/>

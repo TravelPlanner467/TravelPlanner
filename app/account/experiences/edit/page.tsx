@@ -20,7 +20,7 @@ export default async function EditExperiencePage(
     const searchParams = await props.searchParams;
     const experience_id = searchParams?.q || '';
     const experience = await getExperienceDetails(experience_id);
-    const user_id = session.user.id;
+    const session_user_id = session.user.id;
 
     // Early return for experience fetch error
     if ("error" in experience) {
@@ -40,7 +40,7 @@ export default async function EditExperiencePage(
     }
 
     // Early return if session user_id doesn't match loaded experience user_id
-    if (experience.user_id !== user_id) {
+    if (experience.user_id !== session_user_id) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
@@ -61,7 +61,7 @@ export default async function EditExperiencePage(
             <div className='text-4xl font-bold'>
                 Edit Experience
             </div>
-            <EditExperienceWrapper user_id={user_id} experience={experience}/>
+            <EditExperienceWrapper session_user_id={session_user_id} experience={experience}/>
         </div>
     )
 }

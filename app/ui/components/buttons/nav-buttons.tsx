@@ -29,7 +29,7 @@ export function GoBackButton({ text }: { text: string }) {
                             border border-blue-800 shadow-sm rounded-lg
                             hover:shadow-lg hover:scale-[1.01]"
         >
-            Return to {text}
+            {text}
         </button>
     )
 }

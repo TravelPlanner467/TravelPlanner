@@ -1,10 +1,10 @@
 'use client'
 
-import { useRouter } from 'next/navigation';
-import {MapPinIcon, PhotoIcon } from "@heroicons/react/16/solid";
-import {Experience} from "@/lib/types";
-import {RemoveExperienceButton} from "@/app/ui/trips/buttons/remove-experience-button";
+import {MapPinIcon} from "@heroicons/react/16/solid";
+import {RemoveExperienceButton} from "@/app/ui/trips/buttons/trip-buttons";
 import {NavButton} from "@/app/ui/components/buttons/nav-buttons";
+
+import {Experience} from "@/lib/types";
 
 interface ExperienceCardProps {
     experience: Experience;

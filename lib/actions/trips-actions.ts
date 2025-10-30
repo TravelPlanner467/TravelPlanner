@@ -1,19 +1,15 @@
 'use server'
 
-import trips from "@/public/trips.json"
-import experiences from "@/public/experiences.json";
 import {
     Trip,
     TripIDProps,
-    ErrorResponse,
     Experience,
-    ExperienceTripProps,
-    GetBatchExperiencesProps
+    GetBatchExperiencesProps,
+    ExperienceToTripsProps, UserTripsProps, ErrorResponse
 } from "@/lib/types";
-import {demoGetExperienceByID} from "@/lib/actions/experience-actions";
 
 
-export async function getUserTrips(userID: string) {
+export async function getUserTrips(userID: string): Promise<UserTripsProps[] | ErrorResponse> {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/user-trips`, {
             method: 'GET',
@@ -23,17 +19,28 @@ export async function getUserTrips(userID: string) {
             },
         });
 
-        const result = await response.json();
-        return result;
+        if (response.ok) {
+            const result = await response.json();
+            return result as UserTripsProps[];
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `Microservice Error: ${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
 
-    } catch (error: any) {
-        console.error(error.message);
-        return null;
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Error in: getUserTrips",
+            message: `${error}`,
+        };
     }
 }
 
 export async function createTrip(formData: any) {
-    console.log(formData);
+    console.log(`createTrip: ${JSON.stringify(formData)}`);
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/create-trip`, {
             method: 'PUT',
@@ -52,7 +59,7 @@ export async function createTrip(formData: any) {
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
@@ -60,7 +67,41 @@ export async function createTrip(formData: any) {
     } catch (error) {
         console.error('Upload failed:', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: createTrip",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function editTrip(formData: Trip) {
+    console.log(`editTrip: ${JSON.stringify(formData)}`);
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/edit-trip`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.user_id,
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Edit successful:', result);
+            setTimeout(() => {}, 2000);
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `Microservice Error: ${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('editTrip failed:', error);
+        return {
+            error: "Error in: editTrip",
             message: `${error}`,
         };
     }
@@ -86,14 +127,14 @@ export async function getTripDetails(formData: TripIDProps) {
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
     } catch (error) {
         console.error('Fetch failed: ', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: getTripDetails",
             message: `${error}`,
         };
     }
@@ -120,14 +161,14 @@ export async function getTripExperienceDetails(formData: GetBatchExperiencesProp
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
     } catch (error) {
         console.error('Fetch failed: ', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: getTripExperienceDetails",
             message: `${error}`,
         };
     }
@@ -153,7 +194,7 @@ export async function deleteTrip (formData: TripIDProps) {
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
@@ -161,13 +202,13 @@ export async function deleteTrip (formData: TripIDProps) {
     } catch (error) {
         console.error('Delete failed:', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: deleteTrip",
             message: `${error}`,
         };
     }
 }
 
-export async function addExperienceToTrip(formData: ExperienceTripProps) {
+export async function addExperienceToTrip(formData: ExperienceToTripsProps) {
     console.log(formData);
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/add-experience`, {
@@ -188,20 +229,20 @@ export async function addExperienceToTrip(formData: ExperienceTripProps) {
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
     } catch (error) {
         console.error('Fetch failed: ', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: addExperienceToTrip",
             message: `${error}`,
         };
     }
 }
 
-export async function removeExperienceFromTrip(formData: ExperienceTripProps) {
+export async function removeExperienceFromTrip(formData: ExperienceToTripsProps) {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/remove-experience`, {
             method: 'DELETE',
@@ -221,73 +262,15 @@ export async function removeExperienceFromTrip(formData: ExperienceTripProps) {
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
     } catch (error) {
         console.error('Fetch failed: ', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: removeExperienceFromTrip",
             message: `${error}`,
         };
     }
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-// DEMO FUNCTIONS -----------------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------------------------
-export async function demoGetTrips(user_id: string): Promise<Trip[] | ErrorResponse>  {
-    if (!experiences) {
-        return {
-            error: "TripsNotFound",
-            message: `User Trips Not Found`,
-        };
-    }
-
-    // Filter Trips by userID
-    const userTrips = trips.filter((trip) => trip.user_id === user_id);
-
-    // Return an error message if no results found
-    if (userTrips.length === 0) {
-        return {
-            error: "TripsNotFound",
-            message: `No trips found for userID: ${user_id}`,
-        };
-    }
-
-    return userTrips;
-}
-export async function demoGetTripByID(trip_id: string, user_id: string): Promise<Trip | ErrorResponse>  {
-    const trips = await demoGetTrips(user_id)
-    if ("error" in trips) {
-        return trips;
-    }
-
-    const trip = trips.find((trip) => trip.trip_id === trip_id);
-    if (!trip) {
-        return {
-            error: "TripNotFound",
-            message: `No Trip Found with ID: ${trip_id}`,
-        };
-    }
-
-    return trip as Trip;
-}
-export async function demoGetTripExperiences(experience_ids: string[]): Promise<Experience[] | ErrorResponse>  {
-    const tripExperiences: Experience[] = []
-
-    for (const expID of experience_ids) {
-        const exp = await demoGetExperienceByID(expID);
-        // Handle errors
-        if (!exp || "error" in exp) {
-            return {
-                error: "ExperienceFetchFailed",
-                message: `Failed to load experience with ID: ${expID}`,
-            };
-        }
-        tripExperiences.push(exp);
-    }
-
-    return tripExperiences as Experience[];
 }

@@ -8,7 +8,7 @@ interface TripDataProps {
     trips: UserTripsProps[]
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 12;
 
 export default function DisplayTrips({ trips }: TripDataProps) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -24,11 +24,11 @@ export default function DisplayTrips({ trips }: TripDataProps) {
     };
 
     return (
-        <div className="min-h-screen mx-auto px-4">
+        <div className="min-h-screen mx-auto">
             {/* Trips List */}
-            <div className="space-y-2">
-                {currentTrips.map((trip) => (
-                    <TripsListCard key={trip.trip_id} trip={trip} />
+            <div className="grid grid-rows-6 gap-3 max-w-2xl">
+                {currentTrips.map((trip, index: number) => (
+                    <TripsListCard key={trip.trip_id} trip={trip} index={index}/>
                 ))}
             </div>
 

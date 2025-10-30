@@ -2,24 +2,16 @@
 import { useState } from 'react';
 import SearchResultsCard from "@/app/ui/experience/search/search-results-card";
 import Pagination from "@/app/ui/components/pagination";
-import {ErrorResponse, Experience} from "@/lib/types";
+import {Experience} from "@/lib/types";
 
 interface SearchResultsProps {
     query: string;
-    experiences: Experience[] | ErrorResponse
+    experiences: Experience[]
 }
 
 const ITEMS_PER_PAGE = 6;
 
 export function SearchResults({ query, experiences }: SearchResultsProps) {
-    if ("error" in experiences) {
-        return (
-            <div>
-                TODO: IMPLEMENT EXPERIENCES FETCH ERROR
-            </div>
-        );
-    }
-
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(experiences.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;

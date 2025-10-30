@@ -1,24 +1,28 @@
 'use client'
 
 import React, { useState } from "react";
-import { createTrip } from "@/lib/actions/trips-actions";
-import {CreateTripProps, EditTripProps} from "@/lib/types";
+import { useRouter } from 'next/navigation'
+import {editTrip} from "@/lib/actions/trips-actions";
+import {Trip} from "@/lib/types";
 
 interface EditTripFormProps {
-    user_id: string
-    trip: EditTripProps
+    session_user_id: string
+    trip: Trip
 }
 
-export function EditTripFormProps( {user_id, trip}: EditTripFormProps) {
+export function EditTripForm( {session_user_id, trip}: EditTripFormProps) {
+    const router = useRouter();
+
     const [isUploading, setIsUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<string>('');
-    const [tripData, setTripData] = useState<CreateTripProps>({
-        title: '',
-        description: '',
-        start_date: '',
-        end_date: '',
-        user_id: user_id,
-        create_date: new Date().toISOString(),
+
+    const [tripData, setTripData] = useState<Trip>({
+        title: trip.title,
+        description: trip.description ?? '',
+        start_date: trip.start_date ?? '',
+        end_date: trip.end_date ?? '',
+        user_id: session_user_id,
+        trip_id: trip.trip_id,
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -34,9 +38,9 @@ export function EditTripFormProps( {user_id, trip}: EditTripFormProps) {
         setIsUploading(true);
 
         try {
-            await createTrip(tripData);
-            setUploadStatus('Trip created successfully!');
-            window.location.reload();
+            await editTrip(tripData);
+            setUploadStatus('Success');
+            router.push(`/trips/details?q=${trip.trip_id}`)
         } catch (error) {
             setUploadStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
         } finally {
@@ -45,100 +49,92 @@ export function EditTripFormProps( {user_id, trip}: EditTripFormProps) {
     };
 
     return (
-        <div className="">
-            <div
-                className=""
-                onClick={(e) => e.stopPropagation()}
-            >
-
-                <h2 className="text-2xl font-bold mb-6">Create a Trip</h2>
-
-                {/* Trip Form */}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                            Trip Title
-                        </label>
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            value={tripData.title}
-                            onChange={handleInputChange}
-                            required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            placeholder="Trip Title"
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                            Trip Description
-                        </label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            rows={4}
-                            value={tripData.description}
-                            onChange={handleInputChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            placeholder="Describe your trip plans..."
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="start_date" className="block text-sm font-medium text-gray-700">
-                            Start Date
-                        </label>
-                        <input
-                            type="date"
-                            id="start_date"
-                            name="start_date"
-                            value={tripData.start_date}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="start_date" className="block text-sm font-medium text-gray-700">
-                            End Date
-                        </label>
-                        <input
-                            type="date"
-                            id="end_date"
-                            name="end_date"
-                            value={tripData.end_date}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-
-                    {/* Upload Status */}
-                    {uploadStatus && (
-                        <div className={`p-3 rounded-lg ${uploadStatus.includes('✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {uploadStatus}
-                        </div>
-                    )}
-
-                    {/* Submit and Cancel Buttons */}
-                    <div className="flex justify-end space-x-3">
-                        {/*<button*/}
-                        {/*    type="button"*/}
-                        {/*    onClick={() => onClose()}*/}
-                        {/*    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"*/}
-                        {/*>*/}
-                        {/*    Cancel*/}
-                        {/*</button>*/}
-                        <button
-                            type="submit"
-                            disabled={isUploading}
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                            {isUploading ? 'Creating Trip...' : 'Create Trip'}
-                        </button>
-                    </div>
-                </form>
-
+        <form onSubmit={handleSubmit}
+              className="flex flex-col gap-3 max-w-2xl w-full mt-2 p-6 justify-center items-center
+               border border-gray-300 rounded-lg bg-white shadow-md"
+        >
+            <div className="flex flex-col w-full">
+                {/*Top Row*/}
+                <label htmlFor="title" className="text-sm font-medium text-gray-700 mb-1">
+                    Trip Title
+                </label>
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value={tripData.title}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Trip Title"
+                    className="rounded-md border-gray-300 shadow-sm focus:ring-blue-800"
+                />
             </div>
-        </div>
+
+            {/*Middle Row*/}
+            <div className="flex flex-row gap-3 w-full">
+                <div className="flex flex-col">
+                    <label htmlFor="start_date" className="text-sm font-medium text-gray-700 mb-1">
+                        Start Date
+                    </label>
+                    <input
+                        type="date"
+                        id="start_date"
+                        name="start_date"
+                        value={tripData.start_date}
+                        onChange={handleInputChange}
+                        className="rounded-md border-gray-300 focus:ring-blue-800"
+                    />
+                </div>
+                <div className="flex flex-col">
+                    <label htmlFor="start_date" className="text-sm font-medium text-gray-700 mb-1">
+                        End Date
+                    </label>
+                    <input
+                        type="date"
+                        id="end_date"
+                        name="end_date"
+                        value={tripData.end_date}
+                        onChange={handleInputChange}
+                        className="rounded-md border-gray-300 focus:ring-blue-800"
+                    />
+                </div>
+            </div>
+
+            {/*Description*/}
+            <div className="w-full">
+                <label htmlFor="description" className="text-sm font-medium text-gray-700 mb-1">
+                    Trip Description
+                </label>
+                <textarea
+                    id="description"
+                    name="description"
+                    rows={8}
+                    value={tripData.description}
+                    onChange={handleInputChange}
+                    placeholder="Describe your trip plans..."
+                    className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-800"
+                />
+            </div>
+
+
+            {/* Upload Status */}
+            {uploadStatus && (
+                <div className={`p-3 rounded-lg ${uploadStatus === "Success" ? 'bg-green-100 text-green-700' :
+                    'bg-red-100 text-red-700'}`}>
+                    {uploadStatus}
+                </div>
+            )}
+
+            {/* Submit Button */}
+            <div className="flex justify-end space-x-3">
+                <button
+                    type="submit"
+                    disabled={isUploading}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                    {isUploading ? 'Submitting Changes...' : 'Submit Changes'}
+                </button>
+            </div>
+        </form>
     );
 }

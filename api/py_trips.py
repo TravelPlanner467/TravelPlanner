@@ -140,7 +140,7 @@ def delete_trip(trip_id):
 
 @trips_bp.route('/get-trip-details/<int:trip_id>', methods=['GET'])
 @require_auth
-def get_trip(trip_id):
+def get_trip_details(trip_id):
     """Get a single trip by ID with its experiences"""
     conn = psycopg2.connect(DATABASE_URL)
     try:
@@ -156,6 +156,12 @@ def get_trip(trip_id):
             if not trip:
                 return jsonify({"error": "Trip not found"}), 404
 
+            # Convert datetime fields to ISO 8601
+            if trip.get('start_date'):
+                trip['start_date'] = trip['start_date'].isoformat()
+            if trip.get('end_date'):
+                trip['end_date'] = trip['end_date'].isoformat()
+
             trip = dict(trip)
 
             # Get associated experiences
@@ -166,6 +172,7 @@ def get_trip(trip_id):
                         """, (trip_id,))
 
             experiences = [row['experience_id'] for row in cur.fetchall()]
+
             trip['experiences'] = experiences
 
             # # Convert dates to ISO format
@@ -249,5 +256,64 @@ def remove_experience_from_trip():
     except psycopg2.Error as e:
         conn.rollback()
         return jsonify({"error": f"Database error: {str(e)}"}), 500
+    finally:
+        conn.close()
+
+@trips_bp.route('/edit-trip', methods=['PUT'])
+@require_auth
+def edit_trip():
+    """Edit/update an existing trip"""
+    data = request.get_json()
+
+    header_user_id = g.user_id
+    user_id = data['user_id']
+    trip_id = data.get('trip_id')
+
+    # Compare header user_id to payload user_id
+    if user_id != header_user_id:
+        return jsonify({'error': 'user_id Unauthorized'}), 403
+
+    # Validate required fields
+    if not data or not trip_id:
+        return jsonify({'error': 'Missing trip_id'}), 400
+
+    if not data.get('title'):
+        return jsonify({'error': 'Missing required field: title'}), 400
+
+    # Extract trip data from request
+    title = data.get('title')
+    description = data.get('description', '')
+    start_date = data.get('start_date') if data.get('start_date') else None
+    end_date = data.get('end_date') if data.get('end_date') else None
+
+    conn = psycopg2.connect(DATABASE_URL)
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # Update trip and return the updated row
+            cur.execute("""
+                        UPDATE trips
+                        SET title       = %s,
+                            description = %s,
+                            start_date  = %s,
+                            end_date    = %s
+                        WHERE trip_id = %s
+                          AND user_id = %s RETURNING trip_id, user_id, title, description, start_date, end_date, create_date
+                        """, (title, description, start_date, end_date, trip_id, user_id))
+
+            updated_row = cur.fetchone()
+
+            # Check if a row was actually updated
+            if not updated_row:
+                conn.rollback()
+                return jsonify({'error': 'Trip not found or unauthorized'}), 404
+
+        conn.commit()
+        return updated_row, 200
+
+    except psycopg2.Error as e:
+        conn.rollback()
+        print(f"Database error: {e}")
+        return jsonify({'error': 'Database Error'}), 500
+
     finally:
         conn.close()

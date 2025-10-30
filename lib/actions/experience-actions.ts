@@ -1,6 +1,5 @@
 'use server'
 
-import experiences from "@/public/experiences.json"
 import {
     CreateExperienceProps,
     DeleteExperienceProps,
@@ -8,7 +7,7 @@ import {
     Experience} from "@/lib/types";
 
 export async function createExperience(formData: CreateExperienceProps) {
-    console.log("Attempting to create experience");
+    console.log("createExperience: ", formData);
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/create`, {
             method: 'PUT',
@@ -28,7 +27,7 @@ export async function createExperience(formData: CreateExperienceProps) {
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
@@ -60,7 +59,7 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
@@ -68,7 +67,7 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
     } catch (error) {
         console.error('Fetch failed: ', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: getUserExperiences",
             message: `${error}`,
         };
     }
@@ -93,7 +92,7 @@ export async function deleteExperience(formData: DeleteExperienceProps) {
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
@@ -101,7 +100,7 @@ export async function deleteExperience(formData: DeleteExperienceProps) {
     } catch (error) {
         console.error('Delete failed:', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: deleteExperience",
             message: `${error}`,
         };
     }
@@ -125,14 +124,14 @@ export async function getExperienceDetails(experience_id: string): Promise<Exper
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
     } catch (error) {
         console.error('Fetch failed: ', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: getExperienceDetails",
             message: `${error}`,
         };
     }
@@ -155,7 +154,7 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
@@ -163,7 +162,7 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
     } catch (error) {
         console.error('Fetch failed: ', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: getAllExperiences",
             message: `${error}`,
         };
     }
@@ -190,7 +189,7 @@ export async function updateExperience(formData: Experience) {
         } else {
             console.error(`HTTP error: ${response.status}`);
             return {
-                error: `${response.status}`,
+                error: `Microservice Error: ${response.status}`,
                 message: `${response.statusText}`,
             };
         }
@@ -198,65 +197,9 @@ export async function updateExperience(formData: Experience) {
     } catch (error) {
         console.error('Upload failed:', error);
         return {
-            error: "Unknown Error",
+            error: "Error in: updateExperience",
             message: `${error}`,
         };
     }
 }
 
-
-// --------------------------------------------------------------------------------------------------------------------
-// DEMO FUNCTIONS -----------------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------------------------
-export async function demoGetExperiences(): Promise<Experience[] | ErrorResponse> {
-    if (!experiences) {
-        return {
-            error: "ExperiencesNotFound",
-            message: `No Experiences Found`,
-        };
-    }
-
-    return experiences as Experience[];
-}
-export async function demoGetExperienceByID(experience_id: string): Promise<Experience | ErrorResponse> {
-    const experiences = await demoGetExperiences();
-    if ("error" in experiences) {
-        return {
-            error: "ExperiencesNotFound",
-            message: `No Experiences Found`,
-        };
-    }
-
-    // @ts-ignore
-    const experience = experiences.find((exp: { experience_id: string; }) => exp.experience_id === experience_id);
-    if (!experience) {
-        return {
-            error: "ExperienceNotFound",
-            message: `No experience found with ID: ${experience_id}`,
-        };
-    }
-
-    return experience as Experience;
-}
-export async function demoGetUserExperiences(user_id: string): Promise<Experience[] | ErrorResponse> {
-    const experiences = await demoGetExperiences();
-    if ("error" in experiences) {
-        return {
-            error: "ExperiencesNotFound",
-            message: `No Experiences Found`,
-        };
-    }
-
-    const matches = experiences.filter(
-        (exp: { user_id: string }) => exp.user_id === user_id
-    );
-
-    if (matches.length === 0) {
-        return {
-            error: "ExperienceNotFound",
-            message: `No experiences found associated with userID: ${user_id}`,
-        };
-    }
-
-    return matches as Experience[];
-}

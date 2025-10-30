@@ -2,7 +2,11 @@
 
 import {MapPinIcon, PhotoIcon } from "@heroicons/react/16/solid";
 import {Experience} from "@/lib/types";
-import {EditExperienceButton, DeleteExperienceButton} from "@/app/ui/account/buttons/experience-buttons";
+import {
+    EditExperienceButton,
+    DeleteExperienceButton,
+    ViewExperienceButton
+} from "@/app/ui/account/buttons/experience-buttons";
 
 interface ExperienceCardProps {
     user_id: string;
@@ -20,14 +24,16 @@ export default function UserExperiencesCard({ experience, user_id }: ExperienceC
     return (
         <div
             className="bg-white rounded-lg py-2 px-4 border border-gray-200
-            transition-all duration-200  hover:shadow"
+            transition-all duration-200 hover:shadow"
         >
             {/*Top Row*/}
             <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-semibold text-gray-900">{experience.title}</h3>
+                <h2 className="text-2xl font-semibold text-gray-900 truncate min-w-0 w-2/5">
+                    {experience.title}
+                </h2>
 
                 {/*Keywords*/}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 w-2/5 min-w-0">
                     {experience.keywords.map((keyword, index) => (
                         <p key={index}
                            className="px-2 py-1 text-xs font-medium border"
@@ -37,7 +43,10 @@ export default function UserExperiencesCard({ experience, user_id }: ExperienceC
                     ))}
                 </div>
 
-                <p className="text-sm text-gray-500 whitespace-nowrap ml-4">{experienceDate}</p>
+                {/*Date*/}
+                <p className="text-sm text-gray-500 whitespace-nowrap w-1/5 text-right">
+                    {experienceDate}
+                </p>
             </div>
 
             {/*MIDDLE ROW*/}
@@ -69,6 +78,7 @@ export default function UserExperiencesCard({ experience, user_id }: ExperienceC
                 {/*)}*/}
 
                 <div className="flex flex-row gap-2">
+                    <ViewExperienceButton experience_id={experience.experience_id} />
                     <EditExperienceButton experience_id={experience.experience_id} user_id={user_id} />
                     <DeleteExperienceButton experience_id={experience.experience_id} user_id={user_id} />
                 </div>

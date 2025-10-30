@@ -1,13 +1,14 @@
 'use client'
 
-import {Experience, ErrorResponse, Trip} from "@/lib/types";
+import {Experience, ErrorResponse, Trip, UserTripsProps} from "@/lib/types";
 import {CalendarDaysIcon, MapPinIcon} from "@heroicons/react/16/solid";
 import {AddToTripButton} from "@/app/ui/experience/trip-features/add-to-trip-button";
+import {RatingDisplay} from "@/app/ui/experience/star-rating";
 
 interface ExperienceDetailsProps {
     experience: Experience;
     user_id?: string;
-    trips?: Trip[] | ErrorResponse;
+    trips?: UserTripsProps[] | ErrorResponse;
 }
 
 export function ExperienceDetailsContent({ experience, trips, user_id }: ExperienceDetailsProps) {
@@ -36,6 +37,7 @@ export function ExperienceDetailsContent({ experience, trips, user_id }: Experie
                             <p className="text-gray-600">{experienceDate}</p>
                         </div>
                     </div>
+                    <RatingDisplay rating={experience.user_rating} />
 
                     {isLoggedIn && (
                         <AddToTripButton

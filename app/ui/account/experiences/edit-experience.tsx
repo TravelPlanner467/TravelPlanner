@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import {updateExperience} from "@/lib/actions/experience-actions";
 import { LatLng } from "leaflet";
@@ -8,7 +8,9 @@ import 'leaflet/dist/leaflet.css';
 import {StarRating} from "@/app/ui/experience/star-rating";
 import {NominatimResult, MapClickHandlerProps, ChangeMapViewProps, EditExperienceProps} from '@/lib/types'
 
+// ============================================================================
 // HELPER COMPONENT: Handles map clicks
+// ============================================================================
 function MapClickHandler({ onMapClick }: MapClickHandlerProps) {
     useMapEvents({
         click(e) {
@@ -18,7 +20,6 @@ function MapClickHandler({ onMapClick }: MapClickHandlerProps) {
     return null;
 }
 
-// HELPER COMPONENT: Changes map view when 'center' prop changes
 function ChangeMapView({ center }: ChangeMapViewProps) {
     const map = useMap();
     useEffect(() => {
@@ -27,15 +28,29 @@ function ChangeMapView({ center }: ChangeMapViewProps) {
     return null;
 }
 
-export default function EditExperience({ user_id, experience }: EditExperienceProps) {
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+function roundCoordinate(coord: number, decimals: number = 6): number {
+    return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
+}
+
+function parseCoordinate(value: number | string): number {
+    return typeof value === 'number' ? value : parseFloat(String(value));
+}
+
+const isValidLatitude = (lat: number): boolean => lat >= -90 && lat <= 90;
+const isValidLongitude = (lng: number): boolean => lng >= -180 && lng <= 180;
+
+export default function EditExperience({ session_user_id, experience }: EditExperienceProps) {
     // formData
     const [title, setTitle] = useState(experience.title);
     const [description, setDescription] = useState(experience.description);
-    const [images, setImages] = useState([] as any);
-    // const [imageURLS, setImageURLs] = useState(experience.imageURLs);
     const [experienceDate, setExperienceDate] = useState(experience.experience_date);
+    // const [images, setImages] = useState([] as any);
+    // const [imageURLS, setImageURLs] = useState(experience.imageURLs);
     const [keywords, setKeywords] = useState(experience.keywords);
-    const [rating, setRating] = useState(experience.rating);
+    const [rating, setRating] = useState(experience.user_rating);
 
     // Location State
     const [latitude, setLatitude] = useState<number | string>(experience.latitude);
@@ -52,48 +67,9 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
     const [isGettingLocation, setIsGettingLocation] = useState(false);
     const [isLoadingAddress, setIsLoadingAddress] = useState(false);
 
-    // UTILITY: Round coordinates to specified decimal places (default 6 = ~0.11m accuracy)
-    const roundCoordinate = (coord: number, decimals: number = 6): number => {
-        return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
-    };
-
-    console.log(experienceDate)
-
-    // Helper to get numeric coordinates for map display
-    const getNumericCoordinates = (): [number, number] => {
-        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
-        const lng = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
-
-        // Return valid coordinates or fallback to center
-        if (!isNaN(lat) && !isNaN(lng)) {
-            return [lat, lng];
-        }
-        return mapCenter;
-    };
-
-    // Debounce address search
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            if (address.trim() && !isLoadingAddress && isAddressFocused) {
-                fetchForwardGeocode(address);
-            } else if (!isAddressFocused) {
-                setSearchResults([]);
-            }
-        }, 500);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [address, isLoadingAddress, isAddressFocused]);
-
-    // create and set image URL
-    // useEffect(() => {
-    //     if (images.length < 1) return;
-    //     const newImageUrls: any = [];
-    //     images.forEach((image:any) => newImageUrls.push(URL.createObjectURL(image)));
-    //     setImageURLs(newImageUrls);
-    // }, [images]);
-
+    // ========================================================================
+    // GEOCODING FUNCTIONS
+    // ========================================================================
     // Fetch address from coordinates (Reverse Geocoding)
     const fetchReverseGeocode = async (lat: number, lon: number) => {
         setIsLoadingAddress(true);
@@ -118,16 +94,14 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
     };
 
     // Fetch coordinates/suggestions from address string (Forward Geocoding)
-    const fetchForwardGeocode = async (query: string) => {
+    const fetchForwardGeocode = useCallback(async (query: string) => {
         setIsSearching(true);
         try {
             const response = await fetch(
                 `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`
             );
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch search results');
-            }
+            if (!response.ok) throw new Error('Failed to fetch search results');
 
             const data = await response.json();
             setSearchResults(data);
@@ -137,14 +111,66 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
         } finally {
             setIsSearching(false);
         }
+    }, []);
+
+    // ========================================================================
+    // HELPER
+    // ========================================================================
+    // Helper to get numeric coordinates for map display
+    const getNumericCoordinates = (): [number, number] => {
+        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
+        const lng = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
+
+        // Return valid coordinates or fallback to center
+        if (!isNaN(lat) && !isNaN(lng)) {
+            return [lat, lng];
+        }
+        return mapCenter;
     };
 
-    // --- EVENT HANDLERS ---
+    // ========================================================================
+    // useEffects
+    // ========================================================================\
+    // Debounce address search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (address.trim() && !isLoadingAddress && isAddressFocused) {
+                fetchForwardGeocode(address);
+            } else if (!isAddressFocused) {
+                setSearchResults([]);
+            }
+        }, 500);
 
-    // User uploads a photo
-    function onImageChange(e: any) {
-        setImages([...e.target.files]);
-    }
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [address, isLoadingAddress, isAddressFocused, fetchForwardGeocode]);
+
+    // create and set image URL
+    // useEffect(() => {
+    //     if (images.length < 1) return;
+    //     const newImageUrls: any = [];
+    //     images.forEach((image:any) => newImageUrls.push(URL.createObjectURL(image)));
+    //     setImageURLs(newImageUrls);
+    // }, [images]);
+
+    // Update address when coordinates change manually
+    useEffect(() => {
+        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
+        const lon = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
+
+        if (address.trim() && !isLoadingAddress && isAddressFocused) {
+            const timeoutId = setTimeout(() => {
+                fetchReverseGeocode(lat, lon);
+            }, 1000); // Debounce address lookup
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [latitude, longitude]);
+
+    // ========================================================================
+    // EVENT HANDLERS
+    // ========================================================================
 
     // User clicked "Use My Current Location"
     const handleGetCurrentLocation = () => {
@@ -218,7 +244,8 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
         if (!isNaN(parsed) && parsed >= -90 && parsed <= 90) {
             const rounded = roundCoordinate(parsed);
             setLatitude(rounded);
-            const currentLng = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
+
+            const currentLng = parseCoordinate(longitude);
             if (!isNaN(currentLng)) {
                 setMapCenter([rounded, currentLng]);
             }
@@ -227,37 +254,22 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
 
     const handleLongitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-
         if (value === '' || value === '-') {
             setLongitude('');
             return;
         }
 
         const parsed = parseFloat(value);
-
-        if (!isNaN(parsed) && parsed >= -180 && parsed <= 180) {
+        if (!isNaN(parsed) && isValidLongitude(parsed)) {
             const rounded = roundCoordinate(parsed);
             setLongitude(rounded);
-            const currentLat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
+
+            const currentLat = parseCoordinate(latitude);
             if (!isNaN(currentLat)) {
                 setMapCenter([currentLat, rounded]);
             }
         }
     };
-
-    // Update address when coordinates change manually
-    useEffect(() => {
-        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
-        const lon = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
-
-        if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
-            const timeoutId = setTimeout(() => {
-                fetchReverseGeocode(lat, lon);
-            }, 1000); // Debounce address lookup
-
-            return () => clearTimeout(timeoutId);
-        }
-    }, [latitude, longitude]);
 
     // Handle focus events for address input
     const handleAddressFocus = () => {
@@ -288,24 +300,27 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
         }
     };
 
+    // User uploads a photo
+    // function handlePhotoUpload(e: any) {
+    //     setImages([...e.target.files]);
+    // }
+
     // Form submission
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // Validate coordinates
-        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
-        const lon = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
+        const lat = parseCoordinate(latitude);
+        const lon = parseCoordinate(longitude);
 
-        if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+        if (isNaN(lat) || isNaN(lon) || !isValidLatitude(lat) || !isValidLongitude(lon)) {
             alert('Please enter valid coordinates');
             return;
         }
 
         const editDate = new Date().toISOString();
-        const coordinates = {latitude: lat, longitude: lon};
 
         const formData = {
-            user_id: user_id,
+            user_id: session_user_id,
             experience_id: experience.experience_id,
             title: title,
             description: description,
@@ -316,7 +331,7 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
             // images: images || undefined,
             // imageURL: imageURLS,
             create_date: editDate,
-            rating: rating,
+            user_rating: rating,
             keywords: keywords
         };
 
@@ -544,23 +559,23 @@ export default function EditExperience({ user_id, experience }: EditExperiencePr
                 />
             </div>
 
-            {/*UPLOAD IMAGE*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="keywords" className="text-sm font-medium">
-                    Photos
-                </label>
-                <div>
-                    <input
-                        type="file"
-                        multiple accept="image/*"
-                        onChange={onImageChange}
-                    />
-                    {images.map((imageSrc: string, index: number) => (
-                        <img key={index} src={imageSrc} alt="not found" width={"250px"} />
-                    ))}
-                </div>
+            {/*/!*UPLOAD IMAGE*!/*/}
+            {/*<div className="flex flex-col gap-2">*/}
+            {/*    <label htmlFor="keywords" className="text-sm font-medium">*/}
+            {/*        Photos*/}
+            {/*    </label>*/}
+            {/*    <div>*/}
+            {/*        <input*/}
+            {/*            type="file"*/}
+            {/*            multiple accept="image/*"*/}
+            {/*            onChange={onImageChange}*/}
+            {/*        />*/}
+            {/*        {images.map((imageSrc: string, index: number) => (*/}
+            {/*            <img key={index} src={imageSrc} alt="not found" width={"250px"} />*/}
+            {/*        ))}*/}
+            {/*    </div>*/}
 
-            </div>
+            {/*</div>*/}
 
 
 

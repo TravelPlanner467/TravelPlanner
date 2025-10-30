@@ -10,7 +10,7 @@ interface UserExperienceProps {
     experiences: Experience[]
 }
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 12;
 
 export function UserExperiences({ user_id, experiences }: UserExperienceProps) {
     // Pagination calculations
@@ -26,9 +26,9 @@ export function UserExperiences({ user_id, experiences }: UserExperienceProps) {
     };
 
     return (
-        <div className="min-h-screen mx-auto px-4 py-10">
-            {/*Experience display List*/}
-            <div className="space-y-2">
+        <div className="min-h-screen mx-auto">
+            {/*User Experiences List*/}
+            <div className="grid grid-rows-6 gap-3 max-w-2xl">
                 {currentExperiences.map((exp: Experience) => (
                     <UserExperiencesCard key={exp.experience_id} experience={exp} user_id={user_id}/>
                 ))}

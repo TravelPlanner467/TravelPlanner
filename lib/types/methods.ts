@@ -19,7 +19,7 @@ export interface Experience {
     keywords: string[];
     imageURLs?: string[];
     images?:[];
-    rating: number;
+    user_rating: number;
 }
 
 export interface CreateExperienceProps {
@@ -34,7 +34,7 @@ export interface CreateExperienceProps {
     keywords: string[];
     images?:[];
     imageURLs?: string[];
-    rating: number;
+    user_rating: number;
 }
 
 export interface DeleteExperienceProps {
@@ -44,7 +44,7 @@ export interface DeleteExperienceProps {
 
 export interface EditExperienceProps {
     experience: Experience;
-    user_id: string;
+    session_user_id: string;
 }
 
 export interface NominatimResult {
@@ -70,10 +70,10 @@ export interface Trip {
     user_id: string;
     trip_id: string;
     title: string;
-    description: string | null;
-    start_date: string | null;
-    end_date: string | null;
-    experiences: string[];
+    description: string;
+    start_date: string;
+    end_date: string;
+    experiences?: string[];
 }
 
 export interface CreateTripProps {
@@ -83,20 +83,6 @@ export interface CreateTripProps {
     end_date?: string;
     user_id: string;
     create_date: string;
-}
-
-export interface EditTripProps {
-    title: string;
-    description?: string;
-    start_date?: string;
-    end_date?: string;
-    user_id: string;
-    create_date: string;
-}
-
-export interface DeleteTripProps {
-    trip_id: string;
-    user_id: string
 }
 
 export interface UserTripsProps {
@@ -114,21 +100,21 @@ export interface TripIDProps {
     user_id: string;
 }
 
-export interface ExperienceTripProps {
+export interface ExperienceToTripsProps {
     trip_id: string;
     experience_id: string;
     user_id: string;
 }
 
 export interface GetBatchExperiencesProps {
-    experience_ids: string[];
+    experience_ids: string[] | undefined;
     user_id: string;
 }
 
 export interface AddExperienceToTripButtonProps {
     experience_id: string;
     user_id: string;
-    trips?: Trip[] | ErrorResponse;
+    trips?: UserTripsProps[] | ErrorResponse;
 }
 // --------------------------------------------------------------------------------------------------------------------
 // STANDARD COMPONENT PROPS -------------------------------------------------------------------------------------------

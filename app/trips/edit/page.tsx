@@ -2,11 +2,12 @@ import React from "react";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
-import EditExperienceWrapper from "@/app/ui/account/experiences/edit-experience-wrapper";
-import {getExperienceDetails} from "@/lib/actions/experience-actions";
 import {GoBackButton} from "@/app/ui/components/buttons/nav-buttons";
+import {getTripDetails} from "@/lib/actions/trips-actions";
+import {EditTripForm} from "@/app/ui/trips/edit/edit-trip-form";
+import {ErrorResponse, Trip} from "@/lib/types";
 
-export default async function EditExperiencePage(
+export default async function EditTripPage(
     props: { searchParams?: Promise<{ q?: string }> }
 ) {
     // Session Authentication
@@ -14,21 +15,24 @@ export default async function EditExperiencePage(
         {headers: await headers()}
     );
     if ( !session ) { redirect('/account/login'); }
-
+    const session_user_id = session.user.id; // Get user_id from session
 
     // Fetch Experience Details
     const searchParams = await props.searchParams;
-    const experience_id = searchParams?.q || '';
-    const experience = await getExperienceDetails(experience_id);
-    const user_id = session.user.id;
+    const trip_id = searchParams?.q || '';
+    const formData = {
+        trip_id: trip_id,
+        user_id: session_user_id,
+    }
+    const trip: Trip | ErrorResponse = await getTripDetails(formData);
 
     // Early return for experience fetch error
-    if ("error" in experience) {
+    if ("error" in trip) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                        Experience not found
+                        Trip not found
                     </h1>
                     <p className="text-gray-600 mb-6">
                         The experience you're looking for doesn't exist or has been removed.
@@ -40,7 +44,7 @@ export default async function EditExperiencePage(
     }
 
     // Early return if session user_id doesn't match loaded experience user_id
-    if (experience.user_id !== user_id) {
+    if (trip.user_id !== session_user_id) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
@@ -57,11 +61,11 @@ export default async function EditExperiencePage(
     }
 
     return (
-        <div className="flex flex-col w-full text-center gap-2 items-center">
+        <div className="flex flex-col w-full gap-2 items-center">
             <div className='text-4xl font-bold'>
-                Edit Experience
+                Edit Trip
             </div>
-            <EditExperienceWrapper user_id={user_id} experience={experience}/>
+            <EditTripForm session_user_id={session_user_id} trip={trip}/>
         </div>
     )
 }

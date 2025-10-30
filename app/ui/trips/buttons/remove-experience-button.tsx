@@ -1,9 +1,9 @@
 import {useState} from "react";
-import {ExperienceTripProps} from "@/lib/types";
+import {ExperienceToTripsProps} from "@/lib/types";
 import {removeExperienceFromTrip} from "@/lib/actions/trips-actions";
 import {TrashIcon} from "@heroicons/react/24/outline";
 
-export function RemoveExperienceButton({user_id, experience_id, trip_id}: ExperienceTripProps) {
+export function RemoveExperienceButton({user_id, experience_id, trip_id}: ExperienceToTripsProps) {
     const [statusMessage, setStatusMessage] = useState<{
         text: string;
         type: 'success' | 'error' | null;
@@ -46,5 +46,4 @@ export function RemoveExperienceButton({user_id, experience_id, trip_id}: Experi
             )}
         </div>
     );
-
 }

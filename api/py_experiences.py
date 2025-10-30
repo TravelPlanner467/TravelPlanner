@@ -97,6 +97,7 @@ def get_user_experiences():
 
     return jsonify([dict(experience) for experience in experiences]), 200
 
+
 @experiences_bp.route('/batch-experiences', methods=['POST'])
 @require_auth
 def get_batch_experiences():
@@ -204,6 +205,7 @@ def create_experience():
     longitude = data.get('longitude')
     create_date = data.get('create_date')
     keywords = data.get('keywords', [])
+    user_rating = data.get('user_rating')
 
     # Compare header user_id to payload user_id
     if user_id != header_user_id:
@@ -216,11 +218,11 @@ def create_experience():
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("""
                         INSERT INTO experiences (title, description, experience_date, user_id, create_date, address,
-                                                 latitude, longitude, keywords)
-                        VALUES (%s, %s, %s, %s, COALESCE(%s, NOW()), %s, %s, %s,
-                                %s) RETURNING experience_id, title, description, experience_date, address, latitude, 
-                                longitude, user_id, create_date, keywords
-                        """, (title, description, date, user_id, create_date, address, latitude, longitude, keywords))
+                                                 latitude, longitude, keywords, user_rating)
+                        VALUES (%s, %s, %s, %s, COALESCE(%s, NOW()), %s, %s, %s, %s, %s) 
+                            RETURNING experience_id, title, description, experience_date, address, latitude, 
+                                longitude, user_id, create_date, keywords, user_rating
+                        """, (title, description, date, user_id, create_date, address, latitude, longitude, keywords, user_rating,))
             added_row = cur.fetchone()
         conn.commit()
         # Return the created experience with HTTP 201 Created status

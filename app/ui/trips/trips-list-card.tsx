@@ -2,13 +2,14 @@
 
 import { useRouter } from 'next/navigation';
 import {MapPinIcon} from "@heroicons/react/16/solid";
-import {ErrorResponse, UserTripsProps,} from "@/lib/types";
+import {UserTripsProps,} from "@/lib/types";
 
 interface TripCardProps {
     trip: UserTripsProps
+    index: number
 }
 
-export default function TripsListCard({ trip }: TripCardProps) {
+export default function TripsListCard({ trip, index }: TripCardProps) {
     const router = useRouter();
 
     // TRIP DATES HANDLER
@@ -48,7 +49,11 @@ export default function TripsListCard({ trip }: TripCardProps) {
         >
             {/*Top Row*/}
             <div className="flex justify-between items-start my-2">
-                <h3 className="text-2xl font-semibold text-gray-900">{trip.title}</h3>
+                <div className="flex flex-row items-end">
+                    {/*<h3 className="text-lg font-semibold text-gray-500">{index + 1}.&nbsp;</h3>*/}
+                    <h2 className="text-2xl font-semibold text-gray-900">{trip.title}</h2>
+                </div>
+
                 <div className="text-sm text-gray-600 whitespace-nowrap ml-4">
                     {formatDateRange()}
                 </div>

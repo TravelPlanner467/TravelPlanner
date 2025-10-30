@@ -17,6 +17,18 @@ export function EditExperienceButton({user_id, experience_id}: DeleteExperienceP
     )
 }
 
+export function ViewExperienceButton({experience_id}: {experience_id: string}) {
+    return (
+        <Link
+            href={`/experience/details?q=${experience_id}`}
+            className="bg-white rounded-lg px-3 py-2 text-sm border border-gray-200
+            transition-all hover:shadow-lg hover:scale-[1.01]"
+        >
+            View
+        </Link>
+    )
+}
+
 export function DeleteExperienceButton({user_id, experience_id}: DeleteExperienceProps) {
     const formData: DeleteExperienceProps = {user_id, experience_id}
 

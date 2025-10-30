@@ -1,9 +1,15 @@
 // Star Rating Component
 import {useState} from "react";
+import {StarIcon} from "@heroicons/react/16/solid";
 
 interface StarRatingProps {
     rating: number;
     setRating: (rating: number) => void;
+}
+
+interface RatingDisplayProps {
+    rating: number;
+    showLabel?: boolean;
 }
 
 export function StarRating({ rating, setRating }: StarRatingProps) {
@@ -36,6 +42,52 @@ export function StarRating({ rating, setRating }: StarRatingProps) {
                 <span className="ml-2 text-sm text-gray-600 self-center">
                     {rating} {rating === 1 ? 'star' : 'stars'}
                 </span>
+            )}
+        </div>
+    );
+}
+
+export function RatingDisplay({rating, showLabel = true}: RatingDisplayProps) {
+    const stars = Array.from({ length: 5 }, (_, i) => i);
+
+    const numericRating = Number(rating) || 0;
+
+    const getStarFillPercentage = (starIndex: number) => {
+        const difference = rating - starIndex;
+        if (difference >= 1) return 100;
+        if (difference <= 0) return 0;
+        return difference * 100;
+    };
+
+    console.log(rating)
+
+    return (
+        <div className="flex items-center gap-1">
+            <div className="flex">
+                {stars.map((starIndex) => {
+                    const fillPercentage = getStarFillPercentage(starIndex);
+
+                    return (
+                        <div key={starIndex} className="relative w-8 h-8">
+                            {/* Gray background star */}
+                            <StarIcon className="w-8 h-8 text-gray-300 absolute" />
+
+                            {/* Yellow filled portion */}
+                            <div
+                                className="overflow-hidden absolute top-0 left-0 h-full"
+                                style={{ width: `${fillPercentage}%` }}
+                            >
+                                <StarIcon className="w-8 h-8 text-blue-300" />
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {showLabel && numericRating > 0 && (
+                <p className="ml-2 text-sm text-gray-600">
+                    {numericRating.toFixed(1)} {numericRating === 1 ? 'star' : 'stars'}
+                </p>
             )}
         </div>
     );
