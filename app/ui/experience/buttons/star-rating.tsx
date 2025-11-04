@@ -2,49 +2,14 @@
 import {useState} from "react";
 import {StarIcon} from "@heroicons/react/16/solid";
 
-interface StarRatingProps {
-    rating: number;
-    setRating: (rating: number) => void;
-}
-
 interface RatingDisplayProps {
     rating: number;
     showLabel?: boolean;
 }
 
-export function StarRating({ rating, setRating }: StarRatingProps) {
-    const [hover, setHover] = useState(0);
-
-    return (
-        <div className="flex justify-center items-center gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                    key={star}
-                    type="button"
-                    onClick={() => setRating(star)}
-                    onMouseEnter={() => setHover(star)}
-                    onMouseLeave={() => setHover(0)}
-                    className="text-3xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-                    aria-label={`Rate ${star} out of 5 stars`}
-                >
-                    <span
-                        className={`${
-                            star <= (hover || rating)
-                                ? 'text-yellow-400'
-                                : 'text-gray-300'
-                        }`}
-                    >
-                        ★
-                    </span>
-                </button>
-            ))}
-            {rating > 0 && (
-                <span className="ml-2 text-sm text-gray-600 self-center">
-                    {rating} {rating === 1 ? 'star' : 'stars'}
-                </span>
-            )}
-        </div>
-    );
+interface SelectableRatingProps {
+    experience_rating?: number;
+    onRatingChange: (rating: number) => void; // Add this callback prop
 }
 
 export function RatingDisplay({rating, showLabel = true}: RatingDisplayProps) {
@@ -89,6 +54,49 @@ export function RatingDisplay({rating, showLabel = true}: RatingDisplayProps) {
                     {numericRating.toFixed(1)} {numericRating === 1 ? 'star' : 'stars'}
                 </p>
             )}
+        </div>
+    );
+}
+
+export function SelectableRating({experience_rating = 0, onRatingChange}: SelectableRatingProps) {
+    const [rating, setRating] = useState(experience_rating);
+    const [hover, setHover] = useState(0);
+
+    function handleRatingClick(selectedRating: number) {
+        setRating(selectedRating);
+        onRatingChange(selectedRating);
+    }
+
+    return (
+        <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                        key={star}
+                        type="button"
+                        onClick={() => handleRatingClick(star)}
+                        onMouseEnter={() => setHover(star)}
+                        onMouseLeave={() => setHover(0)}
+                        className="relative w-8 h-8 transition-transform focus:outline-none focus:ring-2
+                        focus:ring-blue-500 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110"
+                    >
+                        <StarIcon
+                            className={`w-8 h-8 transition-colors ${
+                                star <= (hover || rating)
+                                    ? 'text-blue-300'
+                                    : 'text-gray-300'
+                            }`}
+                        />
+                    </button>
+                ))}
+            </div>
+
+            {rating > 0 && (
+                <p className="text-sm text-gray-600">
+                    {rating} {rating === 1 ? 'star' : 'stars'}
+                </p>
+            )}
+
         </div>
     );
 }

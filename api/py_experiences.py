@@ -330,6 +330,7 @@ def update_experience():
             latitude = data.get('latitude', experience['latitude'])
             longitude = data.get('longitude', experience['longitude'])
             keywords = data.get('keywords', experience.get('keywords', []))
+            user_rating = data.get('user_rating', experience.get('user_rating'))
 
             # Update the experience in the database
             cur.execute('''
@@ -340,11 +341,12 @@ def update_experience():
                     address = %s,
                     latitude = %s,
                     longitude = %s,
-                    keywords = %s
+                    keywords = %s,
+                    user_rating = %s
                 WHERE experience_id = %s 
                 RETURNING experience_id, title, description, experience_date, address, 
-                          latitude, longitude, keywords, user_id, create_date
-            ''', (title, description, date, address, latitude, longitude, keywords, experience_id))
+                          latitude, longitude, keywords, user_id, create_date, user_rating
+            ''', (title, description, date, address, latitude, longitude, keywords, user_rating, experience_id))
 
             edited_row = cur.fetchone()
             conn.commit()

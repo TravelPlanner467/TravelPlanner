@@ -203,3 +203,35 @@ export async function updateExperience(formData: Experience) {
     }
 }
 
+export async function getTopExperiences(): Promise<Experience[] | ErrorResponse> {
+    try {
+        const response = await fetch(`http://localhost:5001/top_experiences`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            console.log(`OK: ${response.status}`)
+            const result = await response.json();
+            console.log('message:', result);
+            return result as Experience[];
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `Microservice Error: ${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Error in: getTopExperiences",
+            message: `${error}`,
+        };
+    }
+}
+

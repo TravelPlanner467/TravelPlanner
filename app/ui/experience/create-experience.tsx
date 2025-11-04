@@ -5,7 +5,7 @@ import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-lea
 import {createExperience} from "@/lib/actions/experience-actions";
 import { LatLng } from "leaflet";
 import 'leaflet/dist/leaflet.css';
-import {StarRating} from "@/app/ui/experience/star-rating";
+import {SelectableRating} from "@/app/ui/experience/buttons/star-rating";
 import { NominatimResult, MapClickHandlerProps, ChangeMapViewProps} from '@/lib/types'
 
 
@@ -352,7 +352,7 @@ export default function CreateExperience({ user_id }: { user_id: string }) {
                     <label className="text-sm font-medium">
                         Rating <span className="text-red-500">*</span>
                     </label>
-                    <StarRating rating={rating} setRating={setRating} />
+                    <SelectableRating experience_rating={rating} onRatingChange={setRating} />
                     {rating === 0 && (
                         <p className="text-xs text-gray-500">Please select a rating</p>
                     )}

@@ -3,7 +3,8 @@
 import {Experience, ErrorResponse, Trip, UserTripsProps} from "@/lib/types";
 import {CalendarDaysIcon, MapPinIcon} from "@heroicons/react/16/solid";
 import {AddToTripButton} from "@/app/ui/experience/trip-features/add-to-trip-button";
-import {RatingDisplay} from "@/app/ui/experience/star-rating";
+import {RatingDisplay} from "@/app/ui/experience/buttons/star-rating";
+import {RateExperienceButton} from "@/app/ui/experience/buttons/experience-buttons";
 
 interface ExperienceDetailsProps {
     experience: Experience;
@@ -28,6 +29,7 @@ export function ExperienceDetailsContent({ experience, trips, user_id }: Experie
             <div className="bg-white rounded-lg shadow-md p-8">
                 {/*Top Row*/}
                 <div className="flex flex-row justify-between items-center mb-6">
+                    {/*Title & Date*/}
                     <div>
                         <h1 className="text-4xl font-bold text-gray-900 mb-2">
                             {experience.title}
@@ -37,8 +39,16 @@ export function ExperienceDetailsContent({ experience, trips, user_id }: Experie
                             <p className="text-gray-600">{experienceDate}</p>
                         </div>
                     </div>
-                    <RatingDisplay rating={experience.user_rating} />
 
+                    {/*Ratings*/}
+                    <div className="flex flex-col justify-center items-center gap-2">
+                        <RatingDisplay rating={experience.user_rating} />
+                        {isLoggedIn && (
+                            <RateExperienceButton user_id={user_id} experience_id={experience.experience_id} />
+                        )}
+                    </div>
+
+                    {/*Add to Trip Button*/}
                     {isLoggedIn && (
                         <AddToTripButton
                             user_id={user_id}

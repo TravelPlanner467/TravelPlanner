@@ -62,6 +62,10 @@ export interface ChangeMapViewProps {
     center: [number, number];
 }
 
+export interface ExperienceListProps {
+    experiences: Experience[];
+}
+
 
 //---------------------------------------------------------------------------------------------------------------------
 // TRIP TYPE INTERFACES------------------------------------------------------------------------------------------------
