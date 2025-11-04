@@ -47,7 +47,7 @@ export function AddToTripButton({user_id, experience_id, trips}: AddExperienceTo
             }
         } catch (error) {
             setStatusMessage({
-                text: 'Something went wrong. Please try again.',
+                text: 'Error. Please try again.',
                 type: 'error'
             });
         } finally {
@@ -124,5 +124,4 @@ export function AddToTripButton({user_id, experience_id, trips}: AddExperienceTo
             )}
         </div>
     );
-
 }

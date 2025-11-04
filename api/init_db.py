@@ -45,6 +45,7 @@ def init_experiences_db():
                   "user_rating" integer
                 )
             """)
+            # Index for efficient queries
             cur.execute('CREATE INDEX IF NOT EXISTS experiences_keywords_gin ON experiences USING GIN ("keywords");')
         conn.commit()
     finally:

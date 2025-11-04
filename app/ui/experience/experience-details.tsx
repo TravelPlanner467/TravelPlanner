@@ -83,22 +83,6 @@ export function ExperienceDetailsContent({ experience, trips, user_id }: Experie
                     </div>
                 </div>
 
-                {/*Photos*/}
-                {/*{experience.imageURLs && experience.imageURLs.length > 0 && (*/}
-                {/*    <div>*/}
-                {/*        <h2 className="text-xl font-semibold text-gray-900 mb-3">Photos</h2>*/}
-                {/*        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">*/}
-                {/*            {experience.imageURLs?.map((photo, index) => (*/}
-                {/*                <div*/}
-                {/*                    key={index}*/}
-                {/*                    className="aspect-square bg-gray-200 flex items-center justify-center"*/}
-                {/*                >*/}
-                {/*                    <span className="text-gray-500 text-sm">Photo {index + 1}</span>*/}
-                {/*                </div>*/}
-                {/*            ))}*/}
-                {/*        </div>*/}
-                {/*    </div>*/}
-                {/*)}*/}
             </div>
         </div>
     );

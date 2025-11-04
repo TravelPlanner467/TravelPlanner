@@ -10,6 +10,7 @@ import {ErrorResponse, Trip, UserTripsProps} from "@/lib/types";
 export default async function ExperienceDetailsPage(
     props: { searchParams?: Promise<{ q?: string }> }
 ) {
+    // Get search parameters from URL
     const searchParams = await props.searchParams;
     const experience_id = searchParams?.q || '';
 
@@ -36,6 +37,7 @@ export default async function ExperienceDetailsPage(
     let trips: UserTripsProps[] | ErrorResponse | undefined;
     let session_user_id: string | undefined;
 
+    // If session exists, fetch user trips and load user_id
     if (session) {
         session_user_id = session.user.id;
         trips = await getUserTrips(session_user_id);
