@@ -21,7 +21,7 @@ export default function SearchBar() {
     };
 
     return (
-        <div className="relative w-full max-w-[900px] min-w-[500px] my-12">
+        <div className="relative w-full max-w-[900px] min-w-[500px]">
             <form onSubmit={handleSubmit} className="relative">
                 <input
                     className="w-full p-4 pl-12 rounded-lg border border-gray-300 shadow-sm focus:ring-2"
@@ -30,10 +30,12 @@ export default function SearchBar() {
                     value={query}
                     onChange={handleChange}
                 />
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform
+                -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <button
                     type="submit"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 px-4 py-2
+                    bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                     disabled={!query.trim()}
                 >
                     Search

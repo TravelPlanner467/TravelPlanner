@@ -1,6 +1,7 @@
 import {getAllExperiences} from "@/lib/actions/experience-actions";
 import {SearchResults} from "@/app/ui/experience/search/search-results";
 import {ErrorResponse, Experience} from "@/lib/types";
+import SearchBar from "@/app/ui/experience/search/search-bar";
 
 export default async function SearchResultsPage(
     props: { searchParams?: Promise<{ q?: string }> }
@@ -21,7 +22,12 @@ export default async function SearchResultsPage(
 
     return (
         <main className="flex flex-col min-w-fit min-h-fit">
-            <SearchResults query={query} experiences={experiences}/>
+            <div className="flex w-full justify-center pt-6">
+                <SearchBar />
+            </div>
+            <div>
+                <SearchResults query={query} experiences={experiences}/>
+            </div>
         </main>
     );
 }
