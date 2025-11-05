@@ -34,9 +34,9 @@ export default async function Page() {
             </div>
 
             {/*Recommended Experiences*/}
-            <div className="w-3/4">
-                <HomepageRecommendations experiences={topExperiences}/>
-            </div>
+            {/*<div className="w-3/4">*/}
+            {/*    <HomepageRecommendations experiences={topExperiences}/>*/}
+            {/*</div>*/}
         </main>
     );
 }
