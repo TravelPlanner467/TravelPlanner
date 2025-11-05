@@ -2,7 +2,6 @@ import {searchByKeyword} from "@/lib/actions/search-actions";
 import {SearchResults} from "@/app/ui/experience/search/search-results";
 import {ErrorResponse, Experience} from "@/lib/types";
 import ComboSearchBar from "@/app/ui/experience/search/combo-search-bar";
-import SearchBar from "@/app/ui/experience/search/search-bar";
 import {getAllExperiences} from "@/lib/actions/experience-actions";
 
 export default async function SearchResultsPage(
@@ -12,30 +11,34 @@ export default async function SearchResultsPage(
     const keywords = searchParams?.keywords || '';
     const location = searchParams?.location || '';
 
-    // const searchParams = await props.searchParams;
-    // const query = searchParams?.keywords || '';
-
     // If there's no query, show empty results
-    // if (!query.trim()) {
-    //     return (
-    //         <main className="flex flex-col min-w-fit min-h-fit">
-    //             <div className="flex w-full justify-center pt-6">
-    //                 <SearchBar />
-    //             </div>
-    //             <div className="min-h-screen mx-auto p-10">
-    //                 <p className="text-lg text-gray-600">
-    //                     Enter a search query to find experiences
-    //                 </p>
-    //             </div>
-    //         </main>
-    //     );
-    // }
+    if (!keywords.trim() || !location.trim()) {
+        return (
+            <main className="flex flex-col min-w-fit min-h-fit">
+                <div className="flex w-full justify-center pt-6">
+                    <ComboSearchBar />
+                </div>
+                <div className="min-h-screen mx-auto p-10">
+                    <p className="text-lg text-gray-600">
+                        Enter a search to find experiences
+                    </p>
+                </div>
+            </main>
+        );
+    }
 
-    // Use the search API to get filtered results
+    const searchQuery = {
+        keywords: keywords.trim(),
+        location: location.trim(),
+    }
+    // TODO: USE searchQuery for combo search
+
+    // // Use the search API to get filtered results
     // const searchResult = await searchByKeyword({ query: query.trim() });
+    // const experiences: Experience[] = searchResult.results;
 
+    // Show All Experiences (temporary solution)
     const experiences: Experience[] | ErrorResponse = await getAllExperiences();
-
     if ("error" in experiences) {
         return (
             <div className="min-h-screen mx-auto p-10">
@@ -45,8 +48,6 @@ export default async function SearchResultsPage(
             </div>
         )
     }
-
-    // const experiences: Experience[] = searchResult.results;
 
     return (
         <main className="h-full flex flex-col">
