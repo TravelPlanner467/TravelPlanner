@@ -3,6 +3,7 @@ from flask_cors import CORS
 from api.py_test import test_bp
 from api.py_experiences import experiences_bp
 from api.py_trips import trips_bp
+from api.py_search import search_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -11,6 +12,7 @@ CORS(app)
 app.register_blueprint(test_bp, url_prefix='/py/test')
 app.register_blueprint(experiences_bp, url_prefix='/py/experiences')
 app.register_blueprint(trips_bp, url_prefix='/py/trips')
+app.register_blueprint(search_bp, url_prefix='/py/search')
 
 @app.route('/py', methods=['GET'])
 def root():
