@@ -1,8 +1,8 @@
 import {searchByKeyword} from "@/lib/actions/search-actions";
 import {SearchResults} from "@/app/ui/experience/search/search-results";
-import {ErrorResponse, Experience} from "@/lib/types";
 import ComboSearchBar from "@/app/ui/experience/search/combo-search-bar";
 import {getAllExperiences} from "@/lib/actions/experience-actions";
+import {ErrorResponse, Experience} from "@/lib/types";
 
 export default async function SearchResultsPage(
     props: { searchParams?: Promise<{ keywords?: string; location?: string }> }
