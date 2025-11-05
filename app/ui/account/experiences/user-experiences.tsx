@@ -10,7 +10,7 @@ interface UserExperienceProps {
     experiences: Experience[]
 }
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 6;
 
 export function UserExperiences({ user_id, experiences }: UserExperienceProps) {
     // Pagination calculations
@@ -26,25 +26,24 @@ export function UserExperiences({ user_id, experiences }: UserExperienceProps) {
     };
 
     return (
-        <div className="min-h-screen mx-auto">
+        <div className="w-full flex flex-col">
             {/*User Experiences List*/}
-            <div className="grid grid-rows-6 gap-3 max-w-2xl">
+            <div className="flex flex-col gap-4">
                 {currentExperiences.map((exp: Experience) => (
                     <UserExperiencesCard key={exp.experience_id} experience={exp} user_id={user_id}/>
                 ))}
             </div>
 
-            {/*Pagination*/}
-            <div>
-                {totalPages > 1 && (
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="">
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
                         onPageChangeAction={handlePageChange}
                     />
-                )}
-            </div>
-
+                </div>
+            )}
         </div>
     );
 }

@@ -15,10 +15,12 @@ export default async function RootLayout({
     );
 
     return (
-    <html lang="en">
-      <body suppressHydrationWarning className={`${inter.className} antialiased`}>
+    <html lang="en" className="h-full">
+        <body suppressHydrationWarning className={`${inter.className} antialiased h-full flex flex-col`}>
           <Navbar session={session}/>
-          {children}
+          <main className="flex-1 min-h-0">
+              {children}
+          </main>
       </body>
     </html>
 );

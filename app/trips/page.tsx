@@ -56,12 +56,12 @@ export default async function Page() {
     }
 
     return (
-        <div className="flex flex-col min-w-fit min-h-fit p-4">
-            <div className="flex flex-row justif-start items-center gap-6">
+        <div className="flex flex-col justify-center items-center p-4">
+            <div className="flex flex-row w-3/5 justify-between py-3">
                 <h1 className="text-4xl font-bold">My Trips</h1>
                 <NewTripButton />
             </div>
-            <div className="pt-4">
+            <div className="pt-4 w-3/5">
                 <DisplayTrips trips={trips} />
             </div>
         </div>

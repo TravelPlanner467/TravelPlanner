@@ -21,7 +21,7 @@ export default function SearchBar() {
     };
 
     return (
-        <div className="relative w-full max-w-[900px] min-w-[500px]">
+        <div className="relative w-full">
             <form onSubmit={handleSubmit} className="relative">
                 <input
                     className="w-full p-4 pl-12 rounded-lg border border-gray-300 shadow-sm focus:ring-2"

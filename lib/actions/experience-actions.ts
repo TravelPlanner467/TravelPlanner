@@ -205,7 +205,7 @@ export async function updateExperience(formData: Experience) {
 
 export async function getTopExperiences(): Promise<Experience[] | ErrorResponse> {
     try {
-        const response = await fetch(`http://localhost:5001/top_experiences`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/top_experiences`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

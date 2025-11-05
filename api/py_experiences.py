@@ -361,3 +361,37 @@ def update_experience():
 
     finally:
         conn.close()
+
+@experiences_bp.route('/top_experiences', methods=['GET'])
+def get_top_experiences():
+    """Retrieve the top 10 experiences most frequently added to trips.
+
+    Fetches experiences ordered by how many times they've been added to trips,
+    including the count of trips each experience appears in. No authentication required.
+
+    Returns:
+        tuple: JSON array of experience objects with trip_count, HTTP 200
+    """
+    conn = psycopg2.connect(DATABASE_URL)
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                        SELECT e.*,
+                               COUNT(te.trip_id) as trip_count
+                        FROM experiences e
+                                 LEFT JOIN trip_experiences te ON e.experience_id = te.experience_id
+                        GROUP BY e.experience_id
+                        ORDER BY trip_count DESC, e.create_date DESC LIMIT 6
+                        """)
+
+            top_experiences = cur.fetchall()
+
+            # Convert Row objects to dictionaries for JSON serialization
+            return jsonify([dict(exp) for exp in top_experiences]), 200
+
+    except Exception as e:
+        print(f"Error fetching top experiences: {str(e)}")
+        return jsonify({'error': 'Failed to fetch top experiences'}), 500
+
+    finally:
+        conn.close()

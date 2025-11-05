@@ -9,7 +9,7 @@ export function EditExperienceButton({user_id, experience_id}: DeleteExperienceP
     return (
         <Link
             href={`/account/experiences/edit?q=${experience_id}`}
-            className="bg-white rounded-lg px-3 py-2 text-sm border border-gray-200
+            className="bg-white rounded-lg px-3 py-2 text-sm border border-gray-400
             transition-all hover:shadow-lg hover:scale-[1.01]"
         >
                 Edit
@@ -21,7 +21,7 @@ export function ViewExperienceButton({experience_id}: {experience_id: string}) {
     return (
         <Link
             href={`/experience/details?q=${experience_id}`}
-            className="bg-white rounded-lg px-3 py-2 text-sm border border-gray-200
+            className="bg-white rounded-lg px-3 py-2 text-sm border border-gray-400
             transition-all hover:shadow-lg hover:scale-[1.01]"
         >
             View
@@ -43,7 +43,7 @@ export function DeleteExperienceButton({user_id, experience_id}: DeleteExperienc
     return (
         <button
             onClick={onDeleteClick}
-            className="bg-white rounded-lg px-3 text-sm border border-gray-200
+            className="bg-white rounded-lg px-3 text-sm border border-gray-400
             transition-all hover:shadow-lg hover:scale-[1.01]"
         >
             <svg className="w-4 h-4">

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import {BookOpenIcon, UserCircleIcon, FlagIcon, LinkSlashIcon } from "@heroicons/react/24/outline";
+import {BookOpenIcon, UserCircleIcon, FlagIcon } from "@heroicons/react/24/outline";
 import {auth} from "@/lib/auth";
 
 type Session = typeof auth.$Infer.Session;

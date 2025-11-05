@@ -24,15 +24,18 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
     return (
         <div
             onClick={handleClick}
-            className="bg-white rounded-lg py-2 px-4 border border-gray-200
-            transition-all duration-200  hover:shadow-lg hover:scale-[1.01]"
+            className="bg-white rounded-lg py-2 px-4 border border-gray-300
+            transition-all hover:shadow-lg hover:scale-[1.01]"
         >
             {/*Top Row*/}
             <div className="flex justify-between items-center">
-                <h3 className="text-2xl font-semibold text-gray-900">{experience.title}</h3>
+                {/*Title*/}
+                <h2 className="text-2xl font-semibold text-gray-900 truncate min-w-0 w-2/5">
+                    {experience.title}
+                </h2>
 
                 {/*Keywords*/}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 w-2/5 min-w-0">
                     {experience.keywords.map((keyword, index) => (
                         <p key={index}
                            className="px-2 py-1 text-xs font-medium border"
@@ -42,23 +45,26 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
                     ))}
                 </div>
 
-                <p className="text-sm text-gray-500 whitespace-nowrap ml-4">{experienceDate}</p>
+                {/*Experience Date*/}
+                <p className="text-sm text-gray-500 whitespace-nowrap w-1/5 text-right">
+                    {experienceDate}
+                </p>
             </div>
 
             {/*MIDDLE ROW*/}
             <div className="my-4">
                 {/*Description*/}
-                <p className="text-gray-700 leading-relaxed">{experience.description}</p>
+                <p className="text-gray-700">{experience.description}</p>
             </div>
 
             {/*BOTTOM ROW*/}
             <div className="flex flex-row justify-between items-start">
                 {/*Location*/}
-                <div className="flex items-center text-sm text-gray-600">
-                    <svg className="w-5 h-5 mr-2">
-                        <MapPinIcon/>
-                    </svg>
-                    <p>{experience.address}</p>
+                <div className="flex w-3/5 items-center ">
+                    <MapPinIcon className="w-5 h-5 mr-2" />
+                    <p className="truncate text-sm text-gray-600">
+                        {experience.address}
+                    </p>
                 </div>
 
                 {/*Photos*/}

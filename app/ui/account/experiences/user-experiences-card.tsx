@@ -20,11 +20,9 @@ export default function UserExperiencesCard({ experience, user_id }: ExperienceC
         day: 'numeric'
     });
 
-
     return (
         <div
-            className="bg-white rounded-lg py-2 px-4 border border-gray-200
-            transition-all duration-200 hover:shadow"
+            className="bg-white rounded-lg w-full py-2 px-4 border border-gray-400"
         >
             {/*Top Row*/}
             <div className="flex justify-between items-center">
@@ -50,19 +48,21 @@ export default function UserExperiencesCard({ experience, user_id }: ExperienceC
             </div>
 
             {/*MIDDLE ROW*/}
-            <div className="my-4">
+            <div className="pt-3">
                 {/*Description*/}
                 <p className="text-gray-700 leading-relaxed">{experience.description}</p>
             </div>
 
             {/*BOTTOM ROW*/}
-            <div className="flex flex-row justify-between items-start">
+            <div className="flex flex-row justify-between items-center">
                 {/*Location*/}
-                <div className="flex items-center text-sm text-gray-600">
-                    <svg className="w-5 h-5 mr-2">
+                <div className="flex items-center w-3/5">
+                    <svg className="w-5 h-5 mr-1">
                         <MapPinIcon/>
                     </svg>
-                    <p>{experience.address}</p>
+                    <p className="truncate min-w-0 text-sm text-gray-600">
+                        {experience.address}
+                    </p>
                 </div>
 
                 {/*Photos*/}
