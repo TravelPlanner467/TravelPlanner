@@ -8,7 +8,6 @@ import 'leaflet/dist/leaflet.css';
 import {SelectableRating} from "@/app/ui/experience/buttons/star-rating";
 import { NominatimResult, MapClickHandlerProps, ChangeMapViewProps} from '@/lib/types'
 
-
 // HELPER COMPONENT: Handles map clicks
 function MapClickHandler({ onMapClick }: MapClickHandlerProps) {
     useMapEvents({

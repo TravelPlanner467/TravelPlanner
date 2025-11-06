@@ -33,7 +33,7 @@ export default function ComboSearchBar() {
 
     const [keywordOptions, setKeywordOptions] = useState<KeywordOption[]>([]);
 
-// Load and sort keyword options from JSON file
+    // Load and sort keyword options from JSON file
     useEffect(() => {
         const loadKeywords = async () => {
             try {
