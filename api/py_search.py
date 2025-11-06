@@ -177,23 +177,26 @@ def search_by_location():
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Using Haversine formula for distance calculation
             # This calculates the distance in kilometers
+            # Using subquery to allow filtering on calculated distance
             cur.execute("""
-                SELECT
-                    *,
-                    (
-                        6371 * acos(
-                            cos(radians(%s)) *
-                            cos(radians(latitude)) *
-                            cos(radians(longitude) - radians(%s)) +
-                            sin(radians(%s)) *
-                            sin(radians(latitude))
-                        )
-                    ) AS distance_km
-                FROM experiences
-                WHERE
-                    latitude IS NOT NULL
-                    AND longitude IS NOT NULL
-                HAVING distance_km <= %s
+                SELECT * FROM (
+                    SELECT
+                        *,
+                        (
+                            6371 * acos(
+                                cos(radians(%s)) *
+                                cos(radians(latitude)) *
+                                cos(radians(longitude) - radians(%s)) +
+                                sin(radians(%s)) *
+                                sin(radians(latitude))
+                            )
+                        ) AS distance_km
+                    FROM experiences
+                    WHERE
+                        latitude IS NOT NULL
+                        AND longitude IS NOT NULL
+                ) AS exp_with_distance
+                WHERE distance_km <= %s
                 ORDER BY
                     distance_km ASC,
                     user_rating DESC NULLS LAST
@@ -271,40 +274,43 @@ def search_combined():
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             search_pattern = f'%{query}%'
 
+            # Using subquery to allow filtering on calculated distance and relevance
             cur.execute("""
-                SELECT
-                    *,
-                    CASE
-                        WHEN LOWER(title) LIKE LOWER(%s) THEN 3
-                        WHEN LOWER(description) LIKE LOWER(%s) THEN 2
-                        WHEN EXISTS (
-                            SELECT 1 FROM unnest(keywords) AS keyword
-                            WHERE LOWER(keyword) LIKE LOWER(%s)
-                        ) THEN 1
-                        ELSE 0
-                    END as relevance_score,
-                    (
-                        6371 * acos(
-                            cos(radians(%s)) *
-                            cos(radians(latitude)) *
-                            cos(radians(longitude) - radians(%s)) +
-                            sin(radians(%s)) *
-                            sin(radians(latitude))
+                SELECT * FROM (
+                    SELECT
+                        *,
+                        CASE
+                            WHEN LOWER(title) LIKE LOWER(%s) THEN 3
+                            WHEN LOWER(description) LIKE LOWER(%s) THEN 2
+                            WHEN EXISTS (
+                                SELECT 1 FROM unnest(keywords) AS keyword
+                                WHERE LOWER(keyword) LIKE LOWER(%s)
+                            ) THEN 1
+                            ELSE 0
+                        END as relevance_score,
+                        (
+                            6371 * acos(
+                                cos(radians(%s)) *
+                                cos(radians(latitude)) *
+                                cos(radians(longitude) - radians(%s)) +
+                                sin(radians(%s)) *
+                                sin(radians(latitude))
+                            )
+                        ) AS distance_km
+                    FROM experiences
+                    WHERE
+                        latitude IS NOT NULL
+                        AND longitude IS NOT NULL
+                        AND (
+                            LOWER(title) LIKE LOWER(%s)
+                            OR LOWER(description) LIKE LOWER(%s)
+                            OR EXISTS (
+                                SELECT 1 FROM unnest(keywords) AS keyword
+                                WHERE LOWER(keyword) LIKE LOWER(%s)
+                            )
                         )
-                    ) AS distance_km
-                FROM experiences
-                WHERE
-                    latitude IS NOT NULL
-                    AND longitude IS NOT NULL
-                    AND (
-                        LOWER(title) LIKE LOWER(%s)
-                        OR LOWER(description) LIKE LOWER(%s)
-                        OR EXISTS (
-                            SELECT 1 FROM unnest(keywords) AS keyword
-                            WHERE LOWER(keyword) LIKE LOWER(%s)
-                        )
-                    )
-                HAVING distance_km <= %s
+                ) AS exp_with_scores
+                WHERE distance_km <= %s
                 ORDER BY
                     relevance_score DESC,
                     distance_km ASC,
