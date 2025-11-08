@@ -113,9 +113,8 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
     }, []);
 
     // ========================================================================
-    // HELPER
+    // MAP COORDINATES HELPER - get numeric coordinates for map display
     // ========================================================================
-    // Helper to get numeric coordinates for map display
     const getNumericCoordinates = (): [number, number] => {
         const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
         const lng = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
@@ -145,14 +144,6 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
         };
     }, [address, isLoadingAddress, isAddressFocused, fetchForwardGeocode]);
 
-    // create and set image URL
-    // useEffect(() => {
-    //     if (images.length < 1) return;
-    //     const newImageUrls: any = [];
-    //     images.forEach((image:any) => newImageUrls.push(URL.createObjectURL(image)));
-    //     setImageURLs(newImageUrls);
-    // }, [images]);
-
     // Update address when coordinates change manually
     useEffect(() => {
         const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
@@ -173,6 +164,14 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
             setKeywords(experience.keywords);
         }
     }, [experience.keywords]);
+
+    // create and set image URL
+    // useEffect(() => {
+    //     if (images.length < 1) return;
+    //     const newImageUrls: any = [];
+    //     images.forEach((image:any) => newImageUrls.push(URL.createObjectURL(image)));
+    //     setImageURLs(newImageUrls);
+    // }, [images]);
 
 
     // ========================================================================
@@ -236,6 +235,7 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
         setIsAddressFocused(false);
     };
 
+    // Handle latitude change
     const handleLatitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
 
@@ -259,6 +259,7 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
         }
     };
 
+    // Handle longitude change
     const handleLongitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (value === '' || value === '-') {
@@ -278,7 +279,7 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
         }
     };
 
-    // Handle focus events for address input
+    // User clicks address bar
     const handleAddressFocus = () => {
         setIsAddressFocused(true);
         // Only trigger search if there is text in the box
@@ -287,6 +288,7 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
         }
     };
 
+    // User clicks away from address bar
     const handleAddressBlur = () => {
         // Delay blur
         setTimeout(() => {
@@ -294,6 +296,7 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
         }, 200);
     };
 
+    // User adds keywords
     const handleKeywordsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (value.trim() === '') {
@@ -315,15 +318,26 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
     // Form submission
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        // Validate Rating & Keywords
 
+        if (keywords.length === 0) {
+            alert('Please add at least one keyword.');
+            return;
+        }
+        if (rating <= 0) {
+            alert('Please select a rating between 1 and 5.');
+            return;
+        }
+
+        // Validate Coordinates
         const lat = parseCoordinate(latitude);
         const lon = parseCoordinate(longitude);
-
         if (isNaN(lat) || isNaN(lon) || !isValidLatitude(lat) || !isValidLongitude(lon)) {
             alert('Please enter valid coordinates');
             return;
         }
 
+        // Set Edit Date
         const editDate = new Date().toISOString();
 
         const formData = {
@@ -341,10 +355,11 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
             user_rating: rating,
             // imageURL: imageURLS,
         };
-
         console.log(formData);
-        updateExperience(formData);
 
+        // Submit Form Data
+        // TODO: Post Submit Actions
+        updateExperience(formData);
     };
 
     return (
@@ -564,6 +579,7 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
                     className="w-full p-3 rounded-lg border border-gray-300
                     focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter keywords separated by commas"
+                    required
                 />
             </div>
 

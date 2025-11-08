@@ -55,6 +55,7 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
         if (response.ok) {
             console.log(`OK: ${response.status}`)
             const result = await response.json();
+            console.log('message:', result);
             return result as Experience[];
 
         } else {
