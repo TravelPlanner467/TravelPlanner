@@ -4,7 +4,7 @@ import {Experience, ErrorResponse, Trip, UserTripsProps} from "@/lib/types";
 import {CalendarDaysIcon, MapPinIcon} from "@heroicons/react/16/solid";
 import {AddToTripButton} from "@/app/ui/experience/trip-features/add-to-trip-button";
 import {RatingDisplay} from "@/app/ui/experience/buttons/star-rating";
-import {RateExperienceButton} from "@/app/ui/experience/buttons/experience-buttons";
+import {RateExperienceButton} from "@/app/ui/experience/buttons/rate-experience-button";
 
 interface ExperienceDetailsProps {
     experience: Experience;
@@ -42,7 +42,7 @@ export function ExperienceDetailsContent({ experience, trips, user_id }: Experie
 
                     {/*Ratings*/}
                     <div className="flex flex-col justify-center items-center gap-2">
-                        <RatingDisplay rating={experience.user_rating} />
+                        <RatingDisplay rating={experience.average_rating} />
                         {isLoggedIn && (
                             <RateExperienceButton user_id={user_id} experience_id={experience.experience_id} />
                         )}

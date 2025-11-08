@@ -1,4 +1,3 @@
-import SearchBar from "@/app/ui/experience/search/search-bar";
 import {getTopExperiences} from "@/lib/actions/experience-actions";
 import {ErrorResponse, Experience} from "@/lib/types";
 import {HomepageRecommendations} from "@/app/ui/experience/recommendations/homepage-results";

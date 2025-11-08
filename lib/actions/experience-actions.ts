@@ -2,9 +2,10 @@
 
 import {
     CreateExperienceProps,
-    DeleteExperienceProps,
+    DeleteExperienceProps, EditExperienceSendProps,
     ErrorResponse,
-    Experience} from "@/lib/types";
+    Experience, getUserExperienceProps, RateExperienceProps
+} from "@/lib/types";
 
 export async function createExperience(formData: CreateExperienceProps) {
     console.log("createExperience: ", formData);
@@ -137,6 +138,39 @@ export async function getExperienceDetails(experience_id: string): Promise<Exper
     }
 }
 
+export async function getUserExperiencesDetails(formData: getUserExperienceProps): Promise<Experience | ErrorResponse> {
+    try {
+            const response =
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/user_details/${formData.experience_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-id": formData.session_user_id,
+            },
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`OK: ${response.status}`)
+            console.log('message:', result);
+            return result as Experience;
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `Microservice Error: ${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Error in: getExperienceDetails",
+            message: `${error}`,
+        };
+    }
+}
+
 export async function getAllExperiences(): Promise<Experience[] | ErrorResponse> {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/all`, {
@@ -149,6 +183,7 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
         if (response.ok) {
             console.log(`OK: ${response.status}`)
             const result = await response.json();
+            console.log('message:', result);
             return result as Experience[];
 
         } else {
@@ -168,14 +203,14 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
     }
 }
 
-export async function updateExperience(formData: Experience) {
+export async function updateExperience(formData: EditExperienceSendProps) {
     console.log("Attempting to edit experience");
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/update/`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/update`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                "X-User-Id": formData.user_id,
+                "X-User-Id": formData.session_user_id,
             },
             body: JSON.stringify(formData)
         });
@@ -235,3 +270,36 @@ export async function getTopExperiences(): Promise<Experience[] | ErrorResponse>
     }
 }
 
+export async function rateExperience(formData: RateExperienceProps) {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/rate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.session_user_id,
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`upload OK: ${response.status}`)
+            console.log('message:', result);
+            setTimeout(() => {}, 2000);
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `Microservice Error: ${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('Rating failed:', error);
+        return {
+            error: "Error in: rateExperience",
+            message: `${error}`,
+        };
+    }
+}

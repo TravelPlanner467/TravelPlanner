@@ -3,24 +3,28 @@ import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
 import EditExperienceWrapper from "@/app/ui/account/experiences/edit-experience-wrapper";
-import {getExperienceDetails} from "@/lib/actions/experience-actions";
+import {getUserExperiencesDetails} from "@/lib/actions/experience-actions";
 import {GoBackButton} from "@/app/ui/components/buttons/nav-buttons";
 
 export default async function EditExperiencePage(
     props: { searchParams?: Promise<{ q?: string }> }
 ) {
-    // Session Authentication
+    //Session Authentication
     const session = await auth.api.getSession(
         {headers: await headers()}
     );
     if ( !session ) { redirect('/account/login'); }
 
-
-    // Fetch Experience Details
+    //Fetch User Experience Details
     const searchParams = await props.searchParams;
     const experience_id = searchParams?.q || '';
-    const experience = await getExperienceDetails(experience_id);
     const session_user_id = session.user.id;
+    const formData = {
+        experience_id: experience_id,
+        session_user_id: session_user_id,
+    }
+    const experience = await getUserExperiencesDetails(formData);
+
 
     // Early return for experience fetch error
     if ("error" in experience) {

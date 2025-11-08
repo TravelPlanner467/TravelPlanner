@@ -12,20 +12,20 @@ export default async function SearchResultsPage(
     const location = searchParams?.location || '';
 
     // If there's no query, show empty results
-    if (!keywords.trim() || !location.trim()) {
-        return (
-            <main className="flex flex-col min-w-fit min-h-fit">
-                <div className="flex w-full justify-center pt-6">
-                    <ComboSearchBar />
-                </div>
-                <div className="min-h-screen mx-auto p-10">
-                    <p className="text-lg text-gray-600">
-                        Enter a search to find experiences
-                    </p>
-                </div>
-            </main>
-        );
-    }
+    // if (!keywords.trim() || !location.trim()) {
+    //     return (
+    //         <main className="flex flex-col min-w-fit min-h-fit">
+    //             <div className="flex w-full justify-center pt-6">
+    //                 <ComboSearchBar />
+    //             </div>
+    //             <div className="min-h-screen mx-auto p-10">
+    //                 <p className="text-lg text-gray-600">
+    //                     Enter a search to find experiences
+    //                 </p>
+    //             </div>
+    //         </main>
+    //     );
+    // }
 
     const searchQuery = {
         keywords: keywords.trim(),

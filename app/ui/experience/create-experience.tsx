@@ -101,7 +101,7 @@ export default function CreateExperience({ user_id }: { user_id: string }) {
             );
 
             if (!response.ok) {
-                throw new Error('Failed to fetch address');
+                console.error('Failed to fetch address');
             }
 
             const data = await response.json();
@@ -124,7 +124,7 @@ export default function CreateExperience({ user_id }: { user_id: string }) {
             );
 
             if (!response.ok) {
-                throw new Error('Failed to fetch search results');
+                console.error('Failed to fetch search results');
             }
 
             const data = await response.json();

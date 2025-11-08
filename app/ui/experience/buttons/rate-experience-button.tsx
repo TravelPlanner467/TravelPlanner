@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import {SelectableRating} from "@/app/ui/experience/buttons/star-rating";
+import {rateExperience} from "@/lib/actions/experience-actions";
 
 interface RateExperienceProps {
     user_id: string;
@@ -12,16 +13,24 @@ export function RateExperienceButton({user_id, experience_id}: RateExperiencePro
     const [isOpen, setIsOpen] = useState(false);
     const [rating, setRating] = useState(0);
 
+    // Open/Close Popup Box
     const handleOpen = () => setIsOpen(true);
     const handleClose = () => setIsOpen(false);
 
     const handleRatingSubmit = (rating: number) => {
-        console.log(`Rating: ${rating} || User ID: ${user_id} || Experience ID: ${experience_id} `);
+        const formData = {
+            session_user_id: user_id,
+            experience_id: experience_id,
+            rating: rating
+        }
+        console.log(formData);
+        rateExperience(formData)
+        // TODO - Add success/error messages
+
         setTimeout(() => {
             handleClose();
         }, 500);
     };
-
 
     return (
         <div>

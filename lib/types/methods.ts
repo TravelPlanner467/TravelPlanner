@@ -17,9 +17,9 @@ export interface Experience {
     latitude: number;
     longitude: number;
     keywords: string[];
+    average_rating: number;
+    user_rating?: number;
     imageURLs?: string[];
-    images?:[];
-    user_rating: number;
 }
 
 export interface CreateExperienceProps {
@@ -32,9 +32,35 @@ export interface CreateExperienceProps {
     latitude: number;
     longitude: number;
     keywords: string[];
-    images?:[];
-    imageURLs?: string[];
     user_rating: number;
+    imageURLs?: string[];
+}
+
+export interface EditExperienceSendProps {
+    experience_id: string;
+    session_user_id: string;
+    user_id: string;
+    title: string;
+    description?: string;
+    experience_date: string;
+    last_updated: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    keywords: string[];
+    user_rating: number;
+    imageURLs?: string[];
+}
+
+export interface RateExperienceProps {
+    experience_id: string;
+    session_user_id: string;
+    rating: number;
+}
+
+export interface EditExperienceLoadProps {
+    session_user_id: string;
+    experience: Experience;
 }
 
 export interface DeleteExperienceProps {
@@ -42,10 +68,11 @@ export interface DeleteExperienceProps {
     user_id: string
 }
 
-export interface EditExperienceProps {
-    experience: Experience;
+export interface getUserExperienceProps {
+    experience_id: string;
     session_user_id: string;
 }
+
 
 export interface NominatimResult {
     place_id: number;

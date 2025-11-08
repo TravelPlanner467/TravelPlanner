@@ -6,7 +6,7 @@ import {updateExperience} from "@/lib/actions/experience-actions";
 import { LatLng } from "leaflet";
 import 'leaflet/dist/leaflet.css';
 import {SelectableRating} from "@/app/ui/experience/buttons/star-rating";
-import {NominatimResult, MapClickHandlerProps, ChangeMapViewProps, EditExperienceProps} from '@/lib/types'
+import {NominatimResult, MapClickHandlerProps, ChangeMapViewProps, EditExperienceLoadProps} from '@/lib/types'
 
 // ============================================================================
 // HELPER COMPONENT: Handles map clicks
@@ -42,15 +42,14 @@ function parseCoordinate(value: number | string): number {
 const isValidLatitude = (lat: number): boolean => lat >= -90 && lat <= 90;
 const isValidLongitude = (lng: number): boolean => lng >= -180 && lng <= 180;
 
-export default function EditExperience({ session_user_id, experience }: EditExperienceProps) {
+export default function EditExperience({ session_user_id, experience }: EditExperienceLoadProps) {
     // formData
     const [title, setTitle] = useState(experience.title);
     const [description, setDescription] = useState(experience.description);
     const [experienceDate, setExperienceDate] = useState(experience.experience_date);
-    // const [images, setImages] = useState([] as any);
-    // const [imageURLS, setImageURLs] = useState(experience.imageURLs);
     const [keywords, setKeywords] = useState(experience.keywords);
-    const [rating, setRating] = useState(experience.user_rating);
+    const [rating, setRating] = useState(experience.user_rating || 0);
+    // const [imageURLS, setImageURLs] = useState(experience.imageURLs);
 
     // Location State
     const [latitude, setLatitude] = useState<number | string>(experience.latitude);
@@ -167,6 +166,14 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
             return () => clearTimeout(timeoutId);
         }
     }, [latitude, longitude]);
+
+    // Load keywords
+    useEffect(() => {
+        if (experience.keywords && Array.isArray(experience.keywords)) {
+            setKeywords(experience.keywords);
+        }
+    }, [experience.keywords]);
+
 
     // ========================================================================
     // EVENT HANDLERS
@@ -320,19 +327,19 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
         const editDate = new Date().toISOString();
 
         const formData = {
-            user_id: session_user_id,
             experience_id: experience.experience_id,
+            session_user_id: session_user_id,
+            user_id: experience.user_id,
             title: title,
             description: description,
             experience_date: experienceDate,
             latitude: lat,
             longitude: lon,
             address: address,
-            // images: images || undefined,
-            // imageURL: imageURLS,
-            create_date: editDate,
+            last_updated: editDate,
+            keywords: keywords,
             user_rating: rating,
-            keywords: keywords
+            // imageURL: imageURLS,
         };
 
         console.log(formData);
@@ -552,6 +559,7 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
                 <input
                     id="keywords"
                     type="text"
+                    value={keywords.join(', ')}
                     onChange={handleKeywordsChange}
                     className="w-full p-3 rounded-lg border border-gray-300
                     focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -559,27 +567,10 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
                 />
             </div>
 
-            {/*/!*UPLOAD IMAGE*!/*/}
-            {/*<div className="flex flex-col gap-2">*/}
-            {/*    <label htmlFor="keywords" className="text-sm font-medium">*/}
-            {/*        Photos*/}
-            {/*    </label>*/}
-            {/*    <div>*/}
-            {/*        <input*/}
-            {/*            type="file"*/}
-            {/*            multiple accept="image/*"*/}
-            {/*            onChange={onImageChange}*/}
-            {/*        />*/}
-            {/*        {images.map((imageSrc: string, index: number) => (*/}
-            {/*            <img key={index} src={imageSrc} alt="not found" width={"250px"} />*/}
-            {/*        ))}*/}
-            {/*    </div>*/}
-
-            {/*</div>*/}
+            {/*TODO: UPLOAD PHOTOS*/}
 
 
-
-            {/*SUBMIT*/}
+            {/*SUBMIT BUTTON*/}
             <button
                 type="submit"
                 className="mt-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white
