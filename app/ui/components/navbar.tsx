@@ -3,78 +3,70 @@
 import Link from 'next/link';
 import {BookOpenIcon, UserCircleIcon, FlagIcon } from "@heroicons/react/24/outline";
 import {auth} from "@/lib/auth";
+import {ProfileDropdown} from "@/app/ui/account/profile-dropdown";
 
 type Session = typeof auth.$Infer.Session;
 
 export default function Navbar({ session }: { session: Session | null }) {
-  return (
-    <div className="flex flex-row w-full h-[55px] bg-gray-50 ">
-      <Link
-        className="flex h-auto justify-center items-center bg-gray-500"
-        href="/"
-      >
-          <p className="w-40 text-center text-xl text-white">
-              Travel Planner
-          </p>
-      </Link>
+    const navLinks = [
+        {
+            href: "/account/experiences",
+            icon: FlagIcon,
+            label: "My Experiences",
+            showWhen: !!session
+        },
+        {
+            href: "/trips",
+            icon: BookOpenIcon,
+            label: "Trip Planner",
+            showWhen: !!session
+        },
+        {
+            href: "/account/login",
+            icon: UserCircleIcon,
+            label: "Login",
+            showWhen: !session
+        }
+    ];
 
-      <div className="flex grow flex-row justify-end md:flex-row">
-          {/*{session && (*/}
-          {/*    <Link*/}
-          {/*        key="dev"*/}
-          {/*        href="/dev"*/}
-          {/*        className="flex items-center justify-center gap-2 p-3 text-sm font-medium hover:bg-gray-300"*/}
-          {/*    >*/}
-          {/*        < LinkSlashIcon className="w-6" />*/}
-          {/*        <p className="hidden md:block">DEVELOPMENT</p>*/}
-          {/*    </Link>*/}
-          {/*)}*/}
+    return (
+        <nav className="w-full h-16 border-b border-gray-600 shadow-sm">
+            <div className="flex h-full items-center justify-between mx-auto px-4">
+                {/* Site Name / Home Button */}
+                <Link
+                    href="/"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg
+                    bg-blue-600 shadow-md
+                    hover:bg-blue-900 hover:shadow-lg hover:scale-[1.1]
+                    transition-all duration-200"
+                >
+                    <h1 className="text-xl font-bold text-white">Travel Planner</h1>
+                </Link>
 
-          {session && (
-              <Link
-                  key="myExperiences"
-                  href="/account/experiences"
-                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300"
-              >
-                  <FlagIcon className="w-6" />
-                  <p className="hidden md:block">My Experiences</p>
-              </Link>
-          )}
+                {/* Navigation Links */}
+                <div className="flex items-center h-full">
+                    {/* Links from navLinks */}
+                    {navLinks.map((link) =>
+                            link.showWhen && (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className="group flex h-full items-center gap-2 px-4 py-2
+                                               text-gray-700 font-medium text-sm
+                                               hover:bg-gray-100 transition-all duration-200"
+                                >
+                                    <link.icon className="w-5 h-5 group-hover:scale-[1.2] transition-transform" />
+                                    <span className="hidden md:block">{link.label}</span>
+                                </Link>
+                            )
+                    )}
 
-          {session && (
-              <Link
-                  key="tripPlanner"
-                  href="/trips"
-                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300"
-              >
-                  <BookOpenIcon className="w-6" />
-                  <p className="hidden md:block">Trip Planner</p>
-              </Link>
-          )}
-
-          {session && (
-              <Link
-                  key="profile"
-                  href="/account/profile"
-                  className="flex  items-center justify-center gap-2  p-3 text-sm font-medium hover:bg-gray-300"
-              >
-                  <UserCircleIcon className="w-6" />
-                  <p className="hidden md:block">User Profile</p>
-              </Link>
-          )}
-          {!session && (
-              <Link
-                  key="login"
-                  href="/account/login"
-                  className="flex  items-center justify-center gap-2 p-3 text-sm font-medium hover:bg-gray-300"
-              >
-                  <UserCircleIcon className="w-6" />
-                  <p className="hidden md:block">Login</p>
-              </Link>
-          )}
-
-
-      </div>
-    </div>
+                    {/* ACCOUNT/PROFILE DROPDOWN MENU */}
+                    {session && (
+                        <ProfileDropdown session={session} />
+                    )}
+                </div>
+            </div>
+        </nav>
   );
 }

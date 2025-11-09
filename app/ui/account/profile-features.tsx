@@ -4,12 +4,10 @@ import { signOut } from "@/lib/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import { Session } from  "@/lib/types";
 import {EditProfileButton, MyExperiencesButton} from "@/app/ui/account/buttons/profile-buttons";
-import {router} from "next/client";
 
 
-export default function ProfileFeatures({ session }: { session: Session | null }) {
+export default function ProfileFeatures({ session }: { session: Session }) {
     const router = useRouter();
-    // @ts-ignore
     const user = session.user;
 
     const handleSignOut = async () => {
