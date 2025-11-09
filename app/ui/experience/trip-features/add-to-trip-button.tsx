@@ -63,7 +63,8 @@ export function AddToTripButton({user_id, experience_id, trips}: AddExperienceTo
         <div className="relative inline-block text-left">
             <button
                 onClick={toggleDropdown}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="w-36 px-4 py-2 bg-blue-600 text-white line-clamp-1
+                rounded-md hover:bg-blue-700 transition-colors"
                 disabled={isLoading}
             >
                 {isLoading ? 'Processing...' : '+ Add to Trip'}
@@ -80,26 +81,31 @@ export function AddToTripButton({user_id, experience_id, trips}: AddExperienceTo
 
             {/* Dropdown menu */}
             {isDropdownOpen && (
-                <div className="origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                <div className="origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg
+                                bg-white border border-gray-300 ring-1 ring-black ring-opacity-5
+                                focus:outline-none z-10">
+                    {/*Dropdown Header*/}
                     <div className="py-1 border-b border-gray-100">
-                        <div className="px-4 py-2 text-sm font-medium text-gray-700">
+                        <p className="py-2 text-center text-sm font-medium text-gray-800">
                             Select a trip
-                        </div>
+                        </p>
                     </div>
 
+                    {/*Trips List*/}
                     <div className="max-h-60 overflow-y-auto">
                         {validTrips ? (
                             <div className="py-1">
                                 {(trips as Trip[]).map((trip) => (
                                     <button
                                         key={trip.trip_id}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 "
                                         onClick={() => addToTrip(trip.trip_id, trip.title)}
                                     >
-                                        <div className="font-medium">{trip.title}</div>
-                                        {/*<div className="text-xs text-gray-500">*/}
-                                        {/*    {new Date(trip.start_date).toLocaleDateString()} - {new Date(trip.end_date).toLocaleDateString()}*/}
-                                        {/*</div>*/}
+                                        <div className="text-sm font-medium
+                                                        text-gray-700 hover:text-gray-900"
+                                        >
+                                            {trip.title}
+                                        </div>
                                     </button>
                                 ))}
                             </div>
@@ -112,9 +118,12 @@ export function AddToTripButton({user_id, experience_id, trips}: AddExperienceTo
                         )}
                     </div>
 
+                    {/*Cancel Button*/}
                     <div className="border-t border-gray-100">
                         <button
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                            className="block w-full text-center px-4 py-2
+                                        text-sm text-gray-700
+                                        hover:bg-gray-100 hover:text-gray-900"
                             onClick={toggleDropdown}
                         >
                             Cancel

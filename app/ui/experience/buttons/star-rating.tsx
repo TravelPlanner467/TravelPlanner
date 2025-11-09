@@ -27,7 +27,7 @@ export function RatingDisplay({rating, showLabel = true}: RatingDisplayProps) {
     console.log(rating)
 
     return (
-        <div className="flex items-center gap-1">
+        <div className="flex flex-col items-center gap-1">
             <div className="flex">
                 {stars.map((starIndex) => {
                     const fillPercentage = getStarFillPercentage(starIndex);
@@ -50,7 +50,7 @@ export function RatingDisplay({rating, showLabel = true}: RatingDisplayProps) {
             </div>
 
             {showLabel && numericRating > 0 && (
-                <p className="ml-2 text-sm text-gray-600">
+                <p className="font-md text-gray-900">
                     {numericRating.toFixed(1)} {numericRating === 1 ? 'star' : 'stars'}
                 </p>
             )}
