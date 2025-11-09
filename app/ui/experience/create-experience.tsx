@@ -113,14 +113,9 @@ export default function CreateExperience({ user_id }: { user_id: string }) {
         }
     }, []);
 
-    // UTILITY: Round coordinates to specified decimal places (default 6 = ~0.11m accuracy)
-    const roundCoordinate = (coord: number, decimals: number = 6): number => {
-        return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
-    };
-
-    // ========================================================================
+    // =================================================================================================================
     // MAP COORDINATES HELPER - get numeric coordinates for map display
-    // ========================================================================
+    // =================================================================================================================
     const getNumericCoordinates = (): [number, number] => {
         const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
         const lng = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
@@ -132,9 +127,9 @@ export default function CreateExperience({ user_id }: { user_id: string }) {
         return mapCenter;
     };
 
-    // ========================================================================
+    // =================================================================================================================
     // useEffects
-    // ========================================================================\
+    // =================================================================================================================
     // Debounce address search
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -173,10 +168,9 @@ export default function CreateExperience({ user_id }: { user_id: string }) {
     // }, [images]);
 
 
-
-    // ========================================================================
+    // =================================================================================================================
     // EVENT HANDLERS
-    // ========================================================================
+    // =================================================================================================================
 
     // User clicked "Use My Current Location"
     const handleGetCurrentLocation = () => {
