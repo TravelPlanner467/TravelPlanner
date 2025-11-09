@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-import {CalendarDaysIcon, MapPinIcon} from "@heroicons/react/16/solid";
+import {CalendarDaysIcon, MapPinIcon} from "@heroicons/react/24/outline";
 import {UserTripsProps,} from "@/lib/types";
 
 interface TripCardProps {
@@ -49,7 +49,7 @@ export default function TripsListCard({ trip, index }: TripCardProps) {
 
                 {/*Date*/}
                 <div className="flex items-center text-gray-700 w-1/4">
-                    <CalendarDaysIcon className="w-5 h-5 mr-1 flex-shrink-0"/>
+                    <CalendarDaysIcon className="w-5 h-5 mr-3 flex-shrink-0"/>
                     <p>
                         {startDate} - {endDate}
                     </p>
