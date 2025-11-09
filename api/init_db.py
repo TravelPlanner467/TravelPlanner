@@ -43,14 +43,8 @@ def init_experiences_table():
                     "last_updated" timestamptz,
                     "address" text NOT NULL,
                     "latitude" double precision NOT NULL,
-                    "longitude" double precision NOT NULL,
+                    "longitude" double precision NOT NULL
                 )
-            """)
-
-            # Index for efficient queries
-            cur.execute("""
-                CREATE INDEX IF NOT EXISTS experiences_keywords_gin
-                    ON experiences USING GIN ("keywords")
             """)
         conn.commit()
     finally:
