@@ -1,7 +1,7 @@
 import {auth} from "@/lib/auth";
 import { Suspense } from 'react';
 import {headers} from "next/headers";
-import {ExperienceDetailsContent} from "@/app/ui/experience/experience-details";
+import {ExperienceDetailsContent} from "@/app/ui/experience/experience-details-card";
 import {getExperienceDetails} from "@/lib/actions/experience-actions";
 import {getUserTrips} from "@/lib/actions/trips-actions";
 import {GoBackButton} from "@/app/ui/components/buttons/nav-buttons";
@@ -44,7 +44,7 @@ export default async function ExperienceDetailsPage(
     }
 
     return (
-        <main className="min-h-screen min-w-screen">
+        <main className="">
             <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
                 <div className="flex flex-col gap-4 items-center justify-center">
                     <ExperienceDetailsContent
@@ -52,7 +52,6 @@ export default async function ExperienceDetailsPage(
                         trips={trips}
                         user_id={session_user_id}
                     />
-                    <GoBackButton text={"Search Results"} />
                 </div>
             </Suspense>
         </main>

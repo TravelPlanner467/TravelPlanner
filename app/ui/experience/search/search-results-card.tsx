@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import {MapPinIcon, PhotoIcon } from "@heroicons/react/16/solid";
 import {Experience} from "@/lib/types";
+import {RatingDisplay} from "@/app/ui/experience/buttons/star-rating";
 
 interface ExperienceCardProps {
     experience: Experience;
@@ -28,14 +29,24 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
             transition-all hover:shadow-lg hover:scale-[1.01]"
         >
             {/*Top Row*/}
-            <div className="flex justify-between items-center">
-                {/*Title*/}
-                <h2 className="text-2xl font-semibold text-gray-900 truncate min-w-0 w-2/5">
-                    {experience.title}
-                </h2>
+            <div className="flex w-full">
+                <div className="flex flex-col w-2/3">
+                    {/*Title*/}
+                    <h2 className="text-2xl font-semibold text-gray-900 truncate">
+                        {experience.title}
+                    </h2>
+                    {/*Ratings*/}
+                    <div className="flex items-start">
+                        <RatingDisplay rating={experience.average_rating} />
+                    </div>
+                    {/*Experience Date*/}
+                    <p className="text-sm text-gray-600">
+                        {experienceDate}
+                    </p>
+                </div>
 
                 {/*Keywords*/}
-                <div className="flex flex-wrap gap-2 w-2/5 min-w-0">
+                <div className="flex flex-wrap justify-start items-start gap-2 w-1/3">
                     {experience.keywords.map((keyword, index) => (
                         <p key={index}
                            className="px-2 py-1 text-xs font-medium border"
@@ -44,17 +55,14 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
                         </p>
                     ))}
                 </div>
-
-                {/*Experience Date*/}
-                <p className="text-sm text-gray-500 whitespace-nowrap w-1/5 text-right">
-                    {experienceDate}
-                </p>
             </div>
 
             {/*MIDDLE ROW*/}
             <div className="my-4">
                 {/*Description*/}
-                <p className="text-gray-700">{experience.description}</p>
+                <p className="text-gray-700 line-clamp-4">
+                    {experience.description}
+                </p>
             </div>
 
             {/*BOTTOM ROW*/}

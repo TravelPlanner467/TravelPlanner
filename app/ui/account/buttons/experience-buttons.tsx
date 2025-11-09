@@ -5,14 +5,31 @@ import {deleteExperience} from "@/lib/actions/experience-actions";
 import {TrashIcon} from "@heroicons/react/24/outline";
 import Link from "next/link";
 
-export function EditExperienceButton({user_id, experience_id}: DeleteExperienceProps) {
+
+export function NewExperienceButton() {
+    return (
+        <Link
+            href={"/experience/create"}
+            className={`w-48 h-10 flex justify-center items-center
+                border-2 border-blue-800 rounded-lg
+                hover:shadow-lg hover:scale-[1.1]`}
+        >
+            + New Experience
+        </Link>
+    )
+}
+
+export function EditExperienceButton({experience_id}: {experience_id: string}) {
     return (
         <Link
             href={`/account/experiences/edit?q=${experience_id}`}
-            className="bg-white rounded-lg px-3 py-2 text-sm border border-gray-400
-            transition-all hover:shadow-lg hover:scale-[1.01]"
+            className={`w-16 h-10 flex justify-center items-center
+                border-2 border-gray-900 rounded-lg
+                hover:shadow-lg hover:scale-[1.1]`}
         >
+            <p className="text-center text-sm font-medium">
                 Edit
+            </p>
         </Link>
     )
 }
@@ -21,10 +38,13 @@ export function ViewExperienceButton({experience_id}: {experience_id: string}) {
     return (
         <Link
             href={`/experience/details?q=${experience_id}`}
-            className="bg-white rounded-lg px-3 py-2 text-sm border border-gray-400
-            transition-all hover:shadow-lg hover:scale-[1.01]"
+            className={`w-16 h-10 flex justify-center items-center
+                border-2 border-gray-900 rounded-lg
+                hover:shadow-lg hover:scale-[1.1]`}
         >
-            View
+            <p className="text-center text-sm font-medium">
+                View
+            </p>
         </Link>
     )
 }
@@ -43,25 +63,11 @@ export function DeleteExperienceButton({user_id, experience_id}: DeleteExperienc
     return (
         <button
             onClick={onDeleteClick}
-            className="bg-white rounded-lg px-3 text-sm border border-gray-400
-            transition-all hover:shadow-lg hover:scale-[1.01]"
+            className={`w-10 h-10 flex justify-center items-center
+                border-2 border-red-900 rounded-lg
+                hover:shadow-lg hover:scale-[1.1]`}
         >
-            <svg className="w-4 h-4">
-                <TrashIcon />
-            </svg>
+            <TrashIcon className="w-4 h-4 text-red-900"/>
         </button>
-    )
-}
-
-export function NewExperienceButton() {
-    return (
-        <Link
-            href={"/experience/create"}
-            className="w-[200px] px-6 py-2 text-center
-                  border border-blue-800 shadow-sm rounded-lg
-                  hover:shadow-lg hover:scale-[1.01]"
-        >
-            + New Experience
-        </Link>
     )
 }

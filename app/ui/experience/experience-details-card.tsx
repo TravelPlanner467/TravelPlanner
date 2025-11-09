@@ -14,11 +14,12 @@ interface ExperienceDetailsProps {
 }
 
 export function ExperienceDetailsContent({ experience, trips, user_id }: ExperienceDetailsProps) {
+    // States for Expanding/Collapsing Description
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTruncated, setIsTruncated] = useState(false);
     const textRef = useRef<HTMLParagraphElement>(null);
 
-    // Handle truncation of long descriptions
+    // Check height of description to determine if it should be truncated
     useLayoutEffect(() => {
         const element = textRef.current;
         if (element) {
@@ -37,11 +38,9 @@ export function ExperienceDetailsContent({ experience, trips, user_id }: Experie
     // Check if user is logged in
     const isLoggedIn = !!user_id;
 
-    // @ts-ignore
     return (
         <div className="w-full p-6">
-            <div className="flex flex-col w-full p-8 gap-3
-                            border border-gray-600 rounded-lg shadow-md">
+            <div className="flex flex-col p-8 gap-3 border border-gray-500 shadow-md rounded-lg ">
                 {/* ========================================== */}
                 {/* TOP ROW - Title, Date, Address, & Keywords */}
                 {/* ========================================== */}

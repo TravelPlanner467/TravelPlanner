@@ -1,7 +1,7 @@
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
-import {TripDetails} from "@/app/ui/trips/trip-details";
+import {TripDetailsCard} from "@/app/ui/trips/trip-details-card";
 import {getTripDetails, getTripExperienceDetails} from "@/lib/actions/trips-actions";
 import {ErrorResponse, Experience, GetBatchExperiencesProps, TripIDProps, Trip} from "@/lib/types";
 import {NavButton} from "@/app/ui/components/buttons/nav-buttons";
@@ -48,15 +48,14 @@ export default async function Page(
     const tripExperiences: Experience[] | ErrorResponse = await getTripExperienceDetails(tripExperienceIDs);
 
     return (
-        <main className="min-h-screen min-w-screen">
+        <main className="">
             <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
                 <div className="flex flex-col gap-4 items-center justify-center">
-                    <TripDetails
+                    <TripDetailsCard
                         trip={trip}
                         tripExperiences={tripExperiences}
                         session_user_id={user_id}
                     />
-                    <NavButton link={"/trips"} text={"My Trips"} />
                 </div>
             </Suspense>
         </main>

@@ -5,17 +5,19 @@ import {TrashIcon} from "@heroicons/react/24/outline";
 import {deleteTrip, removeExperienceFromTrip} from "@/lib/actions/trips-actions";
 import {ExperienceToTripsProps, TripIDProps} from "@/lib/types";
 import {useState} from "react";
+import {MinusCircleIcon} from "@heroicons/react/24/outline";
 
 export function NewTripButton() {
     return (
         <Link
             href={"/trips/new"}
-            className="w-[135px] px-6 py-2
-                      text-center
-                      border border-blue-800 shadow-sm rounded-lg
-                      hover:shadow-lg hover:scale-[1.01]"
+            className={`w-32 h-10 flex justify-center items-center
+                border-2 border-blue-800 rounded-lg
+                hover:shadow-lg hover:scale-[1.1]`}
         >
-            + New Trip
+            <p className="text-center text-md font-medium text-blue-800">
+                + New Trip
+            </p>
         </Link>
     )
 }
@@ -24,10 +26,13 @@ export function EditTripButton({trip_id}: { trip_id: string }) {
     return (
         <Link
             href={`/trips/edit?q=${trip_id}`}
-            className="bg-white rounded-lg px-3 py-2 text-sm border border-gray-200
-            transition-all hover:shadow-lg hover:scale-[1.01]"
+            className={`w-32 h-10 flex justify-center items-center
+                border-2 border-blue-800 rounded-lg
+                hover:shadow-lg hover:scale-[1.1]`}
         >
-            Edit
+            <p className="text-center text-md font-medium text-blue-800">
+                Edit
+            </p>
         </Link>
     )
 }
@@ -46,12 +51,11 @@ export function DeleteTripButton({user_id, trip_id}: TripIDProps) {
     return (
         <button
             onClick={onDeleteClick}
-            className="bg-white rounded-lg px-3 text-sm border border-gray-200
-            transition-all hover:shadow-lg hover:scale-[1.01]"
+            className={`w-12 h-10 flex justify-center items-center
+                border-2 border-red-800 rounded-lg
+                hover:shadow-lg hover:scale-[1.1]`}
         >
-            <svg className="w-4 h-4">
-                <TrashIcon />
-            </svg>
+            <TrashIcon className="w-5 h-5 text-red-800"/>
         </button>
     )
 }
@@ -78,15 +82,14 @@ export function RemoveExperienceButton({user_id, experience_id, trip_id}: Experi
     }
 
     return (
-        <div className="relative inline-block text-left">
+        <div className="relative inline-block">
             <button
                 onClick={onRemoveClick}
-                className="bg-white rounded-lg px-3 text-sm border border-gray-200
-                    transition-all hover:shadow-lg hover:scale-[1.01]"
+                className={`w-12 h-8 flex justify-center items-center
+                border-2 border-red-800 rounded-lg
+                hover:shadow-lg hover:scale-[1.1]`}
             >
-                <svg className="w-4 h-4">
-                    <TrashIcon />
-                </svg>
+                <MinusCircleIcon className="w-5 h-5 text-red-800"/>
             </button>
 
             {/* Status message */}
@@ -99,4 +102,19 @@ export function RemoveExperienceButton({user_id, experience_id, trip_id}: Experi
             )}
         </div>
     );
+}
+
+export function ViewExperienceTripButton({trip_id}: { trip_id: string }) {
+    return (
+        <Link
+            href={`/trips/details?q=${trip_id}`}
+            className={`w-48 h-8 flex justify-center items-center
+                border-2 border-blue-800 rounded-lg
+                hover:shadow-lg hover:scale-[1.1]`}
+        >
+            <p className="text-center text-sm font-medium">
+                View Details
+            </p>
+        </Link>
+    )
 }
