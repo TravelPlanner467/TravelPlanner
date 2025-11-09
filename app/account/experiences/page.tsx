@@ -52,7 +52,7 @@ export default async function Page() {
     }
 
     return (
-        <div className="flex flex-col mx-auto p-4 justify-center items-center ">
+        <div className="flex flex-col mx-auto p-4 justify-center items-center">
             <div className="flex flex-row justify-between w-3/5 py-3">
                 <h1 className="text-4xl font-bold">My Experiences</h1>
                 <NewExperienceButton />

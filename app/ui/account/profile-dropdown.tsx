@@ -33,7 +33,7 @@ export function ProfileDropdown({ session }: { session: Session }) {
                     className="w-5 h-5 group-hover:scale-[1.2] transition-transform"
                     aria-hidden="true"
                 />
-                <span className="hidden md:block">Account</span>
+                <p className="hidden md:block">Account</p>
                 <ChevronDownIcon
                     className={`w-4 h-4 transition-transform duration-200 ${
                         isOpen ? 'rotate-180' : ''

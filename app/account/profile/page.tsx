@@ -13,12 +13,14 @@ export default async function Page() {
     }
 
     return (
-        <div className="flex flex-col w-full text-center gap-2.5 items-center">
-            <div className="flex flex-col gap-12">
+        <div className="flex flex-col mx-auto p-4 justify-center items-center">
+            <div className="flex flex-col">
                 <div className='text-4xl font-bold'>
                     User Profile
                 </div>
-                <ProfileFeatures session={session}/>
+                <div className="flex pt-12">
+                    <ProfileFeatures session={session}/>
+                </div>
             </div>
         </div>
     );

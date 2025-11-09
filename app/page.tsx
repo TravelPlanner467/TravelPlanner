@@ -16,10 +16,9 @@ export default async function Page() {
         );
     }
 
+    // RENDER HOMEPAGE
     return (
-        <main className="min-w-fit min-h-fit w-full flex flex-col
-                        p-4 gap-24 text-center items-center"
-        >
+        <div className="flex flex-col w-full p-4 gap-24 text-center items-center">
             {/*Site Title*/}
             <div className="mt-12">
                 <h1 className="text-4xl font-bold">
@@ -36,6 +35,6 @@ export default async function Page() {
             {/*<div className="w-3/4">*/}
             {/*    <HomepageRecommendations experiences={topExperiences}/>*/}
             {/*</div>*/}
-        </main>
+        </div>
     );
 }
