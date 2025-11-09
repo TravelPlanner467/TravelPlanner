@@ -164,3 +164,22 @@ export interface ErrorResponse {
     message?: string;
 }
 
+// --------------------------------------------------------------------------------------------------------------------
+// Google Maps Experience Interfaces-----------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
+export interface Location {
+    lat: number;
+    lng: number;
+}
+
+export interface GeocodeResult {
+    place_id: string;
+    formatted_address: string;
+    display_name: string;
+    geometry: {
+        location: {
+            lat: number;
+            lng: number;
+        };
+    };
+}
