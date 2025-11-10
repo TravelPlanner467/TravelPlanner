@@ -201,7 +201,7 @@ export async function setUserRole(userId: string, role: 'admin' | 'user') {
         headers: await headers()
     });
 
-    // Verify current user is admin
+    // Verify current user is components
     if (!session || session.user.role !== 'admin') {
         throw new Error('Unauthorized');
     }
@@ -263,7 +263,7 @@ export async function banUser(userId: string, reason: string, durationInDays: nu
         }
     });
 
-    revalidatePath('/admin/users');
+    revalidatePath('/admin/user-management')
     return { success: true };
 }
 
@@ -285,7 +285,7 @@ export async function unbanUser(userId: string) {
         }
     });
 
-    revalidatePath('/admin/users');
+    revalidatePath('/admin/user-management')
     return { success: true };
 }
 
@@ -304,7 +304,7 @@ export async function deleteUser(userId: string) {
         where: { id: userId }
     });
 
-    revalidatePath('/admin/users');
+    revalidatePath('/admin/user-management')
     return { success: true };
 }
 
@@ -322,7 +322,7 @@ export async function revokeUserSessions(userId: string) {
         where: { userId }
     });
 
-    revalidatePath('/admin/users');
+    revalidatePath('/admin/user-management')
     return { success: true };
 }
 

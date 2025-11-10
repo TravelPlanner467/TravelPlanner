@@ -1,7 +1,7 @@
 import {getTopExperiences} from "@/lib/actions/experience-actions";
 import {ErrorResponse, Experience} from "@/lib/types";
-import {HomepageRecommendations} from "@/app/ui/experience/recommendations/homepage-results";
-import ComboSearchBar from "@/app/ui/experience/search/combo-search-bar";
+import {HomepageRecommendations} from "@/app/(ui)/experience/recommendations/homepage-results";
+import ComboSearchBar from "@/app/(ui)/experience/search/combo-search-bar";
 
 export default async function Page() {
     // Fetch top 6 experiences from database

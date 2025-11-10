@@ -1,6 +1,6 @@
-import '@/app/ui/global.css'
-import { inter } from '@/app/ui/fonts';
-import Navbar from "@/app/ui/components/navbar";
+import '@/app/(ui)/global.css'
+import { inter } from '@/app/(ui)/fonts';
+import Navbar from "@/app/(ui)/components/navbar";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 
