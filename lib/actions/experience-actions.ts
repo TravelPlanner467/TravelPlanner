@@ -153,7 +153,7 @@ export async function getUserExperiencesDetails(formData: getUserExperienceProps
         if (response.ok) {
             const result = await response.json();
             console.log(`OK: ${response.status}`)
-            console.log('message:', result);
+            console.log('# Fetched:', result.length);
             return result as Experience;
 
         } else {
@@ -182,9 +182,9 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
         });
 
         if (response.ok) {
-            console.log(`OK: ${response.status}`)
             const result = await response.json();
-            console.log('message:', result);
+            console.log(`OK: ${response.status}`)
+            console.log('# Fetched:', result.length);
             return result as Experience[];
 
         } else {

@@ -2,24 +2,24 @@ import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
 import ProfileFeatures from "@/app/ui/account/profile-features";
+import AccountSettings from "@/app/ui/account/account-settings";
 
 export default async function Page() {
-    const session = await auth.api.getSession(
-        {headers: await headers()}
-    );
+    // Validate User Session
+    const session = await auth.api.getSession({headers: await headers()});
+    if ( !session ) {redirect('/account/login');}
 
-    if ( !session ) {
-        redirect('/account/login');
+    const user = {
+        id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+        username: session.user.username ?? undefined,
     }
 
     return (
-        <div className="flex flex-col w-full text-center gap-2.5 items-center">
-            <div className="flex flex-col gap-12">
-                <div className='text-4xl font-bold'>
-                    Edit User Profile
-                </div>
-                <ProfileFeatures session={session}/>
-            </div>
+        <div className="flex flex-col w-full justify-center items-center">
+            <h2 className="text-4xl font-bold my-4"> Account Settings </h2>
+            <AccountSettings user={user}/>
         </div>
     );
 }

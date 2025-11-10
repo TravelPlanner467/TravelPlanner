@@ -24,8 +24,6 @@ export function RatingDisplay({rating, showLabel = true}: RatingDisplayProps) {
         return difference * 100;
     };
 
-    console.log(rating)
-
     return (
         <div className="flex flex-col items-center gap-1">
             <div className="flex">

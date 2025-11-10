@@ -12,7 +12,8 @@ export function NewExperienceButton() {
             href={"/experience/create"}
             className={`w-48 h-10 flex justify-center items-center
                 border-2 border-blue-800 rounded-lg
-                hover:shadow-lg hover:scale-[1.1]`}
+                hover:bg-blue-50 hover:shadow-lg hover:scale-[1.1]
+                focus:bg-blue-50 focus:outline-none focus:shadow-outline`}
         >
             + New Experience
         </Link>
@@ -25,7 +26,7 @@ export function EditExperienceButton({experience_id}: {experience_id: string}) {
             href={`/account/experiences/edit?q=${experience_id}`}
             className={`w-16 h-10 flex justify-center items-center
                 border-2 border-gray-900 rounded-lg
-                hover:shadow-lg hover:scale-[1.1]`}
+                hover:bg-blue-50 hover:shadow-lg hover:scale-[1.1]`}
         >
             <p className="text-center text-sm font-medium">
                 Edit
@@ -40,7 +41,7 @@ export function ViewExperienceButton({experience_id}: {experience_id: string}) {
             href={`/experience/details?q=${experience_id}`}
             className={`w-16 h-10 flex justify-center items-center
                 border-2 border-gray-900 rounded-lg
-                hover:shadow-lg hover:scale-[1.1]`}
+                hover:bg-blue-50 hover:shadow-lg hover:scale-[1.1]`}
         >
             <p className="text-center text-sm font-medium">
                 View
@@ -65,9 +66,9 @@ export function DeleteExperienceButton({user_id, experience_id}: DeleteExperienc
             onClick={onDeleteClick}
             className={`w-10 h-10 flex justify-center items-center
                 border-2 border-red-900 rounded-lg
-                hover:shadow-lg hover:scale-[1.1]`}
+                hover:bg-red-50 hover:shadow-lg hover:scale-[1.1]`}
         >
-            <TrashIcon className="w-4 h-4 text-red-900"/>
+            <TrashIcon className="w-5 h-5 text-red-950"/>
         </button>
     )
 }

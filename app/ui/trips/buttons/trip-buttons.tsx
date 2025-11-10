@@ -5,15 +5,15 @@ import {TrashIcon} from "@heroicons/react/24/outline";
 import {deleteTrip, removeExperienceFromTrip} from "@/lib/actions/trips-actions";
 import {ExperienceToTripsProps, TripIDProps} from "@/lib/types";
 import {useState} from "react";
-import {MinusCircleIcon} from "@heroicons/react/24/outline";
+import {MinusIcon} from "@heroicons/react/16/solid";
 
 export function NewTripButton() {
     return (
         <Link
             href={"/trips/new"}
-            className={`w-32 h-10 flex justify-center items-center
+            className={`w-48 h-10 flex justify-center items-center
                 border-2 border-blue-800 rounded-lg
-                hover:shadow-lg hover:scale-[1.1]`}
+                hover:bg-blue-50 hover:shadow-lg hover:scale-[1.1]`}
         >
             <p className="text-center text-md font-medium text-blue-800">
                 + New Trip
@@ -28,7 +28,7 @@ export function EditTripButton({trip_id}: { trip_id: string }) {
             href={`/trips/edit?q=${trip_id}`}
             className={`w-32 h-10 flex justify-center items-center
                 border-2 border-blue-800 rounded-lg
-                hover:shadow-lg hover:scale-[1.1]`}
+                hover:bg-blue-50 hover:shadow-lg hover:scale-[1.1]`}
         >
             <p className="text-center text-md font-medium text-blue-800">
                 Edit
@@ -53,7 +53,7 @@ export function DeleteTripButton({user_id, trip_id}: TripIDProps) {
             onClick={onDeleteClick}
             className={`w-12 h-10 flex justify-center items-center
                 border-2 border-red-800 rounded-lg
-                hover:shadow-lg hover:scale-[1.1]`}
+                hover:bg-red-50 hover:shadow-lg hover:scale-[1.1]`}
         >
             <TrashIcon className="w-5 h-5 text-red-800"/>
         </button>
@@ -87,9 +87,9 @@ export function RemoveExperienceButton({user_id, experience_id, trip_id}: Experi
                 onClick={onRemoveClick}
                 className={`w-12 h-8 flex justify-center items-center
                 border-2 border-red-800 rounded-lg
-                hover:shadow-lg hover:scale-[1.1]`}
+                hover:bg-red-50 hover:shadow-lg hover:scale-[1.1]`}
             >
-                <MinusCircleIcon className="w-5 h-5 text-red-800"/>
+                <MinusIcon className="w-5 h-5 text-red-800"/>
             </button>
 
             {/* Status message */}
@@ -110,7 +110,7 @@ export function ViewExperienceTripButton({trip_id}: { trip_id: string }) {
             href={`/trips/details?q=${trip_id}`}
             className={`w-48 h-8 flex justify-center items-center
                 border-2 border-blue-800 rounded-lg
-                hover:shadow-lg hover:scale-[1.1]`}
+                hover:bg-blue-50 hover:shadow-lg hover:scale-[1.1]`}
         >
             <p className="text-center text-sm font-medium">
                 View Details

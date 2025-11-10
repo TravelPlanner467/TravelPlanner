@@ -130,7 +130,6 @@ def get_batch_experiences():
         tuple: JSON array of experience objects and HTTP 200
     """
     data=request.get_json()
-    print(f"Received  {data}")
 
     user_id = data['user_id']
     experience_ids = data['experience_ids']

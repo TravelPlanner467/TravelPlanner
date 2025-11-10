@@ -9,15 +9,21 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id              String    @id
+  name            String
+  email           String
+  emailVerified   Boolean   @default(false)
+  image           String?
+  role            String    @default("user")
+  banned          Boolean   @default(false)
+  banReason       String?
+  banExpires      DateTime?
+  username        String?   @unique
+  displayUsername String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  sessions        Session[]
+  accounts        Account[]
 
   @@unique([email])
   @@map("user")

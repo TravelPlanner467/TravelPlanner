@@ -1,36 +1,64 @@
 'use server';
 
+import { PrismaClient } from '@/generated/prisma';
 import { auth } from '@/lib/auth';
 import {headers} from "next/headers";
-import {redirect} from "next/navigation";
+import {revalidatePath} from "next/cache";
 
-export const signUp = async (email: string, password: string, name: string) => {
+const prisma = new PrismaClient();
+
+
+// =====================================================================================================================
+// SIGN IN & SIGN UP
+// =====================================================================================================================\
+export const signUp = async (email: string, password: string, name: string, username: string) => {
     const result = await auth.api.signUpEmail({
         body: {
             email,
             password,
             name,
+            username,
             callbackURL: "/account/profile"
         }
-    })
+    });
+
     if (!result?.user) {
         return { ok: false, message: 'Account Not Created' };
     }
-    redirect('/account/profile');
+
+    return { ok: true, redirect: '/account/profile' };
 };
 
-export const signIn = async (email: string, password: string) => {
+export const signInEmail = async (email: string, password: string) => {
     const result = await auth.api.signInEmail({
         body: {
             email,
             password,
             callbackURL: "/account/profile"
         }
-    })
+    });
+
     if (!result?.user) {
         return { ok: false, message: 'Invalid email or password' };
     }
-    redirect('/account/profile');
+
+    return { ok: true, redirect: '/account/profile' };
+};
+
+export const signInUsername = async (username: string, password: string) => {
+    const result = await auth.api.signInUsername({
+        body: {
+            username,
+            password,
+            callbackURL: "/account/profile"
+        }
+    });
+
+    if (!result?.user) {
+        return { ok: false, message: 'Invalid username or password' };
+    }
+
+    return { ok: true, redirect: '/account/profile' };
 };
 
 export const signOut = async () => {
@@ -40,3 +68,263 @@ export const signOut = async () => {
 
     return result;
 };
+
+
+// =====================================================================================================================
+// USER-LEVEL ACCOUNT MANAGEMENT
+// =====================================================================================================================
+export async function updateUsername(newUsername: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
+    // Check if username is already taken
+    const existingUser = await prisma.user.findUnique({
+        where: { username: newUsername }
+    });
+
+    if (existingUser && existingUser.id !== session.user.id) {
+        return { ok: false, message: 'Username is already taken' };
+    }
+
+    await prisma.user.update({
+        where: { id: session.user.id },
+        data: { username: newUsername }
+    });
+
+    revalidatePath('/account/profile');
+    return { ok: true, message: 'Username updated successfully' };
+}
+
+export async function changeEmail(newEmail: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
+    // Check if email is already taken
+    const existingUser = await prisma.user.findUnique({
+        where: { email: newEmail }
+    });
+
+    if (existingUser && existingUser.id !== session.user.id) {
+        return { ok: false, message: 'Email is already in use' };
+    }
+
+    await prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+            email: newEmail,
+            emailVerified: false // Reset verification status
+        }
+    });
+
+    revalidatePath('/account/profile');
+    return { ok: true, message: 'Email updated successfully. Please verify your new email.' };
+}
+
+export async function changePassword(currentPassword: string, newPassword: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
+    // Verify current password
+    const account = await prisma.account.findFirst({
+        where: {
+            userId: session.user.id,
+            providerId: 'credential'
+        }
+    });
+
+    if (!account || !account.password) {
+        return { ok: false, message: 'No password set for this account' };
+    }
+
+    // Use better-auth context to verify and hash passwords
+    const ctx = await auth.$context;
+    const isValidPassword = await ctx.password.verify({
+        hash: account.password,
+        password: currentPassword
+    });
+
+    if (!isValidPassword) {
+        return { ok: false, message: 'Current password is incorrect' };
+    }
+
+    // Hash new password
+    const hashedPassword = await ctx.password.hash(newPassword);
+
+    // Update password in account table
+    await prisma.account.update({
+        where: { id: account.id },
+        data: { password: hashedPassword }
+    });
+
+    revalidatePath('/account/profile');
+    return { ok: true, message: 'Password changed successfully' };
+}
+
+export async function updateName(newName: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session) {
+        throw new Error('Unauthorized');
+    }
+
+    await prisma.user.update({
+        where: {id: session.user.id},
+        data: {name: newName}
+    });
+
+    revalidatePath('/account/profile');
+    return {ok: true, message: 'Display name updated successfully'};
+}
+
+// =====================================================================================================================
+// ADMIN FEATURES
+// =====================================================================================================================
+export async function setUserRole(userId: string, role: 'admin' | 'user') {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    // Verify current user is admin
+    if (!session || session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+    }
+
+    // Update user role using Prisma
+    await prisma.user.update({
+        where: { id: userId },
+        data: { role }
+    });
+
+    return {success: true};
+}
+
+export async function getAllUsers() {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session || session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+    }
+
+    const users = await prisma.user.findMany({
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            username: true,
+            role: true,
+            banned: true,
+            banReason: true,
+            banExpires: true
+        },
+        orderBy: {
+            email: 'asc'
+        }
+    });
+
+    return users;
+}
+
+export async function banUser(userId: string, reason: string, durationInDays: number) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session || session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+    }
+
+    const banExpiresAt = new Date(Date.now() + durationInDays * 24 * 60 * 60 * 1000);
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            banned: true,
+            banReason: reason,
+            banExpires: banExpiresAt
+        }
+    });
+
+    revalidatePath('/admin/users');
+    return { success: true };
+}
+
+export async function unbanUser(userId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session || session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+    }
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            banned: false,
+            banReason: null,
+            banExpires: null
+        }
+    });
+
+    revalidatePath('/admin/users');
+    return { success: true };
+}
+
+
+export async function deleteUser(userId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session || session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+    }
+
+    // Hard delete user (cascading deletes will handle sessions/accounts)
+    await prisma.user.delete({
+        where: { id: userId }
+    });
+
+    revalidatePath('/admin/users');
+    return { success: true };
+}
+
+export async function revokeUserSessions(userId: string) {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session || session.user.role !== 'admin') {
+        throw new Error('Unauthorized');
+    }
+
+    // Delete all sessions for the user
+    await prisma.session.deleteMany({
+        where: { userId }
+    });
+
+    revalidatePath('/admin/users');
+    return { success: true };
+}
+
+
+

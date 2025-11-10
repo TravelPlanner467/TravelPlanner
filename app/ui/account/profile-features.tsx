@@ -20,6 +20,7 @@ export default function ProfileFeatures({ session }: { session: Session }) {
             <p className="">Display Name: {user.name}</p>
             <p className="">Email: {user.email}</p>
             <p className="">userID: {user.id}</p>
+            <p className="">role: {user.role}</p>
         </div>
 
         <button

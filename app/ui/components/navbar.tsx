@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import {BookOpenIcon, UserCircleIcon, FlagIcon } from "@heroicons/react/24/outline";
+import {BookOpenIcon, UserCircleIcon, FlagIcon, PuzzlePieceIcon} from "@heroicons/react/24/outline";
 import {auth} from "@/lib/auth";
 import {ProfileDropdown} from "@/app/ui/account/profile-dropdown";
 
@@ -9,6 +9,12 @@ type Session = typeof auth.$Infer.Session;
 
 export default function Navbar({ session }: { session: Session | null }) {
     const navLinks = [
+        {
+            href: "/admin",
+            icon: PuzzlePieceIcon,
+            label: "Admin Panel",
+            showWhen: session?.user.role === 'admin'
+        },
         {
             href: "/account/experiences",
             icon: FlagIcon,
@@ -65,6 +71,7 @@ export default function Navbar({ session }: { session: Session | null }) {
                     {session && (
                         <ProfileDropdown session={session} />
                     )}
+
                 </div>
             </div>
         </nav>

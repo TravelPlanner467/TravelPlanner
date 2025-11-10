@@ -6,7 +6,9 @@ import {signUp} from "@/lib/actions/auth-actions";
 export default function SignupForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [displayName, setDisplayName] = useState("");
+    const [name, setName] = useState("");
+    const [username, setUsername] = useState("");
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -16,12 +18,13 @@ export default function SignupForm() {
         setError("");
 
         try {
-            const result = await signUp(email, password, displayName);
-            if (result?.ok === false) setError(result.message);
-
+            const result = await signUp(email, password, name, username);
+            if (result?.ok === false) {
+                setError(result.message ?? "An error occurred during signup");
+            }
         } catch (error) {
             setError(
-                `Authentication error: ${error instanceof Error ? error.message : "Unknown error occurred"}`
+                error instanceof Error ? error.message : "An error occurred during signup"
             );
         } finally {
             setLoading(false);
@@ -32,15 +35,29 @@ export default function SignupForm() {
         <div className="flex flex-col w-full text-center gap-2.5 items-center">
             <form className="flex flex-col gap-6 w-80 bg-white shadow-md p-8 rounded" onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-3">
-                    <label htmlFor="displayname" className="font-medium text-left">Display Name</label>
+                    <label htmlFor="username" className="font-medium text-left">Username</label>
                     <input
-                        id="displayName"
-                        type="displayName"
-                        value={displayName}
-                        onChange={e => setDisplayName(e.target.value)}
+                        id="username"
+                        type="username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
                         className="border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        placeholder="Choose a Display Name"
+                        placeholder="Choose a username"
                         required
+                        disabled={loading}
+                    />
+                </div>
+                <div className="flex flex-col gap-3">
+                    <label htmlFor="name" className="font-medium text-left">Name</label>
+                    <input
+                        id="name"
+                        type="name"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        className="border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="Enter your name"
+                        required
+                        disabled={loading}
                     />
                 </div>
                 <div className="flex flex-col gap-3">
@@ -53,6 +70,7 @@ export default function SignupForm() {
                         className="border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         placeholder="Enter your email"
                         required
+                        disabled={loading}
                     />
                 </div>
                 <div className="flex flex-col gap-3">
@@ -65,6 +83,7 @@ export default function SignupForm() {
                         className="border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         placeholder="Select a password"
                         required
+                        disabled={loading}
                     />
                 </div>
 
@@ -75,7 +94,14 @@ export default function SignupForm() {
                 >
                     {loading ? "Signing up..." : "Create Account"}
                 </button>
-                {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+
+                {/*Error Display*/}
+                {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+                        {error}
+                    </div>
+                )}
+
                 <div className="text-sm text-gray-500 mt-2">
                     Already have an account? <a href="/account/login" className="text-blue-600 hover:underline">Log in now</a>
                 </div>
