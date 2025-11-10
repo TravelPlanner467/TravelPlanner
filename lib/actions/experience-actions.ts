@@ -272,6 +272,7 @@ export async function getTopExperiences(): Promise<Experience[] | ErrorResponse>
 }
 
 export async function rateExperience(formData: RateExperienceProps) {
+    console.log(formData);
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/rate`, {
             method: 'POST',

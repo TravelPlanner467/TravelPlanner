@@ -172,7 +172,7 @@ def get_experience_details(experience_id):
             cur.execute("""
                 SELECT e.*, 
                        COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
-                       COUNT(r.rating) AS rating_count,
+                       COUNT(DISTINCT r.user_id) AS rating_count,
                        ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
                 FROM experiences e
                 LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
@@ -458,7 +458,7 @@ def update_experience():
     finally:
         conn.close()
 
-@experiences_bp.route('/rate', methods=['PUT'])
+@experiences_bp.route('/rate', methods=['POST'])
 @require_auth
 def rate_experience():
     """Rate an experience (1–5), update if already rated by user."""

@@ -23,7 +23,6 @@ export function RateExperienceButton({user_id, experience_id}: RateExperiencePro
             experience_id: experience_id,
             rating: rating
         }
-        console.log(formData);
         rateExperience(formData)
         // TODO - Add success/error messages
 
