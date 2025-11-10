@@ -1,7 +1,7 @@
-// app/admin/manage-users/page.tsx
+import dynamic from 'next/dynamic'
+
 import {getAllUsers} from "@/lib/actions/auth-actions";
 import {redirect} from "next/navigation";
-import UserManagement from "@/app/ui/admin/user-management";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 
@@ -18,6 +18,19 @@ export default async function ManageUsersPage() {
             </div>
         )
     }
+
+    // Dynamically import UserManagement if user is admin
+    const UserManagement = dynamic(
+        () => import("@/app/ui/admin/user-management"),
+        {
+            loading: () => (
+                <div className="flex items-center justify-center p-8">
+                    <div className="text-gray-600">Loading user management...</div>
+                </div>
+            ),
+            ssr: true
+        }
+    );
 
     // Load user data
     const users = await getAllUsers();
