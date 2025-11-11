@@ -8,37 +8,7 @@ import {
     ExperienceToTripsProps, UserTripsProps, ErrorResponse
 } from "@/lib/types";
 
-
-export async function getUserTrips(userID: string): Promise<UserTripsProps[] | ErrorResponse> {
-    try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/user-trips`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                "X-User-Id": userID,
-            },
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            return result as UserTripsProps[];
-        } else {
-            console.error(`HTTP error: ${response.status}`);
-            return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
-            };
-        }
-
-    } catch (error) {
-        console.error('Fetch failed: ', error);
-        return {
-            error: "Error in: getUserTrips",
-            message: `${error}`,
-        };
-    }
-}
-
+// CREATE ====================================================================
 export async function createTrip(formData: any) {
     console.log(`createTrip: ${JSON.stringify(formData)}`);
     try {
@@ -74,6 +44,71 @@ export async function createTrip(formData: any) {
     }
 }
 
+// READ ======================================================================
+export async function getUserTrips(userID: string): Promise<UserTripsProps[] | ErrorResponse> {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/user-trips`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": userID,
+            },
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            return result as UserTripsProps[];
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `Microservice Error: ${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Error in: getUserTrips",
+            message: `${error}`,
+        };
+    }
+}
+
+export async function getTripDetails(formData: TripIDProps) {
+    console.log("Getting Trip details: ", formData);
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/get-trip-details/${formData.trip_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.user_id,
+            },
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`OK: ${response.status}`)
+            console.log('message:', result);
+            return result as Trip;
+
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `Microservice Error: ${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: "Error in: getTripDetails",
+            message: `${error}`,
+        };
+    }
+}
+
+// UPDATE ========================================================================
 export async function editTrip(formData: Trip) {
     console.log(`editTrip: ${JSON.stringify(formData)}`);
     try {
@@ -108,11 +143,12 @@ export async function editTrip(formData: Trip) {
     }
 }
 
-export async function getTripDetails(formData: TripIDProps) {
-    console.log("Getting Trip details: ", formData);
+// DELETE ========================================================================
+export async function deleteTrip (formData: TripIDProps) {
+    console.log("Deleting Trip: ", formData);
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/get-trip-details/${formData.trip_id}`, {
-            method: 'GET',
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/delete-trip/${formData.trip_id}`, {
+            method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
                 "X-User-Id": formData.user_id,
@@ -120,10 +156,10 @@ export async function getTripDetails(formData: TripIDProps) {
         });
 
         if (response.ok) {
+            console.log("sent DATA: ", formData)
             const result = await response.json();
-            console.log(`OK: ${response.status}`)
-            console.log('message:', result);
-            return result as Trip;
+            console.log('Delete Successful:', result);
+            setTimeout(() => {}, 2000);
 
         } else {
             console.error(`HTTP error: ${response.status}`);
@@ -132,10 +168,11 @@ export async function getTripDetails(formData: TripIDProps) {
                 message: `${response.statusText}`,
             };
         }
+
     } catch (error) {
-        console.error('Fetch failed: ', error);
+        console.error('Delete failed:', error);
         return {
-            error: "Error in: getTripDetails",
+            error: "Error in: deleteTrip",
             message: `${error}`,
         };
     }
@@ -175,39 +212,6 @@ export async function getTripExperienceDetails(formData: GetBatchExperiencesProp
     }
 }
 
-export async function deleteTrip (formData: TripIDProps) {
-    console.log("Deleting Trip: ", formData);
-    try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/delete-trip/${formData.trip_id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                "X-User-Id": formData.user_id,
-            },
-        });
-
-        if (response.ok) {
-            console.log("sent DATA: ", formData)
-            const result = await response.json();
-            console.log('Delete Successful:', result);
-            setTimeout(() => {}, 2000);
-
-        } else {
-            console.error(`HTTP error: ${response.status}`);
-            return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
-            };
-        }
-
-    } catch (error) {
-        console.error('Delete failed:', error);
-        return {
-            error: "Error in: deleteTrip",
-            message: `${error}`,
-        };
-    }
-}
 
 export async function addExperienceToTrip(formData: ExperienceToTripsProps) {
     console.log(formData);

@@ -6,12 +6,11 @@ import {revalidatePath} from "next/cache";
 import { PrismaClient } from '@/generated/prisma';
 
 // Prevent multiple Prisma instances from forming
-// const globalForPrisma = global as unknown as {
-//     prisma: PrismaClient | undefined
-// }
-// const prisma = globalForPrisma.prisma ?? new PrismaClient();
-// if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-const prisma = new PrismaClient();
+const globalForPrisma = global as unknown as {
+    prisma: PrismaClient | undefined
+}
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // =====================================================================================================================
 // SIGN IN & SIGN UP
