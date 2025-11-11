@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  /* Custom colors */
+  --color-primary: #3b82f6;
+  --color-secondary: #8b5cf6;
+
+  /* Custom breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+
+  /* Custom fonts */
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Fira Code", monospace;
+
+  /* Custom spacing */
+  --spacing-18: 4.5rem;
+  --spacing-72: 18rem;
+}
+
+/* Custom utilities */
+@utility btn-primary {
+  @apply bg-primary text-white px-4 py-2 rounded-lg;
+}
