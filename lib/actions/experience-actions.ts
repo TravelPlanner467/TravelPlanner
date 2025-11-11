@@ -6,6 +6,9 @@ import {
     ErrorResponse,
     Experience, getUserExperienceProps, RateExperienceProps
 } from "@/lib/types";
+import {PrismaClient} from "@/generated/prisma";
+
+const prisma = new PrismaClient();
 
 export async function createExperience(formData: CreateExperienceProps) {
     console.log("createExperience: ", formData);
@@ -19,25 +22,31 @@ export async function createExperience(formData: CreateExperienceProps) {
             body: JSON.stringify(formData)
         });
 
-        if (response.ok) {
-            const result = await response.json();
-            console.log(`upload OK: ${response.status}`)
-            console.log('message:', result);
-            setTimeout(() => {}, 2000);
+        if (!response.ok) {
+            let errorMessage = response.statusText;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {}
 
-        } else {
-            console.error(`HTTP error: ${response.status}`);
+            console.error(`HTTP error: ${response.status} - ${errorMessage}`);
             return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
+                error: `Failed to create experience (${response.status})`,
+                message: errorMessage,
             };
         }
 
+        const result = await response.json();
+        console.log(`upload OK: ${response.status}`);
+        console.log('message:', result);
+
     } catch (error) {
-        console.error('Upload failed:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Upload failed:', errorMessage, error);
+
         return {
-            error: "Unknown Error",
-            message: `${error}`,
+            error: "Network Error",
+            message: errorMessage,
         };
     }
 }
@@ -52,25 +61,36 @@ export async function getUserExperiences(userID: string): Promise<Experience[] |
             },
         });
 
-        if (response.ok) {
-            console.log(`OK: ${response.status}`)
-            const result = await response.json();
-            console.log('message:', result);
-            return result as Experience[];
+        // Check for HTTP errors
+        if (!response.ok) {
+            // Parse the error message
+            let errorMessage = response.statusText;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {
+            }
 
-        } else {
-            console.error(`HTTP error: ${response.status}`);
+            console.error(`HTTP error: ${response.status} - ${errorMessage}`);
             return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
+                error: `Failed to fetch experiences (${response.status})`,
+                message: errorMessage,
             };
         }
+        console.log(`OK: ${response.status}`)
+
+        const result = await response.json();
+        console.log('message:', result);
+
+        return result as Experience[];
 
     } catch (error) {
-        console.error('Fetch failed: ', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Fetch failed:', errorMessage, error);
+
         return {
-            error: "Error in: getUserExperiences",
-            message: `${error}`,
+            error: "Network Error",
+            message: errorMessage,
         };
     }
 }
@@ -85,25 +105,30 @@ export async function deleteExperience(formData: DeleteExperienceProps) {
             },
         });
 
-        if (response.ok) {
-            console.log("sent DATA: ", formData)
-            const result = await response.json();
-            console.log('Delete Successful:', result);
-            setTimeout(() => {}, 2000);
+        if (!response.ok) {
+            let errorMessage = response.statusText;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {}
 
-        } else {
-            console.error(`HTTP error: ${response.status}`);
+            console.error(`HTTP error: ${response.status} - ${errorMessage}`);
             return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
+                error: `Failed to delete experience (${response.status})`,
+                message: errorMessage,
             };
         }
 
+        const result = await response.json();
+        console.log('Delete Successful:', result);
+
     } catch (error) {
-        console.error('Delete failed:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Delete failed:', errorMessage, error);
+
         return {
-            error: "Error in: deleteExperience",
-            message: `${error}`,
+            error: "Network Error",
+            message: errorMessage,
         };
     }
 }
@@ -117,24 +142,33 @@ export async function getExperienceDetails(experience_id: string): Promise<Exper
             },
         });
 
-        if (response.ok) {
-            const result = await response.json();
-            console.log(`OK: ${response.status}`)
-            console.log('message:', result);
-            return result as Experience;
+        if (!response.ok) {
+            let errorMessage = response.statusText;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {}
 
-        } else {
-            console.error(`HTTP error: ${response.status}`);
+            console.error(`HTTP error: ${response.status} - ${errorMessage}`);
             return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
+                error: `Failed to fetch experience details (${response.status})`,
+                message: errorMessage,
             };
         }
+
+        const result = await response.json();
+        console.log(`OK: ${response.status}`);
+        console.log('message:', result);
+
+        return result as Experience;
+
     } catch (error) {
-        console.error('Fetch failed: ', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Fetch failed:', errorMessage, error);
+
         return {
-            error: "Error in: getExperienceDetails",
-            message: `${error}`,
+            error: "Network Error",
+            message: errorMessage,
         };
     }
 }
@@ -150,24 +184,33 @@ export async function getUserExperiencesDetails(formData: getUserExperienceProps
             },
         });
 
-        if (response.ok) {
-            const result = await response.json();
-            console.log(`OK: ${response.status}`)
-            console.log('# Fetched:', result.length);
-            return result as Experience;
+        if (!response.ok) {
+            let errorMessage = response.statusText;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {}
 
-        } else {
-            console.error(`HTTP error: ${response.status}`);
+            console.error(`HTTP error: ${response.status} - ${errorMessage}`);
             return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
+                error: `Failed to fetch user experience details (${response.status})`,
+                message: errorMessage,
             };
         }
+
+        const result = await response.json();
+        console.log(`OK: ${response.status}`);
+        console.log('message:', result);
+
+        return result as Experience;
+
     } catch (error) {
-        console.error('Fetch failed: ', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Fetch failed:', errorMessage, error);
+
         return {
-            error: "Error in: getExperienceDetails",
-            message: `${error}`,
+            error: "Network Error",
+            message: errorMessage,
         };
     }
 }
@@ -181,25 +224,41 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
             },
         });
 
-        if (response.ok) {
-            const result = await response.json();
-            console.log(`OK: ${response.status}`)
-            console.log('# Fetched:', result.length);
-            return result as Experience[];
+        if (!response.ok) {
+            let errorMessage = response.statusText;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {}
 
-        } else {
-            console.error(`HTTP error: ${response.status}`);
+            console.error(`HTTP error: ${response.status} - ${errorMessage}`);
             return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
+                error: `Failed to fetch all experiences (${response.status})`,
+                message: errorMessage,
             };
         }
 
+        const result = await response.json();
+        console.log(`OK: ${response.status}`);
+        console.log('# Fetched:', result.length);
+
+        if (!Array.isArray(result)) {
+            console.error('Invalid response format: expected array');
+            return {
+                error: "Invalid response format",
+                message: "The server returned an unexpected response format",
+            };
+        }
+
+        return result as Experience[];
+
     } catch (error) {
-        console.error('Fetch failed: ', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Fetch failed:', errorMessage, error);
+
         return {
-            error: "Error in: getAllExperiences",
-            message: `${error}`,
+            error: "Network Error",
+            message: errorMessage,
         };
     }
 }
@@ -216,25 +275,31 @@ export async function updateExperience(formData: EditExperienceSendProps) {
             body: JSON.stringify(formData)
         });
 
-        if (response.ok) {
-            const result = await response.json();
-            console.log(`upload OK: ${response.status}`)
-            console.log('message:', result);
-            setTimeout(() => {}, 2000);
+        if (!response.ok) {
+            let errorMessage = response.statusText;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {}
 
-        } else {
-            console.error(`HTTP error: ${response.status}`);
+            console.error(`HTTP error: ${response.status} - ${errorMessage}`);
             return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
+                error: `Failed to update experience (${response.status})`,
+                message: errorMessage,
             };
         }
 
+        const result = await response.json();
+        console.log(`upload OK: ${response.status}`);
+        console.log('message:', result);
+
     } catch (error) {
-        console.error('Upload failed:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Upload failed:', errorMessage, error);
+
         return {
-            error: "Error in: updateExperience",
-            message: `${error}`,
+            error: "Network Error",
+            message: errorMessage,
         };
     }
 }
@@ -248,25 +313,41 @@ export async function getTopExperiences(): Promise<Experience[] | ErrorResponse>
             },
         });
 
-        if (response.ok) {
-            console.log(`OK: ${response.status}`)
-            const result = await response.json();
-            console.log('message:', result);
-            return result as Experience[];
+        if (!response.ok) {
+            let errorMessage = response.statusText;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {}
 
-        } else {
-            console.error(`HTTP error: ${response.status}`);
+            console.error(`HTTP error: ${response.status} - ${errorMessage}`);
             return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
+                error: `Failed to fetch top experiences (${response.status})`,
+                message: errorMessage,
             };
         }
 
+        const result = await response.json();
+        console.log(`OK: ${response.status}`);
+        console.log('message:', result);
+
+        if (!Array.isArray(result)) {
+            console.error('Invalid response format: expected array');
+            return {
+                error: "Invalid response format",
+                message: "The server returned an unexpected response format",
+            };
+        }
+
+        return result as Experience[];
+
     } catch (error) {
-        console.error('Fetch failed: ', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Fetch failed:', errorMessage, error);
+
         return {
-            error: "Error in: getTopExperiences",
-            message: `${error}`,
+            error: "Network Error",
+            message: errorMessage,
         };
     }
 }
@@ -283,25 +364,51 @@ export async function rateExperience(formData: RateExperienceProps) {
             body: JSON.stringify(formData)
         });
 
-        if (response.ok) {
-            const result = await response.json();
-            console.log(`upload OK: ${response.status}`)
-            console.log('message:', result);
-            setTimeout(() => {}, 2000);
+        if (!response.ok) {
+            let errorMessage = response.statusText;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {}
 
-        } else {
-            console.error(`HTTP error: ${response.status}`);
+            console.error(`HTTP error: ${response.status} - ${errorMessage}`);
             return {
-                error: `Microservice Error: ${response.status}`,
-                message: `${response.statusText}`,
+                error: `Failed to rate experience (${response.status})`,
+                message: errorMessage,
             };
         }
 
+        const result = await response.json();
+        console.log(`upload OK: ${response.status}`);
+        console.log('message:', result);
+
     } catch (error) {
-        console.error('Rating failed:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('Rating failed:', errorMessage, error);
+
         return {
-            error: "Error in: rateExperience",
-            message: `${error}`,
+            error: "Network Error",
+            message: errorMessage,
         };
+    }
+}
+
+// user userID to fetch username
+export async function getUserByID(user_id: string): Promise<string> {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: user_id
+            },
+            select: {
+                username: true,
+            }
+        });
+
+        return user?.username || "Unknown"
+
+    } catch (error) {
+        console.error('Failed to fetch username:', error);
+        return "Unknown"
     }
 }

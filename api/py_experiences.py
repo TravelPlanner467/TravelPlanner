@@ -57,7 +57,7 @@ def get_all_experiences():
             cur.execute("""
                 SELECT e.*, 
                        COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
-                       COUNT(r.rating) AS rating_count,
+                       COUNT(DISTINCT r.user_id) AS rating_count,
                        ARRAY_AGG(k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
                 FROM experiences e
                 LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
@@ -192,6 +192,7 @@ def get_experience_details(experience_id):
 
     finally:
         conn.close()
+
 
 @experiences_bp.route('/user_details/<int:experience_id>', methods=['GET'])
 @require_auth
@@ -458,6 +459,7 @@ def update_experience():
     finally:
         conn.close()
 
+
 @experiences_bp.route('/rate', methods=['POST'])
 @require_auth
 def rate_experience():
@@ -483,6 +485,7 @@ def rate_experience():
         return jsonify({"status": "success", "message": "Experience rated"}), 200
     finally:
         conn.close()
+
 
 @experiences_bp.route('/top_experiences', methods=['GET'])
 def get_top_experiences():
