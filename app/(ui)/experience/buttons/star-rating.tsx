@@ -5,14 +5,16 @@ import {StarIcon} from "@heroicons/react/16/solid";
 interface RatingDisplayProps {
     rating: number;
     showLabel?: boolean;
+    rating_count: number;
 }
 
 interface SelectableRatingProps {
     experience_rating?: number;
+
     onRatingChange: (rating: number) => void; // Add this callback prop
 }
 
-export function RatingDisplay({rating, showLabel = true}: RatingDisplayProps) {
+export function RatingDisplay({rating, showLabel = true, rating_count}: RatingDisplayProps) {
     const stars = Array.from({ length: 5 }, (_, i) => i);
 
     const numericRating = Number(rating) || 0;
@@ -48,9 +50,14 @@ export function RatingDisplay({rating, showLabel = true}: RatingDisplayProps) {
             </div>
 
             {showLabel && numericRating > 0 && (
-                <p className="font-md text-gray-900">
-                    {numericRating.toFixed(1)} {numericRating === 1 ? 'star' : 'stars'}
-                </p>
+                <div className="flex items-center gap-2">
+                    <p className="font-md text-gray-900">
+                        {numericRating.toFixed(1)} {numericRating === 1 ? 'star' : 'stars'}
+                    </p>
+                    <p className="font-md text-gray-600">
+                        {rating_count} {rating_count === 1 ? 'review' : 'reviews'}
+                    </p>
+                </div>
             )}
         </div>
     );
@@ -67,7 +74,7 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
 
     return (
         <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-3">
                 {[1, 2, 3, 4, 5].map((star) => (
                     <button
                         key={star}
@@ -75,7 +82,7 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
                         onClick={() => handleRatingClick(star)}
                         onMouseEnter={() => setHover(star)}
                         onMouseLeave={() => setHover(0)}
-                        className="relative w-8 h-8 transition-transform focus:outline-none focus:ring-2
+                        className="relative w-5 h-5 transition-transform focus:outline-none focus:ring-2
                         focus:ring-blue-500 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110"
                     >
                         <StarIcon

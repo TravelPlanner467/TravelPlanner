@@ -1,7 +1,7 @@
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
-import ProfileFeatures from "@/app/(ui)/account/profile-features";
+import ProfileDisplayCard from "@/app/(ui)/account/profile-display-card";
 
 export default async function Page() {
     const session = await auth.api.getSession(
@@ -19,7 +19,7 @@ export default async function Page() {
                     User Profile
                 </div>
                 <div className="flex pt-12">
-                    <ProfileFeatures session={session}/>
+                    <ProfileDisplayCard session={session}/>
                 </div>
             </div>
         </div>

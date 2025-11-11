@@ -2,7 +2,7 @@ import React from "react";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
-import {GoBackButton} from "@/app/(ui)/components/buttons/nav-buttons";
+import {GoBackButton} from "@/app/(ui)/general/buttons/nav-buttons";
 import {getTripDetails} from "@/lib/actions/trips-actions";
 import {EditTripForm} from "@/app/(ui)/trips/edit/edit-trip-form";
 import {ErrorResponse, Trip} from "@/lib/types";

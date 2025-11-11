@@ -10,7 +10,7 @@ export default async function ManageUsersPage() {
     const session = await auth.api.getSession({headers: await headers()});
     if (!session) {redirect('/account/login');}
 
-    // Check if user has components role from database
+    // Check if user has general role from database
     if (session.user.role !== 'admin') {
         return (
             <div>
@@ -19,9 +19,9 @@ export default async function ManageUsersPage() {
         )
     }
 
-    // Dynamically import UserManagement if user is components
+    // Dynamically import UserManagement if user is general
     const UserManagement = dynamic(
-        () => import("@/app/(dev features)/admin/components/user-management"),
+        () => import("@/app/(dev)/admin/components/user-management"),
         {
             loading: () => (
                 <div className="flex items-center justify-center p-8">

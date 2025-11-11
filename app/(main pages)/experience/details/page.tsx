@@ -4,7 +4,7 @@ import {headers} from "next/headers";
 import {ExperienceDetailsContent} from "@/app/(ui)/experience/experience-details-card";
 import {getExperienceDetails, getUserByID} from "@/lib/actions/experience-actions";
 import {getUserTrips} from "@/lib/actions/trips-actions";
-import {GoBackButton} from "@/app/(ui)/components/buttons/nav-buttons";
+import {GoBackButton} from "@/app/(ui)/general/buttons/nav-buttons";
 import {ErrorResponse, UserTripsProps} from "@/lib/types";
 
 export default async function ExperienceDetailsPage(

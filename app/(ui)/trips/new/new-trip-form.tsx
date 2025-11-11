@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import { createTrip } from "@/lib/actions/trips-actions";
 import {CreateTripProps} from "@/lib/types";
+import {useRouter} from "next/navigation";
 
 interface NewTripFormProps {
     session_user_id: string
 }
 
 export function NewTripForm( {session_user_id}: NewTripFormProps) {
+    const router = useRouter();
     const [isUploading, setIsUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<string>('');
     const [tripData, setTripData] = useState<CreateTripProps>({
@@ -33,9 +35,9 @@ export function NewTripForm( {session_user_id}: NewTripFormProps) {
         setIsUploading(true);
 
         try {
-            await createTrip(tripData);
-            setUploadStatus('Trip created successfully!');
-            window.location.reload();
+            const createdTrip = await createTrip(tripData);
+            setUploadStatus('Success');
+            router.push(`/trips/details?q=${createdTrip.trip_id}`);
         } catch (error) {
             setUploadStatus(`Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`);
         } finally {
@@ -80,6 +82,7 @@ export function NewTripForm( {session_user_id}: NewTripFormProps) {
                         className="rounded-md border-gray-300 focus:ring-blue-800"
                     />
                 </div>
+
                 <div className="flex flex-col">
                     <label htmlFor="start_date" className="text-sm font-medium text-gray-700 mb-1">
                         End Date
@@ -94,7 +97,6 @@ export function NewTripForm( {session_user_id}: NewTripFormProps) {
                     />
                 </div>
             </div>
-
 
             <div className="w-full">
                 <label htmlFor="description" className="text-sm font-medium text-gray-700 mb-1">
@@ -111,12 +113,12 @@ export function NewTripForm( {session_user_id}: NewTripFormProps) {
                 />
             </div>
 
-
-
             {/* Upload Status */}
             {uploadStatus && (
-                <div className={`p-3 rounded-lg ${uploadStatus === "Success" ? 'bg-green-100 text-green-700' 
-                    : 'bg-red-100 text-red-700'}`}>
+                <div className={`p-3 rounded-lg ${uploadStatus === "Success" 
+                    ? 'bg-green-50 text-green-900 border border-green-200'
+                    : 'bg-red-50 text-red-900 border border-red-200'
+                }`}>
                     {uploadStatus}
                 </div>
             )}

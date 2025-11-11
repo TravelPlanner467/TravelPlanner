@@ -21,7 +21,6 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
         router.push(`/experience/details?q=${experience.experience_id}`);
     };
 
-
     return (
         <div
             onClick={handleClick}
@@ -43,7 +42,7 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
 
                 {/*Ratings*/}
                 <div className="flex justify-center w-1/4">
-                    <RatingDisplay rating={experience.average_rating} />
+                    <RatingDisplay rating={experience.average_rating} rating_count={experience.rating_count} />
                 </div>
 
                 {/*Keywords*/}

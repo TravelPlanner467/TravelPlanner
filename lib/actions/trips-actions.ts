@@ -54,7 +54,8 @@ export async function createTrip(formData: any) {
         if (response.ok) {
             const result = await response.json();
             console.log('Upload successful:', result);
-            setTimeout(() => {}, 2000);
+
+            return result;
 
         } else {
             console.error(`HTTP error: ${response.status}`);

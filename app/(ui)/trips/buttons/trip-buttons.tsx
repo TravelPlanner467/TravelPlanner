@@ -6,6 +6,7 @@ import {deleteTrip, removeExperienceFromTrip} from "@/lib/actions/trips-actions"
 import {ExperienceToTripsProps, TripIDProps} from "@/lib/types";
 import {useState} from "react";
 import {MinusIcon} from "@heroicons/react/16/solid";
+import {useRouter} from "next/navigation";
 
 export function NewTripButton() {
     return (
@@ -38,14 +39,15 @@ export function EditTripButton({trip_id}: { trip_id: string }) {
 }
 
 export function DeleteTripButton({user_id, trip_id}: TripIDProps) {
+    const router = useRouter();
     const formData: TripIDProps = {user_id, trip_id}
 
     function onDeleteClick() {
         const result = confirm("Are you sure you want to delete this trip?");
         if (result) {
-            console.log(formData);
             deleteTrip(formData)
         }
+        router.push("/trips");
     }
 
     return (
@@ -70,9 +72,10 @@ export function RemoveExperienceButton({user_id, experience_id, trip_id}: Experi
         const result = confirm("Are you sure you want to remove this trip?");
         if (result) {
             try {
-                console.log(user_id, experience_id, trip_id);
                 removeExperienceFromTrip({user_id, experience_id, trip_id})
-            } catch (error) {
+                window.location.reload();
+            }
+            catch (error) {
                 setStatusMessage({
                     text: 'Something went wrong. Please try again.',
                     type: 'error'

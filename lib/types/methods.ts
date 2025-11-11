@@ -18,6 +18,7 @@ export interface Experience {
     longitude: number;
     keywords: string[];
     average_rating: number;
+    rating_count: number;
     user_rating?: number;
     imageURLs?: string[];
 }

@@ -70,66 +70,70 @@ export default function ExperienceManagement({experiences}: experienceManagement
                         ) : (
                             filteredExperiences.map(experience => (
                                 <tr key={experience.experience_id} className="hover:bg-gray-50 transition-colors">
-                                    {/* Experience Column */}
-                                    <td className="px-3 py-4">
-                                        <div className="text-xs text-gray-400 font-mono mt-1">{experience.experience_id}</div>
+                                    {/* ID Column */}
+                                    <td className="px-2 py-2 align-middle text-center">
+                                        <div className="text-xs text-gray-600 font-mono">
+                                            {experience.experience_id}
+                                        </div>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-col min-w-0">
-                                            <div className="font-medium text-gray-900 truncate">{experience.title}</div>
-                                            <div className="text-sm text-gray-500 line-clamp-2">{experience.description}</div>
-                                            <div className="text-xs text-gray-400 font-mono mt-1">{experience.experience_id}</div>
+
+                                    {/* Experience Column */}
+                                    <td className="px-3 py-2 align-top">
+                                        <div className="flex flex-col gap-0.5 max-h-16 overflow-hidden">
+                                            <div className="font-medium text-gray-900 text-xs truncate">
+                                                {experience.title}
+                                            </div>
+                                            <div className="text-xs text-gray-500 line-clamp-2">
+                                                {experience.description}
+                                            </div>
                                         </div>
                                     </td>
 
                                     {/* Location Column */}
-                                    <td className="px-6 py-4">
-                                        <div className="text-sm text-gray-900">{experience.address}</div>
-                                        <div className="text-xs text-gray-500 mt-1">
-                                            {experience.latitude.toFixed(4)}, {experience.longitude.toFixed(4)}
+                                    <td className="px-3 py-2 align-top">
+                                        <div className="max-h-16 overflow-hidden">
+                                            <div className="text-xs text-gray-900 truncate max-w-xs">
+                                                {experience.address}
+                                            </div>
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                                {experience.latitude.toFixed(4)}, {experience.longitude.toFixed(4)}
+                                            </div>
                                         </div>
                                     </td>
 
                                     {/* Rating Column */}
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center gap-2">
-                                                <span className="text-xs text-gray-900">
-                                                    {experience.average_rating} / 5
-                                                </span>
+                                    <td className="px-3 py-2 whitespace-nowrap align-top">
+                                        <div className="text-xs text-gray-900">
+                                            {experience.average_rating} / 5
                                         </div>
                                         {experience.user_rating && (
-                                            <div className="text-xs text-gray-500 mt-1">
-                                                User: {experience.user_rating} / 5
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                                User: {experience.user_rating}
                                             </div>
                                         )}
                                     </td>
 
                                     {/* Date Column */}
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">
+                                    <td className="px-3 py-2 whitespace-nowrap align-top">
+                                        <div className="text-xs text-gray-900">
                                             {new Date(experience.experience_date).toLocaleDateString()}
                                         </div>
-                                        <div className="text-xs text-gray-500">
-                                            Created: {new Date(experience.create_date).toLocaleDateString()}
+                                        <div className="text-xs text-gray-500 mt-0.5">
+                                            {new Date(experience.create_date).toLocaleDateString()}
                                         </div>
                                     </td>
 
                                     {/* Keywords Column */}
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-wrap gap-1">
-                                            {experience.keywords.slice(0, 3).map((keyword, idx) => (
+                                    <td className="px-3 py-2 align-top">
+                                        <div className="flex flex-wrap gap-1 max-h-16 overflow-y-auto">
+                                            {experience.keywords.map((keyword, idx) => (
                                                 <span
                                                     key={idx}
-                                                    className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+                                                    className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-800 rounded whitespace-nowrap"
                                                 >
-                                                        {keyword}
-                                                    </span>
+                                                    {keyword}
+                                                </span>
                                             ))}
-                                            {experience.keywords.length > 3 && (
-                                                <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
-                                                        +{experience.keywords.length - 3}
-                                                    </span>
-                                            )}
                                         </div>
                                     </td>
                                 </tr>

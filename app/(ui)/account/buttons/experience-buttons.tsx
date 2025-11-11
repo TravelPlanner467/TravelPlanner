@@ -23,7 +23,7 @@ export function NewExperienceButton() {
 export function EditExperienceButton({experience_id}: {experience_id: string}) {
     return (
         <Link
-            href={`/app/(main%20pages)/account/experiences/edit?q=${experience_id}`}
+            href={`/account/experiences/edit?q=${experience_id}`}
             className={`w-16 h-10 flex justify-center items-center
                 border-2 border-gray-900 rounded-lg
                 hover:bg-blue-50 hover:shadow-lg hover:scale-[1.1]`}

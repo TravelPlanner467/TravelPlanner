@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
 import TripsListCard from "@/app/(ui)/trips/trips-list-card";
-import Pagination from "@/app/(ui)/components/pagination";
+import Pagination from "@/app/(ui)/general/pagination";
 import {UserTripsProps} from "@/lib/types";
 
 interface TripDataProps {

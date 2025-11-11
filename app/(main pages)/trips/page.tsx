@@ -7,7 +7,7 @@ import {ErrorResponse, Trip, UserTripsProps} from "@/lib/types";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
-import {GoBackButton} from "@/app/(ui)/components/buttons/nav-buttons";
+import {GoBackButton} from "@/app/(ui)/general/buttons/nav-buttons";
 import {UserExperiences} from "@/app/(ui)/account/experiences/user-experiences";
 
 

@@ -95,7 +95,7 @@ export function ExperienceDetailsContent({ experience, trips, user_id, experienc
                 <div className="flex flex-row justify-between items-center gap-6">
                     {/*Ratings*/}
                     <div className="flex flex-row justify-start items-center gap-6">
-                        <RatingDisplay rating={experience.average_rating} />
+                        <RatingDisplay rating={experience.average_rating} rating_count={experience.rating_count}/>
                         {isLoggedIn && (
                             <RateExperienceButton user_id={user_id} experience_id={experience.experience_id} />
                         )}

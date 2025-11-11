@@ -80,7 +80,7 @@ export default function LoginForm() {
                     {/*Username or Email input*/}
                     <div className="flex flex-col gap-2">
                         <label htmlFor="identifier" className="font-medium text-sm">
-                            {loginType === 'email' ? 'email' : 'username'}
+                            {loginType === 'email' ? 'Email' : 'Username'}
                         </label>
                         <input
                             id="identifier"
@@ -125,13 +125,15 @@ export default function LoginForm() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-md transition-colors"
+                    className="py-2.5 text-white font-semibold bg-blue-600 rounded-md
+                               hover:bg-blue-700 hover:scale-105 transition-all
+                               disabled:bg-blue-400 disabled:cursor-not-allowed"
                 >
                     {loading ? "Logging in..." : "Log In"}
                 </button>
 
                 {/*Forgot Password?*/}
-                <div className="text-sm text-gray-500 mt-2">
+                <div className="text-sm text-gray-500">
                     <Link href="#"
                           className="text-blue-600 hover:underline"
                     >
@@ -142,7 +144,7 @@ export default function LoginForm() {
                 {/*Go to signup*/}
                 <div className="text-sm text-gray-600 text-center">
                     Don't have an account?{" "}
-                    <Link href="/app/account/signup" className="text-blue-600 hover:underline font-medium">
+                    <Link href="/account/signup" className="text-blue-600 underline font-medium">
                         Sign up
                     </Link>
                 </div>

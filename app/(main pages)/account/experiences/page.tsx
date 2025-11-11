@@ -5,7 +5,7 @@ import {UserExperiences} from "@/app/(ui)/account/experiences/user-experiences";
 import {getUserExperiences} from "@/lib/actions/experience-actions";
 import {NewExperienceButton} from "@/app/(ui)/account/buttons/experience-buttons";
 import {ErrorResponse, Experience} from "@/lib/types";
-import ErrorCard from "@/app/(ui)/components/error-display";
+import ErrorCard from "@/app/(ui)/general/error-display";
 
 export default async function Page() {
     // Session Validation

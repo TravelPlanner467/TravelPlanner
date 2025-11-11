@@ -19,9 +19,9 @@ export default async function ManageUsersPage() {
         )
     }
 
-    // Dynamically import UserManagement if user is components
+    // Dynamically import UserManagement if user is general
     const ExperienceManagement = dynamic(
-        () => import("@/app/(dev features)/admin/components/experience-management"),
+        () => import("@/app/(dev)/admin/components/experience-management"),
         {
             loading: () => (
                 <div className="flex items-center justify-center p-8">

@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
 
-import Pagination from "@/app/(ui)/components/pagination";
+import Pagination from "@/app/(ui)/general/pagination";
 import UserExperiencesCard from "@/app/(ui)/account/experiences/user-experiences-card";
 import {Experience} from "@/lib/types";
 

@@ -1,7 +1,7 @@
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
-import ProfileFeatures from "@/app/(ui)/account/profile-features";
+import ProfileDisplayCard from "@/app/(ui)/account/profile-display-card";
 import AccountSettings from "@/app/(ui)/account/account-settings";
 
 export default async function Page() {

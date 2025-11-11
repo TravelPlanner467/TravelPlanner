@@ -1,12 +1,16 @@
 'use server';
 
-import { PrismaClient } from '@/generated/prisma';
 import { auth } from '@/lib/auth';
 import {headers} from "next/headers";
 import {revalidatePath} from "next/cache";
+import { PrismaClient } from '@/generated/prisma';
 
-const prisma = new PrismaClient();
-
+// Prevent multiple Prisma instances from forming
+const globalForPrisma = global as unknown as {
+    prisma: PrismaClient | undefined
+}
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // =====================================================================================================================
 // SIGN IN & SIGN UP
@@ -201,7 +205,7 @@ export async function setUserRole(userId: string, role: 'admin' | 'user') {
         headers: await headers()
     });
 
-    // Verify current user is components
+    // Verify current user is general
     if (!session || session.user.role !== 'admin') {
         throw new Error('Unauthorized');
     }

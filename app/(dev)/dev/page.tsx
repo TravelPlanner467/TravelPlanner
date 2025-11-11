@@ -1,4 +1,4 @@
-import CreateExperienceGoogle from "@/app/(ui)/experience/create-experience-google";
+import CreateExperienceGoogle from "@/app/(dev)/dev/components/create-experience-google";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
