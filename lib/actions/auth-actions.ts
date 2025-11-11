@@ -6,32 +6,40 @@ import {revalidatePath} from "next/cache";
 import { PrismaClient } from '@/generated/prisma';
 
 // Prevent multiple Prisma instances from forming
-// const globalForPrisma = global as unknown as {
-//     prisma: PrismaClient | undefined
-// }
-// const prisma = globalForPrisma.prisma ?? new PrismaClient();
-// if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-const prisma = new PrismaClient();
+const globalForPrisma = global as unknown as {
+    prisma: PrismaClient | undefined
+}
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // =====================================================================================================================
 // SIGN IN & SIGN UP
 // =====================================================================================================================\
 export const signUp = async (email: string, password: string, name: string, username: string) => {
-    const result = await auth.api.signUpEmail({
-        body: {
-            email,
-            password,
-            name,
-            username,
-            callbackURL: "/account/profile"
+    try {
+        const result = await auth.api.signUpEmail({
+            body: {
+                email,
+                password,
+                name,
+                username,
+                callbackURL: "/account/profile"
+            },
+            headers: await headers()
+        });
+
+        if (!result?.user) {
+            return { ok: false, message: 'Account Not Created' };
         }
-    });
 
-    if (!result?.user) {
-        return { ok: false, message: 'Account Not Created' };
+        return { ok: true, redirect: '/account/profile' };
+    } catch (error) {
+        console.error('Sign up error:', error);
+        return {
+            ok: false,
+            message: error instanceof Error ? error.message : 'Failed to create account'
+        };
     }
-
-    return { ok: true, redirect: '/account/profile' };
 };
 
 export const signInEmail = async (email: string, password: string) => {
@@ -41,7 +49,8 @@ export const signInEmail = async (email: string, password: string) => {
                 email,
                 password,
                 callbackURL: "/account/profile"
-            }
+            },
+            headers: await headers()
         });
 
         if (!result?.user) {
@@ -60,19 +69,28 @@ export const signInEmail = async (email: string, password: string) => {
 };
 
 export const signInUsername = async (username: string, password: string) => {
-    const result = await auth.api.signInUsername({
-        body: {
-            username,
-            password,
-            callbackURL: "/account/profile"
+    try {
+        const result = await auth.api.signInUsername({
+            body: {
+                username,
+                password,
+                callbackURL: "/account/profile"
+            },
+            headers: await headers()
+        });
+
+        if (!result?.user) {
+            return { ok: false, message: 'Invalid username or password' };
         }
-    });
 
-    if (!result?.user) {
-        return { ok: false, message: 'Invalid username or password' };
+        return { ok: true, redirect: '/account/profile' };
+    } catch (error) {
+        console.error('Sign in error:', error);
+        return {
+            ok: false,
+            message: error instanceof Error ? error.message : 'Authentication failed'
+        };
     }
-
-    return { ok: true, redirect: '/account/profile' };
 };
 
 export const signOut = async () => {

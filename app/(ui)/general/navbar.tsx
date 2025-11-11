@@ -37,7 +37,7 @@ export default function Navbar({ session }: { session: Session | null }) {
 
     return (
         <nav className="w-full h-16 border-b border-gray-600 shadow-sm">
-            <div className="flex h-full items-center justify-between mx-auto px-4">
+            <div className="flex h-full items-center justify-between mx-auto pl-4 pr-1">
                 {/* Site Name / Home Button */}
                 <Link
                     href="/"
@@ -46,7 +46,9 @@ export default function Navbar({ session }: { session: Session | null }) {
                     hover:bg-blue-900 hover:shadow-lg hover:scale-[1.1]
                     transition-all duration-200"
                 >
-                    <h1 className="text-xl font-bold text-white">Travel Planner</h1>
+                    <h1 className="text-xl font-bold text-white">
+                        Travel Planner
+                    </h1>
                 </Link>
 
                 {/* Navigation Links */}
@@ -71,9 +73,8 @@ export default function Navbar({ session }: { session: Session | null }) {
                     {session && (
                         <ProfileDropdown session={session} />
                     )}
-
                 </div>
             </div>
         </nav>
-  );
+    );
 }
