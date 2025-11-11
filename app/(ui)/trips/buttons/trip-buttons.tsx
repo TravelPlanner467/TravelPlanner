@@ -68,11 +68,12 @@ export function RemoveExperienceButton({user_id, experience_id, trip_id}: Experi
         type: 'success' | 'error' | null;
     }>({ text: '', type: null });
 
-    function onRemoveClick() {
+    async function onRemoveClick() {
         const result = confirm("Are you sure you want to remove this trip?");
         if (result) {
             try {
-                removeExperienceFromTrip({user_id, experience_id, trip_id})
+                // Call server to remove experience from trip
+                await removeExperienceFromTrip({user_id, experience_id, trip_id})
                 window.location.reload();
             }
             catch (error) {
