@@ -6,11 +6,12 @@ import {revalidatePath} from "next/cache";
 import { PrismaClient } from '@/generated/prisma';
 
 // Prevent multiple Prisma instances from forming
-const globalForPrisma = global as unknown as {
-    prisma: PrismaClient | undefined
-}
-const prisma = globalForPrisma.prisma ?? new PrismaClient();
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// const globalForPrisma = global as unknown as {
+//     prisma: PrismaClient | undefined
+// }
+// const prisma = globalForPrisma.prisma ?? new PrismaClient();
+// if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+const prisma = new PrismaClient();
 
 // =====================================================================================================================
 // SIGN IN & SIGN UP
@@ -34,19 +35,28 @@ export const signUp = async (email: string, password: string, name: string, user
 };
 
 export const signInEmail = async (email: string, password: string) => {
-    const result = await auth.api.signInEmail({
-        body: {
-            email,
-            password,
-            callbackURL: "/account/profile"
+    try {
+        const result = await auth.api.signInEmail({
+            body: {
+                email,
+                password,
+                callbackURL: "/account/profile"
+            }
+        });
+
+        if (!result?.user) {
+            console.error('Sign in failed: No user returned');
+            return { ok: false, message: 'Invalid email or password' };
         }
-    });
 
-    if (!result?.user) {
-        return { ok: false, message: 'Invalid email or password' };
+        return { ok: true, redirect: '/account/profile' };
+    } catch (error) {
+        console.error('Sign in error:', error);
+        return {
+            ok: false,
+            message: error instanceof Error ? error.message : 'Authentication failed'
+        };
     }
-
-    return { ok: true, redirect: '/account/profile' };
 };
 
 export const signInUsername = async (username: string, password: string) => {
