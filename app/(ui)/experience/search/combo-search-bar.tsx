@@ -6,6 +6,7 @@ import { useLoadScript } from "@react-google-maps/api";
 import Script from "next/script";
 import {PlacesAutocomplete} from "@/app/(dev)/dev/components/places-autocomplete";
 import {KeywordsAutocomplete} from "@/app/(dev)/dev/components/keywords-autocomplete";
+import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
@@ -16,28 +17,7 @@ export default function ComboSearchBar() {
     const [keywords, setKeywords] = useState(searchParams.get('keywords') || '');
     const [location, setLocation] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
 
-    const [isLoaded, setIsLoaded] = useState(false);
-
-    // Check if Google Maps is already loaded every 100ms
-    useEffect(() => {
-        const checkGoogleMaps = () => {
-            if (typeof window !== 'undefined' && window.google?.maps) {
-                setIsLoaded(true);
-                return true;
-            }
-            return false;
-        };
-
-        if (!checkGoogleMaps()) {
-            const interval = setInterval(() => {
-                if (checkGoogleMaps()) {
-                    clearInterval(interval);
-                }
-            }, 100);
-
-            return () => clearInterval(interval);
-        }
-    }, []);
+    const { isLoaded } = useGoogleMaps();
 
     const handleSearch = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();

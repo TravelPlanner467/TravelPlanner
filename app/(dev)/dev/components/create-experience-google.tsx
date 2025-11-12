@@ -2,14 +2,17 @@
 
 import React, {useState, useEffect, useCallback, useRef, useMemo} from "react";
 import { GoogleMap, useLoadScript } from "@react-google-maps/api";
+import {XMarkIcon} from "@heroicons/react/24/outline";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
 import {PlacesAutocomplete} from "@/app/(dev)/dev/components/places-autocomplete";
+import {KeywordsAutocomplete} from "@/app/(dev)/dev/components/keywords-autocomplete";
+import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
 import {createExperience} from "@/lib/actions/experience-actions";
 import {Location} from "@/lib/types";
 
 // ============================================================================
-// CONSTANTS
+// CONFIGS FOR MAP & GOOGLE API
 // ============================================================================
 const MAP_CONFIG = {
     containerStyle: { width: '100%', height: '350px' },
@@ -18,15 +21,13 @@ const MAP_CONFIG = {
     mapId: "405886d1612720dc9a7aa6a7",
     libraries: ['places', 'marker'],
 } as const;
-const COORDINATE_PRECISION = 5;
-const GEOLOCATION_OPTIONS = {enableHighAccuracy: true, timeout: 5000, maximumAge: 0,} as const;
 const googleLibraries: ("places" | "marker")[] = ['places', 'marker'];
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
-function roundCoordinate(coord: number, decimals: number = COORDINATE_PRECISION): number {
+function roundCoordinate(coord: number, decimals: number = 5): number {
     return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 const isValidLatitude = (lat: number | undefined): lat is number =>
@@ -44,6 +45,7 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
     const [description, setDescription] = useState('');
     const [experienceDate, setExperienceDate] = useState('');
     const [keywords, setKeywords] = useState<string[]>([]);
+    const [currentKeywordInput, setCurrentKeywordInput] = useState('');
     const [rating, setRating] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -63,10 +65,9 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
     // Refs
     const mapRef = useRef<google.maps.Map>(null);
     const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
-    const { isLoaded } = useLoadScript({
-        googleMapsApiKey: apiKey,
-        libraries: googleLibraries,
-    });
+
+    // Load Google Maps
+    const { isLoaded } = useGoogleMaps();
 
     // Memoized mapID (under mapOptions) for Google Maps
     const mapOptions = useMemo(() => ({mapId: MAP_CONFIG.mapId}), []);
@@ -150,30 +151,6 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
         }
     }, []);
 
-    // Get user's current location
-    const handleGetCurrentLocation = useCallback(() => {
-        if (!navigator.geolocation) {
-            alert("Location is not supported by this browser.");
-            return;
-        }
-
-        setIsGettingLocation(true);
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = roundCoordinate(position.coords.latitude);
-                const lng = roundCoordinate(position.coords.longitude);
-                updateLocation(lat, lng);
-                setIsGettingLocation(false);
-            },
-            (error) => {
-                console.error("Error getting location:", error);
-                alert("Could not get your location. Please check your browser permissions.");
-                setIsGettingLocation(false);
-            },
-            GEOLOCATION_OPTIONS
-        );
-    }, [updateLocation]);
-
     // Load the Google Maps Component
     const handleMapLoad = useCallback((map: google.maps.Map) => {
         mapRef.current = map;
@@ -205,29 +182,69 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
         }
     };
 
-    // Add user keywords to an array
-    const handleKeywordsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        const keywordsArray = value
-            .split(',')
-            .map(k => k.trim())
-            .filter(k => k !== '');
-        setKeywords(keywordsArray);
+    // Handle keyword input changes for KeywordsAutocomplete component
+    const handleKeywordInputChange = (value: string) => {
+        setCurrentKeywordInput(value);
     };
+
+    // Check for comma-separated values in keyword input
+    // Allows user to add multiple keywords at once
+    const parseKeywords = (input: string) => {
+        if (!input.trim()) return;
+        const newKeywords = input
+            .split(',')
+            .map(keyword => keyword.trim())
+            .filter(keyword => {
+                // Only add non-empty, non-duplicate keywords
+                const trimmed = keyword.toLowerCase();
+                return keyword && !keywords.some(k => k.toLowerCase() === trimmed);
+            });
+
+        if (newKeywords.length > 0) {
+            setKeywords([...keywords, ...newKeywords]);
+            setCurrentKeywordInput(''); // Clear input after adding
+        }
+    }
+
+    // Handle keyboard events on keyword input
+    const handleKeywordKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            parseKeywords(currentKeywordInput);
+        }
+    };
+
+    // Handle removing a keyword
+    const handleRemoveKeyword = (indexToRemove: number) => {
+        setKeywords(keywords.filter((_, index) => index !== indexToRemove));
+    };
+
     // Handle Form Submission
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Validate Rating & Keywords
-        if (keywords.length === 0) {return alert('Please add at least one keyword.')}
-        if (rating <= 0 || rating > 5) {return alert('Please select a rating between 1 and 5.')}
+        // Validate keywords
+        if (keywords.length === 0 && !currentKeywordInput.trim()) {
+            setIsSubmitting(false);
+            return alert('Please add at least one keyword.');
+        }
+
+        if (rating <= 0 || rating > 5) {
+            setIsSubmitting(false);
+            return alert('Please select a rating between 1 and 5.');
+        }
 
         // Validate coordinates
-        if (latitude === undefined || longitude === undefined || !isValidLatitude(latitude) || !isValidLongitude(longitude)) {
+        if (latitude === undefined || longitude === undefined ||
+            !isValidLatitude(latitude) || !isValidLongitude(longitude)) {
             setIsSubmitting(false);
             return alert('Please enter valid coordinates');
         }
+
+        const finalKeywords = currentKeywordInput.trim()
+            ? [...keywords, currentKeywordInput.trim()]
+            : keywords;
 
         const formData = {
             user_id: user_id,
@@ -239,36 +256,35 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
             address: address,
             create_date: new Date().toISOString(),
             user_rating: rating,
-            keywords: keywords,
+            keywords: finalKeywords,
             // images: images || undefined,
             // imageURL: imageURLS,
         };
 
         // Submit form
-        // createExperience(formData);
-        // TODO: after submit actions
         console.log(formData);
+        // createExperience(formData);
+
+        // TODO: after submit actions
         setIsSubmitting(false);
     };
 
-    // === Render Form =================================================================================================
     return (
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-6 max-w-3xl w-full mx-auto p-8
-            bg-white rounded-xl shadow-lg border border-gray-300"
+            className="flex flex-col gap-8 max-w-4xl w-full mx-auto p-10
+    bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl border border-gray-200"
         >
             {/* Form Header */}
-            {/*<div className="border-b border-gray-200 pb-4">*/}
-            {/*    <h2 className="text-2xl font-bold text-gray-900">Create New Experience</h2>*/}
-            {/*    <p className="text-sm text-gray-500 mt-1">Share your travel moments and memories</p>*/}
-            {/*</div>*/}
+            <div className="flex items-center pb-4 gap-3 border-b-2 border-gray-200">
+                <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Create an Experience</h2>
+            </div>
 
-            {/*1ST ROW*/}
-            <div className="flex flex-row w-full gap-2 items-start">
-                {/*TITLE*/}
-                <div className="flex flex-col w-3/4 gap-2">
-                    <label htmlFor="title" className="text-md font-semibold text-gray-800">
+            {/* 1ST ROW - Title & Rating */}
+            <div className="flex flex-col md:flex-row w-full gap-6 items-start">
+                {/* TITLE */}
+                <div className="flex flex-col flex-1 gap-2 group">
+                    <label htmlFor="title" className="text-sm font-semibold text-gray-700 tracking-wide">
                         Title <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -277,26 +293,30 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
-                        className="w-full p-3 rounded-lg border border-gray-300
-                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Enter experience title"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
+                                   bg-white transition-all duration-200
+                                   focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                                   hover:border-gray-400 shadow-sm"
+                        placeholder="Enter your experience title"
                     />
                 </div>
 
-                {/*RATING*/}
-                <div className="flex flex-col w-1/4 gap-2">
-                    <label className="text-md font-semibold text-gray-800">
+                {/* RATING */}
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-semibold text-gray-700 tracking-wide">
                         Rating <span className="text-red-500">*</span>
                     </label>
-                    <SelectableRating experience_rating={rating} onRatingChange={setRating} />
+                    <div className="px-3 py-2 bg-gray-50 rounded-xl border-2 border-gray-200">
+                        <SelectableRating experience_rating={rating} onRatingChange={setRating} />
+                    </div>
                 </div>
             </div>
 
-            {/*2ND ROW*/}
-            <div className="flex flex-row w-full gap-2 items-start">
-                {/*DESCRIPTION*/}
-                <div className="flex flex-col w-3/4 gap-2">
-                    <label htmlFor="description" className="text-md font-semibold text-gray-800">
+            {/* 2ND ROW - Description & Date */}
+            <div className="flex flex-col md:flex-row w-full gap-6 items-start">
+                {/* DESCRIPTION */}
+                <div className="flex flex-col flex-1 gap-2">
+                    <label htmlFor="description" className="text-sm font-semibold text-gray-700 tracking-wide">
                         Description
                     </label>
                     <textarea
@@ -304,45 +324,48 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={4}
-                        className="w-full p-3 rounded-lg border border-gray-300
-                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Describe your experience..."
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
+                bg-white transition-all duration-200 resize-none
+                focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                hover:border-gray-400 shadow-sm"
+                        placeholder="Share the details of your experience..."
                     />
                 </div>
 
-                {/*EXPERIENCE DATE*/}
-                <div className="flex flex-col w-1/4 gap-2">
-                    <label htmlFor="experienceDate" className="text-md font-semibold text-gray-800">
-                        Experience Date <span className="text-red-500">*</span>
+                {/* EXPERIENCE DATE */}
+                <div className="flex flex-col gap-2 min-w-[180px]">
+                    <label htmlFor="experienceDate" className="text-sm font-semibold text-gray-700 tracking-wide">
+                        Date <span className="text-red-500">*</span>
                     </label>
                     <input
                         id="experienceDate"
                         type="date"
                         value={experienceDate}
                         onChange={(e) => setExperienceDate(e.target.value)}
-                        max={new Date().toISOString().split('T')[0]}  // Only allow past/present dates
+                        max={new Date().toISOString().split('T')[0]}
                         required
-                        className="w-full p-3 rounded-lg border border-gray-300
-                                   focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
+                bg-white transition-all duration-200
+                focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                hover:border-gray-400 shadow-sm"
                     />
                 </div>
             </div>
 
-            {/*LOCATION & MAP*/}
-            <div className="flex flex-col w-full gap-2 justify-center items-center">
-                {/*Title & Instruction*/}
-                <div className="flex flex-row w-full justify-center items-center gap-2 mb-2">
-                    <h3 className="text-md font-semibold text-gray-800">Location</h3>
-                    <p className="text-md text-gray-500">
-                        - Search, use current location, click map, or enter coordinates
+            {/* LOCATION & MAP SECTION */}
+            <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
+                {/* Section Header */}
+                <div className="flex flex-col gap-1">
+                    <h3 className="text-lg font-bold text-gray-900">Location</h3>
+                    <p className="text-sm text-gray-600">
+                        Search for a place, use your current location, click the map, or enter coordinates manually
                     </p>
                 </div>
 
                 {/* Address Search Bar */}
-                <div className="flex flex-col w-full">
-                    {/*ADDRESS BAR*/}
-                    <div className="flex flex-row gap-1 items-stretch">
-                        {/* PlacesAutocomplete Component */}
+                <div className="flex flex-col w-full gap-2">
+                    <label className="text-sm font-semibold text-gray-700">Address</label>
+                    <div className="flex flex-row gap-2 items-stretch">
                         <div className="flex-1">
                             {isLoaded && (
                                 <PlacesAutocomplete
@@ -353,19 +376,20 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                             )}
                         </div>
                     </div>
-
-                    {/*Loading Address...*/}
                     {isLoadingAddress && (
-                        <div className="text-sm text-gray-500">Loading address...</div>
+                        <div className="flex items-center gap-2 text-sm text-blue-600">
+                            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                            Loading address...
+                        </div>
                     )}
                 </div>
 
-                {/*COORDINATES*/}
-                <div className="flex flex-row w-full gap-2 justify-center items-center">
-                    {/*LATITUDE*/}
-                    <div className="flex flex-row items-center gap-2">
-                        <label htmlFor="latitude" className="flex text-sm font-semibold text-gray-800 gap-1">
-                            Lat: <span className="text-red-500">*</span>
+                {/* COORDINATES */}
+                <div className="flex flex-col sm:flex-row w-full gap-3 items-end">
+                    {/* LATITUDE */}
+                    <div className="flex flex-col gap-2 flex-1">
+                        <label htmlFor="latitude" className="text-sm font-semibold text-gray-700">
+                            Latitude <span className="text-red-500">*</span>
                         </label>
                         <input
                             id="latitude"
@@ -376,16 +400,18 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                             min="-90"
                             max="90"
                             required
-                            className="w-full px-3 py-2 rounded-lg border border-gray-300 [appearance:textfield]
-                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
+                    bg-white transition-all duration-200 [appearance:textfield]
+                    focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                    hover:border-gray-400 shadow-sm"
                             placeholder="-90 to 90"
                         />
                     </div>
 
-                    {/*LONGITUDE*/}
-                    <div className="flex flex-row items-center gap-2">
-                        <label htmlFor="longitude" className="flex text-sm font-semibold text-gray-800 gap-1">
-                            Lng: <span className="text-red-500">*</span>
+                    {/* LONGITUDE */}
+                    <div className="flex flex-col gap-2 flex-1">
+                        <label htmlFor="longitude" className="text-sm font-semibold text-gray-700">
+                            Longitude <span className="text-red-500">*</span>
                         </label>
                         <input
                             id="longitude"
@@ -396,32 +422,45 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                             min="-180"
                             max="180"
                             required
-                            className="w-full px-3 py-2 rounded-lg border border-gray-300 [appearance:textfield]
-                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
+                    bg-white transition-all duration-200 [appearance:textfield]
+                    focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                    hover:border-gray-400 shadow-sm"
                             placeholder="-180 to 180"
                         />
                     </div>
+
                     {/* Map Toggle Button */}
                     <button
                         type="button"
                         onClick={() => setIsMapExpanded(!isMapExpanded)}
                         aria-expanded={isMapExpanded}
                         aria-controls="map-container"
-                        className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700
-                                       rounded-lg transition-colors font-medium
-                                       flex items-center justify-center gap-2 whitespace-nowrap"
+                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 active:scale-95
+                text-white rounded-xl transition-all duration-200 font-semibold
+                shadow-md hover:shadow-lg flex items-center justify-center gap-2
+                whitespace-nowrap min-h-[48px]"
                     >
-                        {isMapExpanded ? '▲ Hide Map' : '▼ Show Map'}
+                        {isMapExpanded ? (
+                            <>
+                                <span>▲</span> Hide Map
+                            </>
+                        ) : (
+                            <>
+                                <span>▼</span> Show Map
+                            </>
+                        )}
                     </button>
                 </div>
 
-                {/* ======================ROW 4 - MAP========================= */}
+                {/* MAP */}
                 <div className={`flex flex-col w-full ${isMapExpanded ? '' : 'h-0'}`}>
                     <div className={`grid transition-all duration-500 ease-in-out ${
                         isMapExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
                     }`}>
                         <div className="overflow-hidden min-h-0">
-                            <div className="h-[350px] w-full border border-gray-300 rounded-lg overflow-hidden">
+                            <div className="h-[350px] w-full border-2 border-gray-300 rounded-xl
+                    overflow-hidden shadow-md mt-2">
                                 {isMapExpanded && isLoaded && (
                                     <GoogleMap
                                         mapContainerStyle={MAP_CONFIG.containerStyle}
@@ -438,34 +477,70 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                 </div>
             </div>
 
-            {/* KEYWORDS input */}
-            <div className="flex flex-col w-full gap-2">
-                <label htmlFor="keywords" className="text-md font-semibold text-gray-800">
+            {/* KEYWORDS SECTION */}
+            <div className="flex flex-col w-full gap-3">
+                <label htmlFor="keywords" className="text-sm font-semibold text-gray-700 tracking-wide">
                     Keywords <span className="text-red-500">*</span>
                 </label>
-                <input
-                    id="keywords"
-                    type="text"
-                    onChange={handleKeywordsChange}
-                    className="w-full p-3 rounded-lg border border-gray-300
-        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter keywords separated by commas"
-                    required
-                />
+
+                <div onKeyDown={handleKeywordKeyDown}>
+                    <KeywordsAutocomplete
+                        keywords={currentKeywordInput}
+                        setKeywords={handleKeywordInputChange}
+                    />
+                </div>
+
+                <p className="text-xs text-gray-500 italic">
+                    💡 Press Enter to add keywords (comma-separated values supported)
+                </p>
+
+                {/* Display added keywords as tags */}
+                {keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                        {keywords.map((keyword, index) => (
+                            <span
+                                key={`keyword-${index}`}
+                                className="inline-flex items-center gap-2 px-3 py-1.5
+                                           text-md font-medium text-white bg-blue-600
+                                           rounded-lg shadow-sm"
+                            >
+                        {keyword}
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveKeyword(index)}
+                                    className="hover:bg-white/20 rounded-full p-1
+                            transition-colors active:scale-90"
+                                    aria-label={`Remove ${keyword}`}
+                                >
+                            <XMarkIcon className="w-4 h-4" />
+                        </button>
+                    </span>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {/*SUBMIT BUTTON*/}
+            {/* SUBMIT BUTTON */}
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`mt-2 px-6 py-3 font-medium rounded-lg transition-colors ${
-                    isSubmitting
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                className={`mt-4 px-8 py-4 font-bold text-lg rounded-xl 
+                            transition-all duration-200 shadow-lg
+                            ${isSubmitting
+                        ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                        : 'bg-blue-700 hover:to-blue-800 text-white hover:shadow-xl active:scale-95'
                 }`}
             >
-                {isSubmitting ? 'Creating...' : 'Create Experience'}
+                {isSubmitting ? (
+                    <span className="flex items-center justify-center gap-3">
+                <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                Creating Experience...
+            </span>
+                ) : (
+                    'Create Experience'
+                )}
             </button>
         </form>
+
     );
 }

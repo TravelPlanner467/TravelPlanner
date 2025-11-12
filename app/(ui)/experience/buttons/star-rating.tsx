@@ -73,8 +73,8 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
     }
 
     return (
-        <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center gap-3">
+        <div className="flex flex-col items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                     <button
                         key={star}
@@ -82,8 +82,10 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
                         onClick={() => handleRatingClick(star)}
                         onMouseEnter={() => setHover(star)}
                         onMouseLeave={() => setHover(0)}
-                        className="relative w-5 h-5 transition-transform focus:outline-none focus:ring-2
-                        focus:ring-blue-500 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110"
+                        className="relative w-7 h-7 flex items-center justify-center
+                                   transition-transform focus:outline-none focus:ring-2
+                                   focus:ring-blue-500 rounded disabled:opacity-50
+                                   disabled:cursor-not-allowed hover:scale-110"
                     >
                         <StarIcon
                             className={`w-8 h-8 transition-colors ${
@@ -96,11 +98,11 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
                 ))}
             </div>
 
-            {rating > 0 && (
-                <p className="text-sm text-gray-600">
-                    {rating} {rating === 1 ? 'star' : 'stars'}
-                </p>
-            )}
+            {/*{rating > 0 && (*/}
+            {/*    <p className="text-sm text-gray-600">*/}
+            {/*        {rating} {rating === 1 ? 'star' : 'stars'}*/}
+            {/*    </p>*/}
+            {/*)}*/}
 
         </div>
     );

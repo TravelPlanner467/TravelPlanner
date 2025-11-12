@@ -19,7 +19,7 @@ export interface Experience {
     keywords: string[];
     average_rating: number;
     rating_count: number;
-    user_rating?: number;
+    owner_rating?: number;
     imageURLs?: string[];
 }
 
