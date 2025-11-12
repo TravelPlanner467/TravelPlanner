@@ -43,32 +43,53 @@ def experiences_root():
 
 @experiences_bp.route('/all', methods=['GET'])
 def get_all_experiences():
-    """Retrieve all experiences.
+    """Retrieve all experiences. (Admin Only)
 
-    Fetches all experiences from the database, ordered by creation date (newest first).
-    No authentication required - this is a public endpoint.
+    Fetches all experiences from the database with:
+    - Average rating from all users
+    - Rating count from all users
+    - Owner's own rating for their experience
+    - Keywords associated with the experience
+
+    Ordered by creation date (newest first).
+    Requires admin authentication.
 
     Returns:
-        tuple: JSON array of experience objects, HTTP 200
+        tuple: JSON array of experience objects with ratings & keywords, HTTP 200
     """
     conn = get_db_connection()
+
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("""
-                SELECT e.*, 
-                       COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
-                       COUNT(DISTINCT r.user_id) AS rating_count,
-                       ARRAY_AGG(k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
-                FROM experiences e
-                LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
-                LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
-                LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
-                GROUP BY e.experience_id
-                ORDER BY e.create_date DESC
-            """)
+                        SELECT e.*,
+                               COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
+                               COUNT(DISTINCT r.user_id) AS rating_count,
+                               ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords, owner_rating.rating AS owner_rating
+                        FROM experiences e
+                                 LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
+                                 LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
+                                 LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
+                                 LEFT JOIN experience_ratings owner_rating
+                                           ON e.experience_id = owner_rating.experience_id
+                                               AND e.user_id = owner_rating.user_id
+                        GROUP BY e.experience_id, owner_rating.rating
+                        ORDER BY e.create_date DESC
+                        """)
             results = cur.fetchall()
 
-        return jsonify(results), 200
+            # Convert to proper JSON format
+            experiences = []
+            for exp in results:
+                exp_dict = dict(exp)
+                # Ensure proper types for Rating
+                exp_dict["average_rating"] = float(exp_dict["average_rating"])
+                exp_dict["rating_count"] = int(exp_dict["rating_count"])
+                # Change experience_date format
+                exp_dict["experience_date"] = exp_dict["experience_date"].strftime("%Y-%m-%d")
+                experiences.append(exp_dict)
+
+        return jsonify(experiences), 200
 
     finally:
         conn.close()

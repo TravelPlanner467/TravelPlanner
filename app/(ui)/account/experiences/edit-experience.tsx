@@ -48,7 +48,7 @@ export default function EditExperience({ session_user_id, experience }: EditExpe
     const [description, setDescription] = useState(experience.description);
     const [experienceDate, setExperienceDate] = useState(experience.experience_date);
     const [keywords, setKeywords] = useState(experience.keywords);
-    const [rating, setRating] = useState(experience.user_rating || 0);
+    const [rating, setRating] = useState(experience.owner_rating || 0);
     // const [imageURLS, setImageURLs] = useState(experience.imageURLs);
 
     // Location State
