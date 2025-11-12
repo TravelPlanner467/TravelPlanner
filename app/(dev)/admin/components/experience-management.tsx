@@ -1,25 +1,190 @@
 'use client'
 
-import {useState} from "react";
+import { useState } from "react";
+import {
+    useReactTable,
+    getCoreRowModel,
+    getFilteredRowModel,
+    flexRender,
+    ColumnDef,
+    ColumnResizeMode,
+} from '@tanstack/react-table';
+import { Experience } from "@/lib/types";
 
-import {Experience} from "@/lib/types";
-
-type experienceManagementProps = {
+type ExperienceManagementProps = {
     experiences: Experience[]
 }
 
-export default function ExperienceManagement({experiences}: experienceManagementProps) {
-    const [experienceList, setExperienceList] = useState(experiences);
-    const [searchTerm, setSearchTerm] = useState("");
+export default function ExperienceManagement({ experiences }: ExperienceManagementProps) {
+    const [data, setData] = useState(experiences);
+    const [globalFilter, setGlobalFilter] = useState("");
+    const [columnResizeMode] = useState<ColumnResizeMode>('onChange');
 
-    // Client side filtering for experiences
-    const filteredExperiences = experienceList.filter(exp =>
-        exp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        exp.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        exp.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        exp.keywords.some(k => k.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        exp.experience_id.toString().includes(searchTerm)
-    );
+    // Define columns for TanStack Table
+    const columns: ColumnDef<Experience>[] = [
+        {
+            accessorKey: 'experience_id',
+            header: 'ID',
+            size: 30,
+            enableResizing: false,
+            cell: ({ getValue }) => (
+                <span className="text-xs text-gray-600 font-mono">
+                    {getValue() as number}
+                </span>
+            ),
+        },
+        {
+            accessorKey: 'user_id',
+            header: 'User ID',
+            size: 100,
+            minSize: 80,
+            maxSize: 200,
+            enableResizing: true,
+            cell: ({ getValue }) => (
+                <span className="text-xs text-gray-600 font-mono truncate block">
+                    {getValue() as string}
+                </span>
+            ),
+        },
+        {
+            accessorKey: 'title',
+            header: 'Experience',
+            size: 350,
+            minSize: 250,
+            enableResizing: true,
+            cell: ({ row }) => (
+                <div className="space-y-1">
+                    <div className="font-medium text-sm text-gray-900 truncate">
+                        {row.original.title}
+                    </div>
+                    <div className="text-xs text-gray-500 line-clamp-2">
+                        {row.original.description}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            accessorKey: 'address',
+            header: 'Location',
+            size: 200,
+            minSize: 150,
+            enableResizing: true,
+            cell: ({ row }) => (
+                <div className="space-y-1">
+                    <div className="text-xs text-gray-900 truncate">
+                        {row.original.address}
+                    </div>
+                    <div className="text-xs text-gray-500 font-mono">
+                        {row.original.latitude.toFixed(4)}, {row.original.longitude.toFixed(4)}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            accessorKey: 'average_rating',
+            header: 'Rating',
+            size: 90,
+            enableResizing: false,
+            cell: ({ row }) => (
+                <div className="space-y-0.5 text-xs">
+                    <div className="flex justify-between gap-2">
+                        <span className="text-gray-600">Owner:</span>
+                        <span className="font-mono text-gray-900">
+                            {row.original.owner_rating || '-'}/5
+                        </span>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                        <span className="text-gray-600">Avg:</span>
+                        <span className="font-mono text-gray-900">{row.original.average_rating}/5</span>
+                    </div>
+                    <div className="flex justify-between gap-2">
+                        <span className="text-gray-600">Count:</span>
+                        <span className="font-mono text-gray-900">{row.original.rating_count}</span>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            accessorKey: 'experience_date',
+            header: 'Date',
+            size: 100,
+            enableResizing: false,
+            cell: ({ row }) => {
+                const experienceDate = new Date(row.original.experience_date);
+                const createDate = new Date(row.original.create_date);
+
+                return (
+                    <div className="space-y-1 text-xs font-mono">
+                        <div className="text-gray-900 truncate">
+                             {experienceDate.toLocaleDateString()}
+                        </div>
+                        <div className="text-gray-500">
+                            <div className="truncate">
+                                {createDate.toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                })}
+                            </div>
+                            <div className="truncate">
+                                {createDate.toLocaleTimeString('en-US', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit'
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: 'keywords',
+            header: 'Keywords',
+            size: 200,
+            enableResizing: false,
+            cell: ({ getValue }) => {
+                const keywords = getValue() as string[];
+                return (
+                    <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
+                        {keywords.map((keyword, idx) => (
+                            <span
+                                key={idx}
+                                className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-800 rounded whitespace-nowrap"
+                            >
+                                {keyword}
+                            </span>
+                        ))}
+                    </div>
+                );
+            },
+        },
+    ];
+
+    // Initialize table
+    const table = useReactTable({
+        data,
+        columns,
+        columnResizeMode,
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        state: {
+            globalFilter,
+        },
+        onGlobalFilterChange: setGlobalFilter,
+        globalFilterFn: (row, columnId, filterValue) => {
+            const searchValue = filterValue.toLowerCase();
+            const exp = row.original;
+            return (
+                exp.title.toLowerCase().includes(searchValue) ||
+                exp.description.toLowerCase().includes(searchValue) ||
+                exp.address.toLowerCase().includes(searchValue) ||
+                exp.keywords.some(k => k.toLowerCase().includes(searchValue)) ||
+                exp.experience_id.toString().includes(searchValue) ||
+                exp.user_id.toLowerCase().includes(searchValue)
+            );
+        },
+    });
 
     return (
         <div className="space-y-4">
@@ -28,114 +193,80 @@ export default function ExperienceManagement({experiences}: experienceManagement
                 <input
                     type="text"
                     placeholder="Search experiences by title, description, address, or keywords..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={globalFilter}
+                    onChange={(e) => setGlobalFilter(e.target.value)}
                     className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </div>
 
             {/* Experiences Table */}
-            <div className="bg-white rounded-lg border shadow-sm">
+            <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
                         <thead className="bg-gray-50 border-b">
-                        <tr>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                ID
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Experience
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Location
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Rating
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Keywords
-                            </th>
-                        </tr>
+                        {table.getHeaderGroups().map(headerGroup => (
+                            <tr key={headerGroup.id}>
+                                {headerGroup.headers.map(header => (
+                                    <th
+                                        key={header.id}
+                                        className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider relative border-r border-gray-300 last:border-r-0"
+                                        style={{
+                                            width: header.getSize(),
+                                            minWidth: header.column.columnDef.minSize,
+                                            maxWidth: header.column.columnDef.maxSize,
+                                        }}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            {flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                            )}
+                                        </div>
+                                        {/* Resize Handle - Only show if resizing is enabled */}
+                                        {header.column.getCanResize() && (
+                                            <div
+                                                onMouseDown={header.getResizeHandler()}
+                                                onTouchStart={header.getResizeHandler()}
+                                                className={`absolute top-0 right-0 h-full w-2 cursor-col-resize select-none touch-none 
+                                                          bg-gray-300 hover:bg-blue-500 transition-colors
+                                                          ${header.column.getIsResizing() ? 'bg-blue-600' : ''}`}
+                                                style={{
+                                                    opacity: header.column.getIsResizing() ? 1 : 0.6,
+                                                }}
+                                            />
+                                        )}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredExperiences.length === 0 ? (
+                        {table.getRowModel().rows.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                                <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-500">
                                     No experiences found matching your search.
                                 </td>
                             </tr>
                         ) : (
-                            filteredExperiences.map(experience => (
-                                <tr key={experience.experience_id} className="hover:bg-gray-50 transition-colors">
-                                    {/* ID Column */}
-                                    <td className="px-2 py-2 align-middle text-center">
-                                        <div className="text-xs text-gray-600 font-mono">
-                                            {experience.experience_id}
-                                        </div>
-                                    </td>
-
-                                    {/* Experience Column */}
-                                    <td className="px-3 py-2 align-top">
-                                        <div className="flex flex-col gap-0.5 max-h-16 overflow-hidden">
-                                            <div className="font-medium text-gray-900 text-xs truncate">
-                                                {experience.title}
-                                            </div>
-                                            <div className="text-xs text-gray-500 line-clamp-2">
-                                                {experience.description}
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    {/* Location Column */}
-                                    <td className="px-3 py-2 align-top">
-                                        <div className="max-h-16 overflow-hidden">
-                                            <div className="text-xs text-gray-900 truncate max-w-xs">
-                                                {experience.address}
-                                            </div>
-                                            <div className="text-xs text-gray-500 mt-0.5">
-                                                {experience.latitude.toFixed(4)}, {experience.longitude.toFixed(4)}
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    {/* Rating Column */}
-                                    <td className="px-3 py-2 whitespace-nowrap align-top">
-                                        <div className="text-xs text-gray-900">
-                                            {experience.average_rating} / 5
-                                        </div>
-                                        {experience.user_rating && (
-                                            <div className="text-xs text-gray-500 mt-0.5">
-                                                User: {experience.user_rating}
-                                            </div>
-                                        )}
-                                    </td>
-
-                                    {/* Date Column */}
-                                    <td className="px-3 py-2 whitespace-nowrap align-top">
-                                        <div className="text-xs text-gray-900">
-                                            {new Date(experience.experience_date).toLocaleDateString()}
-                                        </div>
-                                        <div className="text-xs text-gray-500 mt-0.5">
-                                            {new Date(experience.create_date).toLocaleDateString()}
-                                        </div>
-                                    </td>
-
-                                    {/* Keywords Column */}
-                                    <td className="px-3 py-2 align-top">
-                                        <div className="flex flex-wrap gap-1 max-h-16 overflow-y-auto">
-                                            {experience.keywords.map((keyword, idx) => (
-                                                <span
-                                                    key={idx}
-                                                    className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-800 rounded whitespace-nowrap"
-                                                >
-                                                    {keyword}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </td>
+                            table.getRowModel().rows.map(row => (
+                                <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+                                    {row.getVisibleCells().map(cell => (
+                                        <td
+                                            key={cell.id}
+                                            className="px-3 py-3 border-r border-gray-200 last:border-r-0"
+                                            style={{
+                                                width: cell.column.getSize(),
+                                                minWidth: cell.column.columnDef.minSize,
+                                                maxWidth: cell.column.columnDef.maxSize,
+                                                overflow: 'hidden',
+                                            }}
+                                        >
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </td>
+                                    ))}
                                 </tr>
                             ))
                         )}
@@ -144,5 +275,5 @@ export default function ExperienceManagement({experiences}: experienceManagement
                 </div>
             </div>
         </div>
-    )
+    );
 }
