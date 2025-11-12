@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useState, useEffect, useCallback, useRef, useMemo} from "react";
-import { GoogleMap, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
@@ -21,7 +21,6 @@ const MAP_CONFIG = {
     mapId: "405886d1612720dc9a7aa6a7",
     libraries: ['places', 'marker'],
 } as const;
-const googleLibraries: ("places" | "marker")[] = ['places', 'marker'];
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 
 // ============================================================================
@@ -56,7 +55,6 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
     const [mapCenter, setMapCenter] = useState<Location | undefined>(undefined);
 
     // Search states
-    const [isGettingLocation, setIsGettingLocation] = useState(false);
     const [isLoadingAddress, setIsLoadingAddress] = useState(false);
 
     // Map visibility state

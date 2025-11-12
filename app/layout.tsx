@@ -1,9 +1,9 @@
 import '@/app/(ui)/global.css'
 import { inter } from '@/app/(ui)/fonts';
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { Providers } from "@/app/(ui)/general/provider-wrapper";
 import Navbar from "@/app/(ui)/general/navbar";
-import {auth} from "@/lib/auth";
-import {GoogleMapsProvider} from "@/app/(ui)/general/google-maps-provider";
-import {headers} from "next/headers";
 
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -16,9 +16,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <body suppressHydrationWarning className={`${inter.className} antialiased h-full flex flex-col`}>
           <Navbar session={session}/>
           <main className="flex-1 min-h-0">
-              <GoogleMapsProvider>
-              {children}
-              </GoogleMapsProvider>
+              <Providers>
+                  {children}
+              </Providers>
           </main>
       </body>
     </html>
