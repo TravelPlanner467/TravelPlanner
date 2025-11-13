@@ -5,7 +5,7 @@ import {FormEvent, useEffect, useState} from "react";
 import { useLoadScript } from "@react-google-maps/api";
 import Script from "next/script";
 import {GooglePlacesAutocomplete} from "@/app/(ui)/general/google-places-autocomplete";
-import {KeywordsAutocomplete} from "@/app/(ui)/general/keywords-autocomplete";
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/keywords-autocomplete";
 import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
