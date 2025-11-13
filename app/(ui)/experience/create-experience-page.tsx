@@ -1,16 +1,13 @@
 'use client'
 
-import React, {useState, useEffect, useCallback} from "react";
+import React, {useState, useCallback} from "react";
 import {XMarkIcon} from "@heroicons/react/24/outline";
-import {useDebounce} from "use-debounce";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
-import {KeywordsAutocomplete} from "@/app/(ui)/general/keywords-autocomplete";
-import {FreeAddressSearch} from "@/app/(ui)/experience/create/free-address-search";
-import {InteractiveMap} from "@/app/(ui)/experience/create/leaflet-map";
-import {reverseGeocode} from "@/lib/utils/nomatim-utils";
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/keywords-autocomplete";
+import {FreeAddressSearch} from "@/app/(ui)/experience/free-address-search";
 import {createExperience} from "@/lib/actions/experience-actions";
-import {PhotoFile, usePhotoUpload} from "@/lib/utils/photo-utils";
+import {PhotoFile} from "@/lib/utils/photo-utils";
 import {PhotoUpload} from "@/app/(ui)/experience/photo-upload";
 
 // ============================================================================
@@ -21,12 +18,11 @@ const MAP_CONFIG = {
     defaultZoom: 13,
 } as const;
 
-interface LocationState {
-    lat: number | undefined;
-    lng: number | undefined;
+interface Location {
+    lat: number;
+    lng: number;
     address: string;
 }
-
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -44,145 +40,42 @@ const isValidLongitude = (lng: number | undefined): lng is number =>
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
-export default function DegoogledCreatePage({ user_id }: { user_id: string }) {
+export default function CreateExperiencePage({ user_id }: { user_id: string }) {
     // formData States
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [experienceDate, setExperienceDate] = useState('');
     const [rating, setRating] = useState(0);
-    const [location, setLocation] = useState<LocationState>({
-        lat: undefined,
-        lng: undefined,
-        address: ''
-    });
     const [uploadedPhotos, setUploadedPhotos] = useState<PhotoFile[]>([]);
     const [keywords, setKeywords] = useState<string[]>([]);
     const [currentKeywordInput, setCurrentKeywordInput] = useState('');
 
+    // Location State
+    const [location, setLocation] = useState<Location>({
+        lat: MAP_CONFIG.defaultCenter.lat,
+        lng: MAP_CONFIG.defaultCenter.lng,
+        address: ''
+    });
+
+
     // Loading States
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isLoadingAddress, setIsLoadingAddress] = useState(false);
-    const [isGettingLocation, setIsGettingLocation] = useState(false);
 
-    // Map & Address States
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedLocation] = useDebounce(location, 1000);
+    // Map States
     const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>(MAP_CONFIG.defaultCenter);
     const [isMapExpanded, setIsMapExpanded] = useState(false);
-
-
-    // ========================================================================
-    // EFFECTS
-    // ========================================================================
-    useEffect(() => {
-        const {lat, lng} = debouncedLocation;
-
-        if (!isValidLatitude(lat) || !isValidLongitude(lng)) return;
-
-        const fetchAddress = async () => {
-            setIsLoadingAddress(true);
-            const newAddress = await reverseGeocode(lat, lng);
-            setLocation(prev => ({...prev, address: newAddress}));
-            setSearchQuery(newAddress); // Update search input with reverse geocoded address
-            setIsLoadingAddress(false);
-        };
-
-        fetchAddress();
-    }, [debouncedLocation.lat, debouncedLocation.lng]);
-
 
     // ========================================================================
     // EVENT HANDLERS
     // ========================================================================
-    const updateLocation = useCallback((lat: number, lng: number, address?: string) => {
-        setLocation(prev => ({
-            lat,
-            lng,
-            address: address !== undefined ? address : prev.address
-        }));
-        setMapCenter({lat, lng});
-    }, []);
-
-    // Update coordinates and map when user selects a location from the address search
-    const handleLocationSelect = useCallback((selectedLocation: {
-        lat: number;
-        lng: number;
-        address: string
-    }) => {
-        setLocation({
-            lat: selectedLocation.lat,
-            lng: selectedLocation.lng,
-            address: selectedLocation.address
-        });
+    // Handle location selection from FreeAddressSearch
+    const handleLocationSelect = useCallback((selectedLocation: Location) => {
+        setLocation(selectedLocation);
         setMapCenter({
             lat: selectedLocation.lat,
             lng: selectedLocation.lng
         });
     }, []);
-
-    // Update coordinates and map when user clicks on the map
-    const handleMapClick = useCallback((lat: number, lng: number) => {
-        const roundedLat = roundCoordinate(lat);
-        const roundedLng = roundCoordinate(lng);
-        updateLocation(roundedLat, roundedLng);
-    }, [updateLocation]);
-
-    const handleCoordinateChange = (value: string, type: 'lat' | 'lng') => {
-        const parsed = parseFloat(value);
-        if (isNaN(parsed)) return;
-
-        if (type === 'lat' && isValidLatitude(parsed)) {
-            const rounded = roundCoordinate(parsed);
-            setLocation(prev => ({...prev, lat: rounded}));
-            setMapCenter({lat: rounded, lng: location.lng ?? 0});
-        } else if (type === 'lng' && isValidLongitude(parsed)) {
-            const rounded = roundCoordinate(parsed);
-            setLocation(prev => ({...prev, lng: rounded}));
-            setMapCenter({lat: location.lat ?? 0, lng: rounded});
-        }
-    };
-
-    const handleGetMyLocation = () => {
-        if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser');
-            return;
-        }
-
-        setIsGettingLocation(true);
-
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = roundCoordinate(position.coords.latitude);
-                const lng = roundCoordinate(position.coords.longitude);
-                updateLocation(lat, lng);
-                setIsGettingLocation(false);
-            },
-            (error) => {
-                console.error('Error getting location:', error);
-                let errorMessage = 'Unable to retrieve your location';
-
-                switch (error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMessage = 'Location permission denied. Please enable location access in your browser settings.';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMessage = 'Location information is unavailable.';
-                        break;
-                    case error.TIMEOUT:
-                        errorMessage = 'Location request timed out.';
-                        break;
-                }
-
-                alert(errorMessage);
-                setIsGettingLocation(false);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            }
-        );
-    };
 
     const parseKeywords = (input: string) => {
         if (!input.trim()) return;
@@ -362,128 +255,19 @@ export default function DegoogledCreatePage({ user_id }: { user_id: string }) {
             {/* =========================================== LOCATION  ============================================== */}
             {/*======================================================================================================*/}
             <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
-                {/*Section Header*/}
                 <div className="flex flex-wrap items-baseline gap-3">
                     <h3 className="text-lg font-bold text-gray-900">Location</h3>
                     <div className="hidden sm:block h-5 w-px bg-gray-300"></div>
                     <p className="text-sm text-gray-600">
-                        Search for a place, click the map, enter coordinates, or use your current location
+                        Search, click the map, enter coordinates, or use your current location
                     </p>
                 </div>
 
-                {/* Address Search */}
-                <div className="flex flex-col w-full gap-2">
-                    <label className="text-sm font-semibold text-gray-700">Address</label>
-                    <div className="flex gap-2">
-                        <div className="flex-1">
-                            <FreeAddressSearch
-                                onLocationSelect={handleLocationSelect}
-                                searchQuery={searchQuery}
-                                setSearchQuery={setSearchQuery}
-                                onGetMyLocation={handleGetMyLocation}
-                                isGettingLocation={isGettingLocation}
-                            />
-                        </div>
-                    </div>
-                    {isLoadingAddress && (
-                        <p className="flex items-center gap-2 text-sm text-blue-600">
-                            Loading address...
-                        </p>
-                    )}
-                </div>
-
-                {/* COORDINATES */}
-                <div className="flex flex-col sm:flex-row w-full gap-3 items-end">
-                    <div className="flex flex-col gap-2 flex-1">
-                        <label htmlFor="latitude" className="text-sm font-semibold text-gray-700">
-                            Latitude <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="latitude"
-                            type="number"
-                            value={location.lat ?? ''}
-                            onChange={(e) => handleCoordinateChange(e.target.value, 'lat')}
-                            step="0.0000001"
-                            min="-90"
-                            max="90"
-                            required
-                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
-                                bg-white transition-all duration-200 [appearance:textfield]
-                                focus:ring-4 focus:ring-blue-100 focus:border-blue-500
-                                hover:border-gray-400 shadow-sm"
-                            placeholder="-90 to 90"
-                        />
-                    </div>
-
-                    <div className="flex flex-col gap-2 flex-1">
-                        <label htmlFor="longitude" className="text-sm font-semibold text-gray-700">
-                            Longitude <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="longitude"
-                            type="number"
-                            value={location.lng ?? ''}
-                            onChange={(e) => handleCoordinateChange(e.target.value, 'lng')}
-                            step="0.0000001"
-                            min="-180"
-                            max="180"
-                            required
-                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
-                                bg-white transition-all duration-200 [appearance:textfield]
-                                focus:ring-4 focus:ring-blue-100 focus:border-blue-500
-                                hover:border-gray-400 shadow-sm"
-                            placeholder="-180 to 180"
-                        />
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={() => setIsMapExpanded(!isMapExpanded)}
-                        aria-expanded={isMapExpanded}
-                        aria-controls="map-container"
-                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 active:scale-95
-                            text-white rounded-xl transition-all duration-200 font-semibold
-                            shadow-md hover:shadow-lg flex items-center justify-center gap-2
-                            whitespace-nowrap min-h-[48px]"
-                    >
-                        {isMapExpanded ? (
-                            <>
-                                <span>▲</span> Hide Map
-                            </>
-                        ) : (
-                            <>
-                                <span>▼</span> Show Map
-                            </>
-                        )}
-                    </button>
-                </div>
-
-                {/* MAP */}
-                <div className={`flex flex-col w-full ${isMapExpanded ? '' : 'h-0'}`}>
-                    <div className={`grid transition-all duration-500 ease-in-out ${
-                        isMapExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-                    }`}>
-                        <div className="overflow-hidden min-h-0">
-                            <div className="h-[350px] w-full border-2 border-gray-300 rounded-xl
-                                overflow-hidden shadow-md mt-2">
-                                {isMapExpanded && (
-                                    <InteractiveMap
-                                        center={mapCenter}
-                                        zoom={MAP_CONFIG.defaultZoom}
-                                        markerPosition={
-                                            isValidLatitude(location.lat) && isValidLongitude(location.lng)
-                                                ? { lat: location.lat, lng: location.lng }
-                                                : null
-                                        }
-                                        onMapClick={handleMapClick}
-                                        height="350px"
-                                        className="mt-2"
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <FreeAddressSearch
+                    onLocationSelect={handleLocationSelect}
+                    initialLocation={location}
+                    mapZoom={13}
+                />
             </div>
 
             {/*======================================================================================================*/}
