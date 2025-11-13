@@ -4,8 +4,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {FormEvent, useEffect, useState} from "react";
 import { useLoadScript } from "@react-google-maps/api";
 import Script from "next/script";
-import {PlacesAutocomplete} from "@/app/(dev)/dev/components/places-autocomplete";
-import {KeywordsAutocomplete} from "@/app/(dev)/dev/components/keywords-autocomplete";
+import {GooglePlacesAutocomplete} from "@/app/(ui)/general/google-places-autocomplete";
+import {KeywordsAutocomplete} from "@/app/(ui)/general/keywords-autocomplete";
 import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
@@ -70,7 +70,7 @@ export default function ComboSearchBar() {
 
                 {/* Location */}
                 <div className="flex-1 min-w-0">
-                    <PlacesAutocomplete
+                    <GooglePlacesAutocomplete
                         onLocationSelect={setLocation}
                         primaryTypes={['(regions)']}
                         apiKey={apiKey}

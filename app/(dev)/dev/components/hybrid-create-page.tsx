@@ -11,11 +11,25 @@ import {KeywordsAutocomplete} from "@/app/(ui)/general/keywords-autocomplete";
 import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
 import {createExperience} from "@/lib/actions/experience-actions";
 
+
+// ============================================================================
+// NOMINATIM CONFIGURATION
+// ============================================================================
+const NOMINATIM_CONFIG = {
+    baseUrl: 'https://nominatim.openstreetmap.org/reverse',
+    userAgent: 'CS467TravelPlanner',
+    referer: typeof window !== 'undefined' ? window.location.origin : '',
+    minRequestInterval: 1000, // 1 second between requests (Nominatim requirement)
+} as const;
+
+// Track last request time to comply with Nominatim rate limiting
+let lastRequestTime = 0;
+
 // ============================================================================
 // Cache for geocode (to reduce API calls)
 // ============================================================================
 const CACHE_KEY = 'geocode_cache';
-const CACHE_EXPIRY_DAYS = 30; // Google allows 30-day caching
+const CACHE_EXPIRY_DAYS = 30;
 
 interface CacheEntry {
     address: string;
@@ -42,16 +56,77 @@ const saveCache = (cache: Map<string, CacheEntry>) => {
     }
 };
 
+// ============================================================================
+// REVERSE GEOCODING - Get Address from Latitude & Longitude using Nominatim
+// ============================================================================
+const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
+    const cache = loadCache();
+    const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+
+    // Check cache
+    const cached = cache.get(key);
+    if (cached) {
+        const age = Date.now() - cached.timestamp;
+        const maxAge = CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+        if (age < maxAge) {
+            return cached.address;
+        }
+    }
+
+    // Enforce rate limiting (1 request per second)
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastRequestTime;
+    if (timeSinceLastRequest < NOMINATIM_CONFIG.minRequestInterval) {
+        await new Promise(resolve =>
+            setTimeout(resolve, NOMINATIM_CONFIG.minRequestInterval - timeSinceLastRequest)
+        );
+    }
+    lastRequestTime = Date.now();
+
+    // API call if data not found in cache
+    try {
+        const params = new URLSearchParams({
+            lat: lat.toString(),
+            lon: lng.toString(),
+            format: 'json',
+            addressdetails: '1',
+        });
+
+        const response = await fetch(
+            `${NOMINATIM_CONFIG.baseUrl}?${params.toString()}`,
+            {
+                headers: {
+                    'User-Agent': NOMINATIM_CONFIG.userAgent,
+                    'Referer': NOMINATIM_CONFIG.referer,
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Nominatim API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const address = data.display_name || 'Could not find address';
+
+        // Update cache
+        cache.set(key, { address, timestamp: Date.now() });
+        saveCache(cache);
+        return address;
+    } catch (error) {
+        console.error("Error fetching address from Nominatim:", error);
+        return 'Error fetching address';
+    }
+};
 
 // ============================================================================
-// CONFIGS & TYPES FOR MAP & GOOGLE API
+// CONFIGS & TYPES FOR GOOGLE MAPS API
 // ============================================================================
 const MAP_CONFIG = {
     containerStyle: { width: '100%', height: '350px' },
     defaultCenter: { lat: 44.5618, lng: -123.2823 },
     defaultZoom: 13,
     mapId: "405886d1612720dc9a7aa6a7",
-    libraries: ['places', 'marker'],
 } as const;
 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
@@ -78,7 +153,7 @@ const isValidLongitude = (lng: number | undefined): lng is number =>
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
-export default function CreateExperienceGoogle({ user_id }: { user_id: string }) {
+export default function HybridCreatePage({ user_id }: { user_id: string }) {
     // Form states
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -112,41 +187,6 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
     // Memoized mapID for Google Maps (prevents re-rendering bugs)
     const mapOptions = useMemo(() => ({mapId: MAP_CONFIG.mapId}), []);
 
-    // ========================================================================
-    // REVERSE GEOCODING - Get Address from Latitude & Longitude
-    // ========================================================================
-    const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
-        const cache = loadCache();
-        const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
-
-        // Check cache
-        const cached = cache.get(key);
-        if (cached) {
-            const age = Date.now() - cached.timestamp;
-            const maxAge = CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
-            if (age < maxAge) {
-                return cached.address;
-            }
-        }
-
-        // API call if data not found in cache
-        try {
-            const response = await fetch(
-                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
-            );
-            const data = await response.json();
-            const address = data.results[0]?.formatted_address || 'Could not find address';
-
-            // Update cache
-            cache.set(key, { address, timestamp: Date.now() });
-            saveCache(cache);
-            return address;
-        } catch (error) {
-            console.error("Error fetching address:", error);
-            return 'Error fetching address';
-        }
-    };
-
     // =================================================================================================================
     // useEffects
     // =================================================================================================================
@@ -164,7 +204,7 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
         };
 
         fetchAddress();
-    }, [debouncedLocation.lat, debouncedLocation.lng, reverseGeocode]);
+    }, [debouncedLocation.lat, debouncedLocation.lng]);
 
     // Load/update marker position
     useEffect(() => {
@@ -227,7 +267,7 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                 lng: selectedLocation.longitude
             });
         }
-    }, [updateLocation]);
+    }, []);
 
     // Update location states when user clicks on the map
     const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
@@ -318,7 +358,6 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
         const finalKeywords = currentKeywordInput.trim()
             ? [...keywords, currentKeywordInput.trim()]
             : keywords;
-
 
         const formData = {
             user_id: user_id,
@@ -598,8 +637,8 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                 className={`mt-4 px-8 py-4 font-bold text-lg rounded-xl 
                             transition-all duration-200 shadow-lg
                             ${isSubmitting
-                        ? 'bg-gray-400 cursor-not-allowed text-gray-200'
-                        : 'bg-blue-700 hover:to-blue-800 text-white hover:shadow-xl active:scale-95'
+                    ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                    : 'bg-blue-700 hover:to-blue-800 text-white hover:shadow-xl active:scale-95'
                 }`}
             >
                 {isSubmitting ? (
@@ -612,6 +651,5 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                 )}
             </button>
         </form>
-
     );
 }

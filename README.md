@@ -57,14 +57,14 @@ pnpm run dev
 
 ---
 
-| Category | Technologies |
-|----------|-------------|
-| **Frontend** | Next.js, TypeScript, React |
-| **Backend** | Python (Flask), Next.js API Routes |
-| **Database** | PostgreSQL (NeonDB) |
-| **Authentication** | BetterAuth |
-| **ORM** | Prisma |
-| **Maps** | Google Maps API |
+| Category           | Technologies                       |
+|--------------------|------------------------------------|
+| **Frontend**       | Next.js, TypeScript, React         |
+| **Backend**        | Python (Flask), Next.js API Routes |
+| **Database**       | PostgreSQL (NeonDB)                |
+| **Authentication** | BetterAuth                         |
+| **Maps**           | Leaflet                            |
+| **Location**       | Nomatim & Google Places API        |
 
 
 ---
