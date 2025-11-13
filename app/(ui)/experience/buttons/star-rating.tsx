@@ -10,15 +10,14 @@ interface RatingDisplayProps {
 
 interface SelectableRatingProps {
     experience_rating?: number;
-
-    onRatingChange: (rating: number) => void; // Add this callback prop
+    onRatingChange: (rating: number) => void;
 }
 
 export function RatingDisplay({rating, showLabel = true, rating_count}: RatingDisplayProps) {
     const stars = Array.from({ length: 5 }, (_, i) => i);
-
     const numericRating = Number(rating) || 0;
 
+    // Convert rating to percentage for coloring the Stars Display
     const getStarFillPercentage = (starIndex: number) => {
         const difference = rating - starIndex;
         if (difference >= 1) return 100;
@@ -28,34 +27,47 @@ export function RatingDisplay({rating, showLabel = true, rating_count}: RatingDi
 
     return (
         <div className="flex flex-col items-center gap-1">
-            <div className="flex">
+            {/* Stars */}
+            <div className="flex items-center gap-0.5">
                 {stars.map((starIndex) => {
                     const fillPercentage = getStarFillPercentage(starIndex);
 
                     return (
-                        <div key={starIndex} className="relative w-8 h-8">
+                        <div key={starIndex} className="relative w-7 h-7">
                             {/* Gray background star */}
-                            <StarIcon className="w-8 h-8 text-gray-300 absolute" />
+                            <StarIcon className="w-7 h-7 text-gray-300 absolute drop-shadow-sm" />
 
-                            {/* Yellow filled portion */}
+                            {/* Gradient filled portion */}
                             <div
                                 className="overflow-hidden absolute top-0 left-0 h-full"
                                 style={{ width: `${fillPercentage}%` }}
                             >
-                                <StarIcon className="w-8 h-8 text-blue-300" />
+                                <StarIcon className="relative w-7 h-7 text-blue-400 drop-shadow-md" />
                             </div>
                         </div>
                     );
                 })}
             </div>
 
+            {/* Rating */}
             {showLabel && numericRating > 0 && (
-                <div className="flex items-center gap-2">
-                    <p className="font-md text-gray-900">
-                        {numericRating.toFixed(1)} {numericRating === 1 ? 'star' : 'stars'}
-                    </p>
-                    <p className="font-md text-gray-600">
-                        {rating_count} {rating_count === 1 ? 'review' : 'reviews'}
+                <div className="flex items-center gap-2 px-3">
+                    {/*Average Score*/}
+                    <div className="flex items-baseline gap-1.5">
+                        <span className="text-lg font-bold text-gray-900">
+                            {numericRating.toFixed(1)}
+                        </span>
+                        <span className="text-sm font-medium text-gray-600">
+                            / 5
+                        </span>
+                    </div>
+
+                    {/*Divider*/}
+                    <div className="w-px h-4 bg-gray-300" />
+
+                    {/*Review Count*/}
+                    <p className="text-sm font-medium text-gray-600">
+                        {rating_count?.toLocaleString() || 0} {rating_count === 1 ? 'review' : 'reviews'}
                     </p>
                 </div>
             )}
@@ -73,8 +85,8 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
     }
 
     return (
-        <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center gap-3">
+        <div className="flex flex-col items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                     <button
                         key={star}
@@ -82,8 +94,10 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
                         onClick={() => handleRatingClick(star)}
                         onMouseEnter={() => setHover(star)}
                         onMouseLeave={() => setHover(0)}
-                        className="relative w-5 h-5 transition-transform focus:outline-none focus:ring-2
-                        focus:ring-blue-500 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:scale-110"
+                        className="relative w-7 h-7 flex items-center justify-center
+                                   transition-transform focus:outline-none focus:ring-2
+                                   focus:ring-blue-500 rounded disabled:opacity-50
+                                   disabled:cursor-not-allowed hover:scale-110"
                     >
                         <StarIcon
                             className={`w-8 h-8 transition-colors ${
@@ -96,11 +110,11 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
                 ))}
             </div>
 
-            {rating > 0 && (
-                <p className="text-sm text-gray-600">
-                    {rating} {rating === 1 ? 'star' : 'stars'}
-                </p>
-            )}
+            {/*{rating > 0 && (*/}
+            {/*    <p className="text-sm text-gray-600">*/}
+            {/*        {rating} {rating === 1 ? 'star' : 'stars'}*/}
+            {/*    </p>*/}
+            {/*)}*/}
 
         </div>
     );

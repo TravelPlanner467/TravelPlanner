@@ -169,7 +169,7 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
                                    bg-white border border-gray-300 rounded-md shadow-lg">
                         {filteredOptions.map((option, index) => (
                             <li
-                                key={option.label}
+                                key={index}
                                 onClick={() => handleSelect(option)}
                                 className={`px-4 py-2 cursor-pointer text-left text-sm transition-colors duration-150 ${
                                     index === highlightedIndex

@@ -48,11 +48,31 @@ export const auth = betterAuth({
     secret: process.env.BETTER_AUTH_SECRET || (process.env.NODE_ENV === "production"
         ? (() => { throw new Error("BETTER_AUTH_SECRET is required in production") })()
         : "dev-secret-key"),
-    // CRITICAL: Add trusted origins for CORS
     trustedOrigins: getTrustedOrigins(),
-
     emailAndPassword: {
         enabled: true
+    },
+    pages: {
+        signIn: '/account/login',
+        afterSignIn: '/account/profile',
+        signUp: '/account/signup',
+        afterSignUp: '/account/profile'
+    },
+    plugins: [
+        nextCookies(),
+        admin({
+            defaultRole: "user",
+            adminRoles: ["components"]
+        }),
+        username(),
+    ],
+    session: {
+        cookieCache: {
+            enabled: true,
+            maxAge: 5 * 60 // 5 minutes
+        },
+        expiresIn: 60 * 60 * 24 * 7, // 7 days session lifetime
+        updateAge: 60 * 60 * 24      // Refresh token daily
     },
     user: {
         additionalFields: {
@@ -83,27 +103,5 @@ export const auth = betterAuth({
                 required: false
             }
         }
-    },
-    session: {
-        cookieCache: {
-            enabled: true,
-            maxAge: 5 * 60 // 5 minutes
-        },
-        expiresIn: 60 * 60 * 24 * 7, // 7 days session lifetime
-        updateAge: 60 * 60 * 24      // Refresh token daily
-    },
-    plugins: [
-        nextCookies(),
-        admin({
-            defaultRole: "user",
-            adminRoles: ["components"]
-        }),
-        username(),
-    ],
-    pages: {
-        signIn: '/account/login',
-        afterSignIn: '/account/profile',
-        signUp: '/account/signup',
-        afterSignUp: '/account/profile'
     },
 })

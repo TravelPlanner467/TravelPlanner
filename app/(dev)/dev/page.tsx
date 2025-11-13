@@ -2,6 +2,8 @@ import CreateExperienceGoogle from "@/app/(dev)/dev/components/create-experience
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
+import HybridCreatePage from "@/app/(dev)/dev/components/hybrid-create-page";
+import CreateExperiencePage from "@/app/(ui)/experience/create-experience-page";
 
 export default async function DevPage() {
     const session = await auth.api.getSession(
@@ -15,7 +17,7 @@ export default async function DevPage() {
     return (
         <div className="flex flex-col w-full text-center gap-2 items-center">
             <h1 className="text-4xl font-bold">Dev Page</h1>
-            <CreateExperienceGoogle user_id={user_id}/>
+            <CreateExperiencePage user_id={user_id}/>
         </div>
     )
 }

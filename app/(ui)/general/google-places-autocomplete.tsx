@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {MapPinIcon} from "@heroicons/react/16/solid";
 
 interface PlacesAutocompleteProps {
@@ -13,26 +13,53 @@ function roundCoordinate(coord: number, decimals: number = 6): number {
     return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
-export function PlacesAutocomplete({onLocationSelect, currentAddress, primaryTypes, apiKey}: PlacesAutocompleteProps) {
+export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, primaryTypes, apiKey}: PlacesAutocompleteProps) {
     const [inputValue, setInputValue] = useState(currentAddress);
     const [suggestions, setSuggestions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const [isGettingLocation, setIsGettingLocation] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
-    // Reverse geocode coordinates to address
+    // Session Token for API use minimization
+    const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
+    const getOrCreateSessionToken = () => {
+        if (!sessionTokenRef.current) {
+            sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken();
+        }
+        return sessionTokenRef.current;
+    };
+    const resetSessionToken = () => {
+        sessionTokenRef.current = null;
+    };
+
+    // Geocode Cache to store data for minimizing API usage
+    const geocodeCache = useRef<Map<string, string>>(new Map());
+
+    // Reverse geocode coordinates to address (checks cache first)
     const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
+        const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+
+        // Check cache
+        if (geocodeCache.current.has(key)) {
+            return geocodeCache.current.get(key)!;
+        }
+
         try {
             const response = await fetch(
                 `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
             );
             const data = await response.json();
-            return data.results[0]?.formatted_address || 'Could not find address';
+            const address = data.results[0]?.formatted_address || 'Could not find address';
+
+            // Cache the result
+            geocodeCache.current.set(key, address);
+            return address;
         } catch (error) {
             console.error("Error fetching address:", error);
             return 'Error fetching address';
         }
     };
+
 
     // Get user's current location
     const handleGetCurrentLocation = () => {
@@ -74,6 +101,7 @@ export function PlacesAutocomplete({onLocationSelect, currentAddress, primaryTyp
             setInputValue('');
         }
         setSuggestions([]);
+        getOrCreateSessionToken();
     };
 
     // Update input when currentAddress changes externally
@@ -92,12 +120,16 @@ export function PlacesAutocomplete({onLocationSelect, currentAddress, primaryTyp
 
         try {
             const { AutocompleteSuggestion } = await google.maps.importLibrary('places') as google.maps.PlacesLibrary;
-
-            const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+            // Get session token
+            const token = getOrCreateSessionToken();
+            // Create request object
+            const request: any = {
                 input: value,
-                // Optional primaryTypes
+                sessionToken: token,
                 ...(primaryTypes && primaryTypes.length > 0 && { includedPrimaryTypes: primaryTypes }),
-            });
+            };
+
+            const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
 
             setSuggestions(suggestions);
             setHighlightedIndex(-1);
@@ -128,6 +160,7 @@ export function PlacesAutocomplete({onLocationSelect, currentAddress, primaryTyp
                     longitude: roundCoordinate(location.lng()),
                     address: address
                 });
+                resetSessionToken();
             }
         } catch (error) {
             console.error('Error getting place details:', error);
@@ -157,6 +190,7 @@ export function PlacesAutocomplete({onLocationSelect, currentAddress, primaryTyp
             case 'Escape':
                 setSuggestions([]);
                 setHighlightedIndex(-1);
+                resetSessionToken();
                 break;
         }
     };
@@ -167,6 +201,10 @@ export function PlacesAutocomplete({onLocationSelect, currentAddress, primaryTyp
             if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
                 setSuggestions([]);
                 setHighlightedIndex(-1);
+                // Reset token if user clicks away
+                if (suggestions.length > 0) {
+                    resetSessionToken();
+                }
             }
         };
 
@@ -174,7 +212,7 @@ export function PlacesAutocomplete({onLocationSelect, currentAddress, primaryTyp
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, [suggestions.length]);
 
     // Debounce input change
     useEffect(() => {
@@ -209,8 +247,8 @@ export function PlacesAutocomplete({onLocationSelect, currentAddress, primaryTyp
                     }`}
                 >
                     <MapPinIcon className={`w-5 h-5 ${
-                        isGettingLocation 
-                            ? 'text-gray-400 animate-pulse' 
+                        isGettingLocation
+                            ? 'text-gray-400 animate-pulse'
                             : 'text-blue-600'
                     }`} />
                 </button>

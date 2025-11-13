@@ -17,16 +17,24 @@ export default async function Page() {
         )
     }
 
-  return (
-      <div className="flex flex-col justify-center items-center gap-4 p-8">
+    return (
+      <div className="flex flex-col justify-center items-center gap-6 p-8">
           <h1 className="text-4xl font-bold">Admin Page</h1>
+          <Link href="/dev"
+                className="w-72 h-20 flex justify-center items-center
+                        text-lg font-medium text-blue-900 underline
+                        border border-gray-900 shadow-md rounded-lg
+                        hover:shadow-lg hover:bg-gray-100"
+          >
+              Dev Page
+          </Link>
           <Link href="/admin/user-management"
                 className="w-72 h-20 flex justify-center items-center
                         text-lg font-medium text-blue-900 underline
                         border border-gray-900 shadow-md rounded-lg
                         hover:shadow-lg hover:bg-gray-100"
           >
-              Manage Users & Roles
+              Users & Roles
           </Link>
           <Link href="/admin/experiences"
                 className="w-72 h-20 flex justify-center items-center
@@ -34,7 +42,7 @@ export default async function Page() {
                         border border-gray-900 shadow-md rounded-lg
                         hover:shadow-lg hover:bg-gray-100"
           >
-              Manage All Experiences
+              All Experiences
           </Link>
       </div>
   )
