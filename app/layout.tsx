@@ -1,9 +1,11 @@
 import '@/app/(ui)/global.css'
 import { inter } from '@/app/(ui)/fonts';
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { Providers } from "@/app/(ui)/general/provider-wrapper";
 import Navbar from "@/app/(ui)/general/navbar";
+
+import { headers } from "next/headers";
+import { Analytics } from "@vercel/analytics/next"
 
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -19,6 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Providers>
                   {children}
               </Providers>
+              <Analytics/>
           </main>
       </body>
     </html>
