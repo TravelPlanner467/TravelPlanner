@@ -7,7 +7,7 @@ import {useDebounce} from "use-debounce";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
 import {GooglePlacesAutocomplete} from "@/app/(ui)/general/google-places-autocomplete";
-import {KeywordsAutocomplete} from "@/app/(ui)/general/keywords-autocomplete";
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/keywords-autocomplete";
 import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
 import {createExperience} from "@/lib/actions/experience-actions";
 
