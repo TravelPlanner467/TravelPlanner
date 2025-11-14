@@ -3,9 +3,9 @@
 import {useCallback, useRef, useState} from "react";
 import {ArrowPathIcon, ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/outline";
 
-import {LocationSearch} from "@/app/(dev)/dev/components/location-search";
+import {LocationSearch} from "@/app/(ui)/experience/location-search";
 import {InteractiveMap} from "@/app/(ui)/experience/components/leaflet-map";
-import MapExperienceListCard from "@/app/(dev)/dev/components/map-experiences-list-card";
+import MapExperienceListCard from "@/app/(ui)/experience/map-experiences-list-card";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {Experience} from "@/lib/types";
 

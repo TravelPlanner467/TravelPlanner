@@ -3,8 +3,8 @@
 
 import {useState, useCallback, useTransition} from "react";
 
-import DisplayByMap from "@/app/(dev)/dev/components/display-by-map";
-import {getAllExperiences, getExperiencesByLocation} from "@/lib/actions/experience-actions";
+import DisplayByMap from "@/app/(ui)/experience/display-by-map";
+import {getExperiencesByLocation} from "@/lib/actions/experience-actions";
 import {Experience} from "@/lib/types";
 
 interface MapPageClientProps {
