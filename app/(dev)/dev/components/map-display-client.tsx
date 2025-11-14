@@ -59,7 +59,6 @@ export default function MapPageClient({initialExperiences, session_user_id}: Map
         <div className="flex flex-col h-full w-full">
             <DisplayByMap
                 experiences={experiences}
-                session_user_id={session_user_id}
                 onBoundsChange={handleBoundsChange}
                 mapBounds={mapBounds}
                 onRequestRefresh={handleRequestRefresh}
