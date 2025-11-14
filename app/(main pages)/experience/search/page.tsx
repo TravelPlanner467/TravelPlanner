@@ -1,8 +1,7 @@
-import {searchByKeyword} from "@/lib/actions/search-actions";
-import {SearchResults} from "@/app/(ui)/experience/search/search-results";
 import ComboSearchBar from "@/app/(ui)/experience/search/combo-search-bar";
 import {getAllExperiences} from "@/lib/actions/experience-actions";
 import {ErrorResponse, Experience} from "@/lib/types";
+import ExperienceView from "@/app/(dev)/dev/components/experiences-views";
 
 export default async function SearchResultsPage(
     props: { searchParams?: Promise<{ keywords?: string; location?: string }> }
@@ -54,8 +53,12 @@ export default async function SearchResultsPage(
             <div className="flex w-full justify-center pt-6 px-12">
                 <ComboSearchBar />
             </div>
-            <div>
-                <SearchResults keywords={keywords} location={location} experiences={experiences}/>
+            <div className="flex-1 min-h-0">
+                <ExperienceView
+                    keywords={keywords}
+                    location={location}
+                    experiences={experiences}
+                />
             </div>
         </main>
     );

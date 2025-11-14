@@ -6,12 +6,11 @@ import {ArrowPathIcon, ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react
 import {LocationSearch} from "@/app/(dev)/dev/components/location-search";
 import {InteractiveMap} from "@/app/(ui)/experience/components/leaflet-map";
 import MapExperienceListCard from "@/app/(dev)/dev/components/map-experiences-list-card";
-import {isValidLatitude, isValidLongitude, reverseGeocode, Location} from "@/lib/utils/nomatim-utils";
+import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {Experience} from "@/lib/types";
 
 interface DisplayByMapProps {
     experiences: Experience[];
-    session_user_id: string;
     onBoundsChange: (bounds: {
         northEast: { lat: number; lng: number };
         southWest: { lat: number; lng: number };
@@ -29,7 +28,7 @@ const MAP_CONFIG = {
     mapHeight: "78vh"
 } as const;
 
-export default function DisplayByMap({experiences, session_user_id, onBoundsChange, mapBounds, onRequestRefresh}
+export default function DisplayByMap({experiences, onBoundsChange, mapBounds, onRequestRefresh}
 : DisplayByMapProps
 ) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
