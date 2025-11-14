@@ -2,7 +2,7 @@
 
 import {Experience, ErrorResponse, Trip, UserTripsProps} from "@/lib/types";
 import {CalendarDaysIcon, MapPinIcon} from "@heroicons/react/16/solid";
-import {AddToTripButton} from "@/app/(ui)/experience/trip-features/add-to-trip-button";
+import {AddToTripButton} from "@/app/(ui)/experience/buttons/add-to-trip-button";
 import {RatingDisplay} from "@/app/(ui)/experience/buttons/star-rating";
 import {RateExperienceButton} from "@/app/(ui)/experience/buttons/rate-experience-button";
 import {useLayoutEffect, useRef, useState} from "react";

@@ -1,14 +1,15 @@
 'use client'
 
-import React, {useState, useCallback} from "react";
+import React, {useState} from "react";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
-import {KeywordsAutocomplete} from "@/app/(ui)/experience/keywords-autocomplete";
-import {FreeAddressSearch} from "@/app/(ui)/experience/free-address-search";
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/components/keywords-autocomplete";
+import {FreeAddressSearch} from "@/app/(ui)/experience/components/free-address-search";
 import {createExperience} from "@/lib/actions/experience-actions";
+import {PhotoUpload} from "@/app/(ui)/experience/components/photo-upload";
+import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {PhotoFile} from "@/lib/utils/photo-utils";
-import {PhotoUpload} from "@/app/(ui)/experience/photo-upload";
 
 // ============================================================================
 // MAP CONFIG
@@ -17,25 +18,6 @@ const MAP_CONFIG = {
     defaultCenter: { lat: 44.5618, lng: -123.2823 },
     defaultZoom: 13,
 } as const;
-
-interface Location {
-    lat: number;
-    lng: number;
-    address: string;
-}
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-function roundCoordinate(coord: number, decimals: number = 5): number {
-    return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
-}
-
-const isValidLatitude = (lat: number | undefined): lat is number =>
-    lat !== undefined && lat >= -90 && lat <= 90;
-
-const isValidLongitude = (lng: number | undefined): lng is number =>
-    lng !== undefined && lng >= -180 && lng <= 180;
 
 // ============================================================================
 // MAIN COMPONENT
@@ -48,7 +30,10 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
     const [rating, setRating] = useState(0);
     const [uploadedPhotos, setUploadedPhotos] = useState<PhotoFile[]>([]);
     const [keywords, setKeywords] = useState<string[]>([]);
+
+    // Page states
     const [currentKeywordInput, setCurrentKeywordInput] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Location State
     const [location, setLocation] = useState<Location>({
@@ -57,25 +42,13 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
         address: ''
     });
 
-
-    // Loading States
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Map States
-    const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>(MAP_CONFIG.defaultCenter);
-    const [isMapExpanded, setIsMapExpanded] = useState(false);
-
     // ========================================================================
     // EVENT HANDLERS
     // ========================================================================
     // Handle location selection from FreeAddressSearch
-    const handleLocationSelect = useCallback((selectedLocation: Location) => {
+    const handleLocationSelect = (selectedLocation: Location) => {
         setLocation(selectedLocation);
-        setMapCenter({
-            lat: selectedLocation.lat,
-            lng: selectedLocation.lng
-        });
-    }, []);
+    };
 
     const parseKeywords = (input: string) => {
         if (!input.trim()) return;
@@ -146,7 +119,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
             create_date: new Date().toISOString(),
             user_rating: rating,
             keywords: finalKeywords,
-            // photos: photos.map(p => p.file),
+            photos: uploadedPhotos.map(p => p.file),
         };
         console.log(formData);
 
@@ -159,19 +132,18 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
     return (
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-8 max-w-4xl w-full mx-auto p-10
-                bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl border border-gray-200"
+            className="flex flex-col gap-4 max-w-4xl w-full mx-auto p-10
+                bg-gradient-to-br from-white to-gray-50
+                rounded-2xl shadow-2xl border border-gray-200"
         >
             {/* Form Header */}
             <div className="flex items-center pb-4 gap-3 border-b-2 border-gray-200">
-                <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Create an Experience</h2>
+                <h2 className="text-3xl font-bold text-gray-900">Create an Experience</h2>
             </div>
-            {/*======================================================================================================*/}
-            {/* ========================================= TRIP INFO  =============================================== */}
-            {/*======================================================================================================*/}
+            {/* ========================================= EXPERIENCE INFO  =============================================== */}
             <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
                 <div className="flex flex-wrap items-baseline gap-3">
-                    <h3 className="text-lg font-bold text-gray-900">Trip Information</h3>
+                    <h3 className="text-lg font-bold text-gray-900">Experience Information</h3>
                     <div className="hidden sm:block h-5 w-px bg-gray-300"></div>
                     <p className="text-sm text-gray-600">
                         Share your experience with others
@@ -251,9 +223,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                 </div>
             </div>
 
-            {/*======================================================================================================*/}
             {/* =========================================== LOCATION  ============================================== */}
-            {/*======================================================================================================*/}
             <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
                 <div className="flex flex-wrap items-baseline gap-3">
                     <h3 className="text-lg font-bold text-gray-900">Location</h3>
@@ -270,9 +240,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                 />
             </div>
 
-            {/*======================================================================================================*/}
             {/*=========================================== PHOTOS ===================================================*/}
-            {/*======================================================================================================*/}
             <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
                 {/* Section Header */}
                 <div className="flex flex-wrap items-baseline gap-3">
@@ -282,6 +250,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                         Upload up to 10 photos of your experience (max 5MB each)
                     </p>
                 </div>
+
                 <PhotoUpload
                     maxPhotos={10}
                     maxFileSizeMB={5}
@@ -289,9 +258,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                 />
             </div>
 
-            {/*======================================================================================================*/}
             {/*============================================ KEYWORDS ================================================*/}
-            {/*======================================================================================================*/}
             <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
                 {/*Section Header*/}
                 <div className="flex flex-wrap items-baseline gap-3">

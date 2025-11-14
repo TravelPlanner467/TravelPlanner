@@ -4,7 +4,7 @@ import {
     CreateExperienceProps,
     DeleteExperienceProps, EditExperienceSendProps,
     ErrorResponse,
-    Experience, getUserExperienceProps, RateExperienceProps
+    Experience, getExperienceByLocationProps, getUserExperienceProps, RateExperienceProps
 } from "@/lib/types";
 import {PrismaClient} from "@/generated/prisma";
 
@@ -155,7 +155,6 @@ export async function deleteExperience(formData: DeleteExperienceProps): Promise
 }
 
 
-
 export async function getUserExperiencesDetails(formData: getUserExperienceProps): Promise<Experience | ErrorResponse> {
     return handleApiRequest<Experience>(
         `${API_BASE_URL}/experiences/user_details/${formData.experience_id}`,
@@ -184,6 +183,10 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
 
     if ('error' in result) return result;
     return result;
+}
+
+export async function getExperiencesByLocation(formData: getExperienceByLocationProps) {
+    console.log("Getting experiences by location: ", formData);
 }
 
 export async function getTopExperiences(): Promise<Experience[] | ErrorResponse> {

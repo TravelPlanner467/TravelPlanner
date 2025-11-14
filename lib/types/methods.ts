@@ -74,6 +74,11 @@ export interface getUserExperienceProps {
     session_user_id: string;
 }
 
+export interface getExperienceByLocationProps {
+    northEast: { lat: number; lng: number };
+    southWest: { lat: number; lng: number };
+}
+
 
 export interface NominatimResult {
     place_id: number;

@@ -28,6 +28,12 @@ export interface NominatimAddress {
     country_code?: string;
 }
 
+export interface Location {
+    lat: number;
+    lng: number;
+    address: string;
+}
+
 // ============================================================================
 // REVERSE GEOCODING
 // ============================================================================
@@ -100,3 +106,11 @@ export const formatCleanAddress = (addressData: NominatimAddress): string => {
 
     return parts.length > 0 ? parts.join(', ') : 'Address not found';
 };
+
+// Coordinate Utilities
+export function roundCoordinate(coord: number, decimals: number = 5): number {
+    return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
+}
+
+export const isValidLatitude = (lat: number): boolean => lat >= -90 && lat <= 90;
+export const isValidLongitude = (lng: number): boolean => lng >= -180 && lng <= 180;

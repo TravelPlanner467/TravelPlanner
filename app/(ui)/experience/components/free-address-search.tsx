@@ -1,8 +1,8 @@
 import React, {useEffect, useRef, useState} from "react";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 import {MapPinIcon} from "@heroicons/react/16/solid";
-import {reverseGeocode} from "@/lib/utils/nomatim-utils";
-import {InteractiveMap} from "@/app/(ui)/experience/leaflet-map";
+import {isValidLatitude, isValidLongitude, reverseGeocode, roundCoordinate, Location} from "@/lib/utils/nomatim-utils";
+import {InteractiveMap} from "@/app/(ui)/experience/components/leaflet-map";
 
 
 // ============================================================================
@@ -17,12 +17,6 @@ const NOMINATIM_CONFIG = {
 } as const;
 
 let lastRequestTime = 0;
-
-interface Location {
-    lat: number;
-    lng: number;
-    address: string;
-}
 
 // ============================================================================
 // UTILITIES
@@ -43,12 +37,6 @@ const useDebounce = (value: string, delay: number) => {
     return debouncedValue;
 };
 
-function roundCoordinate(coord: number, decimals: number = 5): number {
-    return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
-}
-
-const isValidLatitude = (lat: number): boolean => lat >= -90 && lat <= 90;
-const isValidLongitude = (lng: number): boolean => lng >= -180 && lng <= 180;
 
 // Forward geocoding (search address)
 const searchAddress = async (query: string): Promise<Array<Location>> => {
@@ -98,11 +86,7 @@ const searchAddress = async (query: string): Promise<Array<Location>> => {
 // =====================================================================================================================
 // MAIN COMPONENT
 // =====================================================================================================================
-export function FreeAddressSearch({
-    onLocationSelect,
-    initialLocation,
-    mapZoom = 13,
-}: {
+export function FreeAddressSearch({onLocationSelect, initialLocation, mapZoom = 13,}: {
     onLocationSelect: (location: Location) => void;
     initialLocation?: Location;
     mapZoom?: number;
@@ -141,15 +125,18 @@ export function FreeAddressSearch({
                 return;
             }
 
+            // Skip search if current query is the same as the previous one
             if (debouncedSearchQuery === lastSearchedQueryRef.current) {
                 return;
             }
 
             lastSearchedQueryRef.current = debouncedSearchQuery;
             setIsSearching(true);
+
             const searchResults = await searchAddress(debouncedSearchQuery);
             setResults(searchResults);
             setShowResults(searchResults.length > 0);
+
             setIsSearching(false);
         };
 
@@ -413,7 +400,7 @@ export function FreeAddressSearch({
                     <InteractiveMap
                         center={mapCenter}
                         zoom={mapZoom}
-                        markerPosition={
+                        selectedMarker={
                             isValidLatitude(location.lat) && isValidLongitude(location.lng)
                                 ? { lat: location.lat, lng: location.lng }
                                 : null

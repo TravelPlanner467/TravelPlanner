@@ -1,0 +1,189 @@
+'use client'
+
+import React, {useEffect} from 'react';
+import {MapContainer, TileLayer, Marker, useMapEvents, Popup, useMap} from 'react-leaflet';
+import L, {Icon} from 'leaflet';
+
+// Leaflet Marker Icon Fix (specific to Next.js)
+import 'leaflet/dist/leaflet.css';
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
+
+interface MarkerData {
+    lat: number;
+    lng: number;
+    id: string;
+    title: string;
+}
+
+interface InteractiveMapProps {
+    center: { lat: number; lng: number };
+    zoom: number;
+    height?: string;
+    selectedMarker?: { lat: number; lng: number } | null;
+    markers?: MarkerData[];
+    onMapClick?: (lat: number, lng: number) => void;
+    onBoundsChange?: (bounds: {
+        northEast: { lat: number; lng: number };
+        southWest: { lat: number; lng: number };
+    }) => void;
+    hoveredMarkerId?: string | null;
+    selectedMarkerId?: string | null;
+    onMarkerHover?: (experienceId: string | null) => void;
+    onMarkerClick?: (experienceId: string) => void;
+}
+
+interface OnMapClickProps {
+    onClick?: (lat: number, lng: number) => void;
+    onBoundsChange?: (bounds: {
+        northEast: { lat: number; lng: number };
+        southWest: { lat: number; lng: number };
+    }) => void;
+}
+
+// Custom icon for experience markers
+const experienceIcon = new Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+// Custom icon for selected location
+const selectedIcon = new Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+// Handle map clicks
+function MapClickHandler({ onClick, onBoundsChange }: OnMapClickProps) {
+    const map = useMapEvents({
+        click: (e) => {
+            if (onClick) {
+                onClick(e.latlng.lat, e.latlng.lng);
+            }
+        },
+        moveend: () => {
+            if (onBoundsChange) {
+                const bounds = map.getBounds();
+                const northEast = bounds.getNorthEast();
+                const southWest = bounds.getSouthWest();
+
+                onBoundsChange({
+                    northEast: { lat: northEast.lat, lng: northEast.lng },
+                    southWest: { lat: southWest.lat, lng: southWest.lng }
+                });
+            }
+        },
+        zoomend: () => {
+            if (onBoundsChange) {
+                const bounds = map.getBounds();
+                const northEast = bounds.getNorthEast();
+                const southWest = bounds.getSouthWest();
+
+                onBoundsChange({
+                    northEast: { lat: northEast.lat, lng: northEast.lng },
+                    southWest: { lat: southWest.lat, lng: southWest.lng }
+                });
+            }
+        }
+    });
+    return null;
+}
+
+function RecenterMap({ center }: { center: { lat: number; lng: number } }) {
+    const map = useMap();
+
+    useEffect(() => {
+        map.setView([center.lat, center.lng], map.getZoom());
+    }, [center.lat, center.lng, map]);
+
+    return null;
+}
+
+export function InteractiveMap({center, zoom, height = '400px', selectedMarker,
+                                   markers = [], onMapClick, onBoundsChange,}
+                               : InteractiveMapProps) {
+    // Validate center coordinates
+    const isValidCenter =
+        typeof center.lat === 'number' &&
+        typeof center.lng === 'number' &&
+        !isNaN(center.lat) &&
+        !isNaN(center.lng) &&
+        center.lat >= -90 && center.lat <= 90 &&
+        center.lng >= -180 && center.lng <= 180;
+
+    // Fallback to default if invalid
+    const safeCenter = isValidCenter
+        ? center
+        : { lat: 44.5618, lng: -123.2823  };
+
+    // Filter out invalid markers
+    const validMarkers = markers.filter(marker =>
+        typeof marker.lat === 'number' &&
+        typeof marker.lng === 'number' &&
+        !isNaN(marker.lat) &&
+        !isNaN(marker.lng) &&
+        marker.lat >= -90 && marker.lat <= 90 &&
+        marker.lng >= -180 && marker.lng <= 180
+    );
+
+    // Validate selected marker
+    const validSelectedMarker = selectedMarker &&
+    typeof selectedMarker.lat === 'number' &&
+    typeof selectedMarker.lng === 'number' &&
+    !isNaN(selectedMarker.lat) &&
+    !isNaN(selectedMarker.lng) &&
+    selectedMarker.lat >= -90 && selectedMarker.lat <= 90 &&
+    selectedMarker.lng >= -180 && selectedMarker.lng <= 180
+        ? selectedMarker
+        : null;
+
+    return (
+        <MapContainer
+            center={[safeCenter.lat, safeCenter.lng]}
+            zoom={zoom}
+            style={{ height, width: '100%' }}
+            scrollWheelZoom={true}
+        >
+            <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            <MapClickHandler onClick={onMapClick} onBoundsChange={onBoundsChange} />
+            <RecenterMap center={safeCenter} />
+
+            {/* Experience markers */}
+            {validMarkers.map((marker) => (
+                <Marker
+                    key={marker.id}
+                    position={[marker.lat, marker.lng]}
+                    icon={experienceIcon}
+                >
+                    <Popup><strong>{marker.title}</strong></Popup>
+                </Marker>
+            ))}
+
+            {/* Selected location marker */}
+            {validSelectedMarker && (
+                <Marker
+                    position={[validSelectedMarker.lat, validSelectedMarker.lng]}
+                    icon={selectedIcon}
+                >
+                    <Popup>Selected Location</Popup>
+                </Marker>
+            )}
+        </MapContainer>
+    );
+}
