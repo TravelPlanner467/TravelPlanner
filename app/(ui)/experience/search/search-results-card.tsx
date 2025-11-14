@@ -1,9 +1,10 @@
 'use client'
 
 import {useRouter} from 'next/navigation';
-import {MapPinIcon} from "@heroicons/react/24/outline";
-import {Experience} from "@/lib/types";
+import {MapPinIcon, PhotoIcon} from "@heroicons/react/24/outline";
+
 import {RatingDisplay} from "@/app/(ui)/experience/buttons/star-rating";
+import {Experience} from "@/lib/types";
 
 interface ExperienceCardProps {
     experience: Experience;
@@ -24,53 +25,74 @@ export default function SearchResultsCard({ experience }: ExperienceCardProps) {
     return (
         <div
             onClick={handleClick}
-            className="flex flex-col py-3 px-4 border border-gray-500 shadow-md
-                       rounded-lg transition-all hover:shadow-lg hover:scale-[1.02]"
+            className="group bg-white border border-gray-200 shadow-md rounded-xl p-6
+                       transition-all duration-300 hover:shadow-xl hover:scale-[1.01]
+                       hover:border-blue-300 cursor-pointer"
         >
             {/*========TOP ROW=======================================================================================*/}
-            <div className="flex w-full">
-                <div className="flex flex-col w-1/2">
-                    {/*Title*/}
-                    <h2 className="text-2xl font-semibold text-gray-900 truncate">
+            <div className="flex w-full gap-4 mb-4">
+                {/* Title & Date Section */}
+                <div className="flex flex-col flex-1 min-w-0">
+                    <h2 className="text-2xl font-bold text-gray-900 truncate">
                         {experience.title}
                     </h2>
-                    {/*Experience Date*/}
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-500 mt-1">
                         {experienceDate}
                     </p>
                 </div>
 
-                {/*Ratings*/}
-                <div className="flex justify-center w-1/4">
+                {/* Ratings Section */}
+                <div className="flex justify-center items-start shrink-0">
                     <RatingDisplay rating={experience.average_rating} rating_count={experience.rating_count} />
-                </div>
-
-                {/*Keywords*/}
-                <div className="flex flex-wrap justify-start items-start gap-2 w-1/4">
-                    {experience.keywords.map((keyword, index) => (
-                        <p key={index} className="px-2 py-1 text-xs font-medium border">
-                            {keyword}
-                        </p>
-                    ))}
                 </div>
             </div>
 
-            {/*========MIDDLE ROW====================================================================================*/}
-            <div className="my-4 px-3">
-                {/*Description*/}
-                <p className="text-gray-700 line-clamp-4">
+
+            {/* ======Keywords Row ======================================================================================*/}
+            <div className="flex flex-wrap gap-2 mb-4">
+                {experience.keywords.slice(0, 4).map((keyword, index) => (
+                    <span
+                        key={index}
+                        className="px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-700
+                                   rounded-full border border-blue-200 hover:bg-blue-100 transition-colors"
+                    >
+                        {keyword}
+                    </span>
+                ))}
+                {experience.keywords.length > 4 && (
+                    <span className="px-3 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-full">
+                        +{experience.keywords.length - 4} more
+                    </span>
+                )}
+            </div>
+
+            {/*========Description Row====================================================================================*/}
+            <div className="mb-4">
+                <p className="text-gray-700 leading-relaxed line-clamp-3">
                     {experience.description}
                 </p>
             </div>
 
             {/*========BOTTOM ROW====================================================================================*/}
-            <div className="flex flex-row justify-between items-start">
-                {/*Location*/}
-                <div className="flex w-3/5 items-center ">
-                    <MapPinIcon className="w-5 h-5 mr-2" />
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
+                {/* Location */}
+                <div className="flex items-center flex-1 min-w-0">
+                    <MapPinIcon className="w-5 h-5 mr-2 text-blue-600 shrink-0" />
                     <p className="truncate text-sm text-gray-600">
                         {experience.address}
                     </p>
+                </div>
+
+                {/* Photo Count */}
+                <div className="flex items-center shrink-0">
+                    <PhotoIcon className="w-5 h-5 mr-2 text-blue-600" />
+                    {experience.photos && experience.photos.length > 0 ? (
+                        <p className="text-sm text-gray-600 font-medium">
+                            {experience.photos.length} {experience.photos.length === 1 ? 'photo' : 'photos'}
+                        </p>
+                    ) : (
+                        <p className="text-sm text-gray-400 italic">No photos</p>
+                    )}
                 </div>
             </div>
         </div>

@@ -29,7 +29,7 @@ const SearchResults = dynamic(
 );
 
 const DisplayByMap = dynamic(
-    () => import('@/app/(ui)/experience/display-by-map'),
+    () => import('@/app/(ui)/experience/components/display-by-map'),
     {
         ssr: false,
         loading: () => (

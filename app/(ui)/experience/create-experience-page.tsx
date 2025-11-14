@@ -108,23 +108,29 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
             ? [...keywords, currentKeywordInput.trim()]
             : keywords;
 
-        const formData = {
-            user_id: user_id,
-            title: title,
-            description: description,
-            experience_date: experienceDate,
-            latitude: location.lat,
-            longitude: location.lng,
-            address: location.address,
-            create_date: new Date().toISOString(),
-            user_rating: rating,
-            keywords: finalKeywords,
-            photos: uploadedPhotos.map(p => p.file),
-        };
+        const formData = new FormData();
+
+        formData.append('user_id', user_id);
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('experience_date', experienceDate);
+        formData.append('address', location.address);
+        formData.append('latitude', location.lat.toString());
+        formData.append('longitude', location.lng.toString());
+        formData.append('user_rating', rating.toString());
+
+        formData.append('keywords', JSON.stringify(finalKeywords));
+
+        uploadedPhotos.forEach(photo => {
+            formData.append('photos', photo.file);
+        });
+
         console.log(formData);
 
+        createExperience(formData)
+
+
         // Submit form
-        createExperience(formData);
         // TODO: after submit actions
         setIsSubmitting(false);
     };

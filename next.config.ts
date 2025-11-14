@@ -12,6 +12,17 @@ const nextConfig = {
         }
         return []
     },
+    // Add images configuration
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'storage.googleapis.com',
+                port: '',
+                pathname: '/travelplanner-5172a.firebasestorage.app/**',
+            },
+        ],
+    },
     // Metadata to supress Google Maps API CORS error
     // async headers() {
     //     return [

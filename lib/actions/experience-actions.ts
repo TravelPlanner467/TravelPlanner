@@ -17,6 +17,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Fetch URL configurations
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_TEST_URL = "http://localhost:5001/py"
 const FETCH_TIMEOUT = 5000; // 5 seconds
 
 // Helper for calling URLs & returning error messages
@@ -68,16 +69,16 @@ async function handleApiRequest<T>(url: string, options: RequestInit, errorConte
 }
 
 // CREATE ====================================================================
-export async function createExperience(formData: CreateExperienceProps): Promise<ErrorResponse | undefined> {
+export async function createExperience(formData: FormData): Promise<ErrorResponse | undefined> {
+    const userId = formData.get('user_id') as string;
+
     const result = await handleApiRequest<void>(
         `${API_BASE_URL}/experiences/create`,
         {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                "X-User-Id": formData.user_id,
-            },
-            body: JSON.stringify(formData),
+            method: 'POST',
+            headers: { "X-User-Id": userId },
+            body: formData,
+            credentials: 'include',
         },
         'Failed to create experience'
     );
