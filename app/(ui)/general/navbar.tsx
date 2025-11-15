@@ -39,17 +39,19 @@ export default function Navbar({ session }: { session: Session | null }) {
         <nav className="w-full h-16 border-b border-gray-600 shadow-sm">
             <div className="flex h-full items-center justify-between mx-auto pl-4 pr-1">
                 {/* Site Name / Home Button */}
-                <Link
-                    href="/"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg
-                    bg-blue-600 shadow-md
-                    hover:bg-blue-900 hover:shadow-lg hover:scale-[1.1]
-                    transition-all duration-200"
-                >
-                    <h1 className="text-xl font-bold text-white">
-                        Travel Planner
-                    </h1>
-                </Link>
+                <div className="perspective-1000">
+                    <Link
+                        href="/"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg
+                                   bg-blue-600 shadow-xl
+                                   hover:bg-blue-900 hover:shadow-lg hover:scale-[1.1]
+                                   transition-all duration-300"
+                    >
+                        <h1 className="text-xl font-bold text-white">
+                            Travel Planner
+                        </h1>
+                    </Link>
+                </div>
 
                 {/* Navigation Links */}
                 <div className="flex items-center h-full">

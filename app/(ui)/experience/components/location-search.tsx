@@ -334,12 +334,12 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
     };
 
     return (
-        <div className="relative flex flex-col h-full w-full gap-4 pr-2 pl-10 items-center justify-center
-                        lg:flex-row"
+        <div className="relative flex flex-col h-full w-full gap-4 p-2 items-center justify-center
+                        2xl:flex-row"
         >
             {/* Search Bar */}
             <div className="relative flex items-center w-full
-                            lg:w-1/2"
+                            2xl:w-1/2"
                  ref={searchContainerRef}
             >
                 {/* Get My Location */}
