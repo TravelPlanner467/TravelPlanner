@@ -42,3 +42,11 @@ next-env.d.ts
 
 
 /lib/generated/prisma
+
+# python venv/cache
+.venv/
+**/__pycache__/
+
+# python venv/cache
+.venv/
+**/__pycache__/
