@@ -1,9 +1,8 @@
 'use client'
 
-import { useRouter, useSearchParams } from "next/navigation";
-import {FormEvent, useEffect, useState} from "react";
-import { useLoadScript } from "@react-google-maps/api";
-import Script from "next/script";
+import {useRouter, useSearchParams} from "next/navigation";
+import {FormEvent, useState} from "react";
+
 import {GooglePlacesAutocomplete} from "@/app/(ui)/general/google-places-autocomplete";
 import {KeywordsAutocomplete} from "@/app/(ui)/experience/components/keywords-autocomplete";
 import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
