@@ -1,6 +1,7 @@
 'use client'
 
 import React, {useState} from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
@@ -10,6 +11,20 @@ import {createExperience} from "@/lib/actions/experience-actions";
 import {PhotoUpload} from "@/app/(ui)/experience/components/photo-upload";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {PhotoFile} from "@/lib/utils/photo-utils";
+
+// ============================================================================
+// TYPE
+// ============================================================================
+type ExperienceFormData = {
+    title: string;
+    description: string;
+    experienceDate: string;
+    rating: number;
+    location: Location;
+    uploadedPhotos: PhotoFile[];
+    keywords: string[];
+    currentKeywordInput: string;
+};
 
 // ============================================================================
 // MAP CONFIG
@@ -23,33 +38,39 @@ const MAP_CONFIG = {
 // MAIN COMPONENT
 // ============================================================================
 export default function CreateExperiencePage({ user_id }: { user_id: string }) {
-    // formData States
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [experienceDate, setExperienceDate] = useState('');
-    const [rating, setRating] = useState(0);
-    const [uploadedPhotos, setUploadedPhotos] = useState<PhotoFile[]>([]);
-    const [keywords, setKeywords] = useState<string[]>([]);
-
-    // Page states
-    const [currentKeywordInput, setCurrentKeywordInput] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Location State
-    const [location, setLocation] = useState<Location>({
-        lat: MAP_CONFIG.defaultCenter.lat,
-        lng: MAP_CONFIG.defaultCenter.lng,
-        address: ''
+    const {register, control, handleSubmit, watch, setValue, formState: { errors, isSubmitting }
+    } = useForm<ExperienceFormData>({
+        defaultValues: {
+            title: '',
+            description: '',
+            experienceDate: '',
+            rating: 0,
+            location: {
+                lat: MAP_CONFIG.defaultCenter.lat,
+                lng: MAP_CONFIG.defaultCenter.lng,
+                address: ''
+            },
+            uploadedPhotos: [],
+            keywords: [],
+            currentKeywordInput: ''
+        }
     });
+
+    // Watch values for reactive updates
+    const keywords = watch('keywords');
+    const currentKeywordInput = watch('currentKeywordInput');
+    const location = watch('location');
+
 
     // ========================================================================
     // EVENT HANDLERS
     // ========================================================================
     // Handle location selection from FreeAddressSearch
     const handleLocationSelect = (selectedLocation: Location) => {
-        setLocation(selectedLocation);
+        setValue('location', selectedLocation);
     };
 
+    // Split keywords if input is CSVs
     const parseKeywords = (input: string) => {
         if (!input.trim()) return;
 
@@ -62,10 +83,10 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
             });
 
         if (newKeywords.length > 0) {
-            setKeywords([...keywords, ...newKeywords]);
-            setCurrentKeywordInput('');
+            setValue('keywords', [...keywords, ...newKeywords]);
+            setValue('currentKeywordInput', '');
         }
-    }
+    };
 
     const handleKeywordKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
@@ -74,78 +95,72 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
         }
     };
 
-    const handleKeywordInputChange = (value: string) => {
-        setCurrentKeywordInput(value);
-    };
-
     const handleRemoveKeyword = (indexToRemove: number) => {
-        setKeywords(keywords.filter((_, index) => index !== indexToRemove));
+        setValue('keywords', keywords.filter((_, index) => index !== indexToRemove));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setIsSubmitting(true);
 
+    // ========================================================================
+    // FORM SUBMISSION
+    // ========================================================================
+    const onSubmit: SubmitHandler<ExperienceFormData> = async (data) => {
         // Validate coordinates
-        if (!isValidLatitude(location.lat) || !isValidLongitude(location.lng)) {
-            setIsSubmitting(false);
+        if (!isValidLatitude(data.location.lat) || !isValidLongitude(data.location.lng)) {
             return alert('Please enter valid coordinates');
         }
 
         // Validate rating
-        if (rating <= 0 || rating > 5) {
-            setIsSubmitting(false);
+        if (data.rating <= 0 || data.rating > 5) {
             return alert('Please select a rating between 1 and 5.');
         }
 
         // Validate keywords
-        if (keywords.length === 0 && !currentKeywordInput.trim()) {
-            setIsSubmitting(false);
+        if (data.keywords.length === 0 && !data.currentKeywordInput.trim()) {
             return alert('Please add at least one keyword.');
         }
 
-        const finalKeywords = currentKeywordInput.trim()
-            ? [...keywords, currentKeywordInput.trim()]
-            : keywords;
+        const finalKeywords = data.currentKeywordInput.trim()
+            ? [...data.keywords, data.currentKeywordInput.trim()]
+            : data.keywords;
 
         const formData = new FormData();
 
         formData.append('user_id', user_id);
-        formData.append('title', title);
-        formData.append('description', description);
-        formData.append('experience_date', experienceDate);
-        formData.append('address', location.address);
-        formData.append('latitude', location.lat.toString());
-        formData.append('longitude', location.lng.toString());
-        formData.append('user_rating', rating.toString());
-
+        formData.append('title', data.title);
+        formData.append('description', data.description);
+        formData.append('experience_date', data.experienceDate);
+        formData.append('address', data.location.address);
+        formData.append('latitude', data.location.lat.toString());
+        formData.append('longitude', data.location.lng.toString());
+        formData.append('user_rating', data.rating.toString());
         formData.append('keywords', JSON.stringify(finalKeywords));
 
-        uploadedPhotos.forEach(photo => {
+        data.uploadedPhotos.forEach(photo => {
             formData.append('photos', photo.file);
         });
 
         console.log(formData);
 
-        createExperience(formData)
-
-
-        // Submit form
-        // TODO: after submit actions
-        setIsSubmitting(false);
+        try {
+            await createExperience(formData);
+            // Reset form or redirect
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
         <form
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4 max-w-4xl w-full mx-auto p-10
-                bg-gradient-to-br from-white to-gray-50
-                rounded-2xl shadow-2xl border border-gray-200"
+                       bg-gradient-to-br from-white to-gray-50
+                       rounded-2xl shadow-2xl border border-gray-200"
         >
             {/* Form Header */}
             <div className="flex items-center pb-4 gap-3 border-b-2 border-gray-200">
                 <h2 className="text-3xl font-bold text-gray-900">Create an Experience</h2>
             </div>
+
             {/* ========================================= EXPERIENCE INFO  =============================================== */}
             <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
                 <div className="flex flex-wrap items-baseline gap-3">
@@ -166,15 +181,16 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                         <input
                             id="title"
                             type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            required
+                            placeholder="Enter your experience title"
+                            {...register('title', { required: 'Title is required' })}
                             className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
                                    bg-white transition-all duration-200
                                    focus:ring-4 focus:ring-blue-100 focus:border-blue-500
                                    hover:border-gray-400 shadow-sm"
-                            placeholder="Enter your experience title"
                         />
+                        {errors.title && (
+                            <span className="text-sm text-red-500">{errors.title.message}</span>
+                        )}
                     </div>
 
                     {/*Rating*/}
@@ -183,8 +199,21 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                             Rating <span className="text-red-500">*</span>
                         </label>
                         <div className="px-3 py-2 bg-gray-50 rounded-xl border-2 border-gray-200">
-                            <SelectableRating experience_rating={rating} onRatingChange={setRating}/>
+                            <Controller
+                                name="rating"
+                                control={control}
+                                rules={{ required: 'Rating is required', min: 1, max: 5 }}
+                                render={({ field: { value, onChange } }) => (
+                                    <SelectableRating
+                                        experience_rating={value}
+                                        onRatingChange={onChange}
+                                    />
+                                )}
+                            />
                         </div>
+                        {errors.rating && (
+                            <span className="text-sm text-red-500">{errors.rating.message}</span>
+                        )}
                     </div>
                 </div>
 
@@ -197,14 +226,13 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                         </label>
                         <textarea
                             id="description"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Share the details of your experience..."
                             rows={4}
+                            {...register('description')}
                             className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
                                 bg-white transition-all duration-200 resize-y
                                 focus:ring-4 focus:ring-blue-100 focus:border-blue-500
                                 hover:border-gray-400 shadow-sm"
-                            placeholder="Share the details of your experience..."
                         />
                     </div>
 
@@ -216,15 +244,16 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                         <input
                             id="experienceDate"
                             type="date"
-                            value={experienceDate}
-                            onChange={(e) => setExperienceDate(e.target.value)}
-                            max={new Date().toISOString().split('T')[0]}  // Max date == today
-                            required
+                            {...register('experienceDate', { required: 'Date is required' })}
+                            max={new Date().toISOString().split('T')[0]}
                             className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
-                            bg-white transition-all duration-200
-                            focus:ring-4 focus:ring-blue-100 focus:border-blue-500
-                            hover:border-gray-400 shadow-sm"
+                                      bg-white transition-all duration-200
+                                      focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                                      hover:border-gray-400 shadow-sm"
                         />
+                        {errors.experienceDate && (
+                            <span className="text-sm text-red-500">{errors.experienceDate.message}</span>
+                        )}
                     </div>
                 </div>
             </div>
@@ -239,11 +268,18 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                     </p>
                 </div>
 
-                <FreeAddressSearch
-                    onLocationSelect={handleLocationSelect}
-                    initialLocation={location}
-                    mapZoom={13}
+                <Controller
+                    name="location"
+                    control={control}
+                    render={({ field: { value } }) => (
+                        <FreeAddressSearch
+                            onLocationSelect={handleLocationSelect}
+                            initialLocation={value}
+                            mapZoom={13}
+                        />
+                    )}
                 />
+
             </div>
 
             {/*=========================================== PHOTOS ===================================================*/}
@@ -257,11 +293,18 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                     </p>
                 </div>
 
-                <PhotoUpload
-                    maxPhotos={10}
-                    maxFileSizeMB={5}
-                    onPhotosChange={setUploadedPhotos}
+                <Controller
+                    name="uploadedPhotos"
+                    control={control}
+                    render={({ field: { onChange } }) => (
+                        <PhotoUpload
+                            maxPhotos={10}
+                            maxFileSizeMB={16}
+                            onPhotosChange={onChange}
+                        />
+                    )}
                 />
+
             </div>
 
             {/*============================================ KEYWORDS ================================================*/}
@@ -276,9 +319,15 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                 </div>
 
                 <div onKeyDown={handleKeywordKeyDown}>
-                    <KeywordsAutocomplete
-                        keywords={currentKeywordInput}
-                        setKeywords={handleKeywordInputChange}
+                    <Controller
+                        name="currentKeywordInput"
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                            <KeywordsAutocomplete
+                                keywords={value}
+                                setKeywords={onChange}
+                            />
+                        )}
                     />
                 </div>
 
