@@ -108,7 +108,7 @@ export const formatCleanAddress = (addressData: NominatimAddress): string => {
 };
 
 // Coordinate Utilities
-export function roundCoordinate(coord: number, decimals: number = 5): number {
+export function roundCoordinate(coord: number, decimals: number = 6): number {
     return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
