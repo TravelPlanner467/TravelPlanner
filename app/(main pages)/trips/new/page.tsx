@@ -16,10 +16,7 @@ export default async function Page() {
     const session_user_id = session.user.id;
 
     return (
-        <div className="flex flex-col w-full gap-2 items-center">
-            <div className='text-4xl font-bold'>
-                Create Trip
-            </div>
+        <div className="flex flex-col w-full items-center justify-center p-4">
             <NewTripForm session_user_id={session_user_id}/>
         </div>
     );

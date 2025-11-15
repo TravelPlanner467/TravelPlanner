@@ -1,7 +1,8 @@
 'use client'
+
 import { ReactNode } from 'react';
 import { usePagination } from '@/lib/utils/use-pagination';
-import Pagination from "@/app/(ui)/general/pagination";
+import Pagination from '@/app/(ui)/general/pagination';
 
 interface PaginatedListProps<T> {
     items: T[];
