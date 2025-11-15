@@ -139,7 +139,7 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
         <div ref={wrapperRef} className="relative flex-1 h-full">
             <div className="relative h-full">
                 <div className="flex items-center gap-2 h-full px-3 py-2.5
-                               border border-gray-300 rounded-lg bg-white
+                               border border-gray-400 rounded-4xl bg-white
                                focus-within:ring-1 focus-within:ring-blue-500
                                transition-all duration-200">
                     <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />

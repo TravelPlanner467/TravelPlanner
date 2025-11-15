@@ -13,7 +13,7 @@ interface ExperienceCardProps {
     compact?: boolean
 }
 
-export default function SearchResultsCard({ experience, compact = false }: ExperienceCardProps) {
+export function SearchResultsCard({ experience, compact = false }: ExperienceCardProps) {
     const router = useRouter();
     const experienceDate = new Date(experience.experience_date).toLocaleDateString('en-US', {
         year: 'numeric',

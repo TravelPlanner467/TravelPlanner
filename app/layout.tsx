@@ -19,7 +19,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   className={`${inter.className} antialiased h-screen flex flex-col`}
             >
                 <Navbar session={session}/>
-                <main className="flex-1 min-h-0">
+                <main className="flex-1 min-h-0 overflow-auto">
                     <Providers>
                         {children}
                     </Providers>

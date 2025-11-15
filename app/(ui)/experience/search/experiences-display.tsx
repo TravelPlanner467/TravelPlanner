@@ -41,7 +41,7 @@ const DisplayByMap = dynamic(
 );
 
 export default function ExperiencesDisplay({experiences, keywords, location}: ExperienceViewProps) {
-    const [viewMode, setViewMode] = useState<ViewMode>('list');
+    const [viewMode, setViewMode] = useState<ViewMode>('map');
 
     // Map boundaries for searching experiences by location
     const [mapBounds, setMapBounds] = useState<{
@@ -89,6 +89,21 @@ export default function ExperiencesDisplay({experiences, keywords, location}: Ex
             {/* Navigation Tab */}
             <div className="flex border-b border-gray-300 bg-white">
                 <button
+                    onClick={() => setViewMode('map')}
+                    className={`
+                        flex items-center gap-2 px-6 py-3 font-medium transition-all duration-200
+                        border-b-2 -mb-[2px]
+                        ${viewMode === 'map'
+                        ? 'border-blue-600 text-blue-600'
+                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    }
+                    `}
+                >
+                    <MapIcon className="w-5 h-5" />
+                    Map View
+                </button>
+
+                <button
                     onClick={() => setViewMode('list')}
                     className={`
                         flex items-center gap-2 px-6 py-3 font-medium transition-all duration-200
@@ -104,21 +119,6 @@ export default function ExperiencesDisplay({experiences, keywords, location}: Ex
                     <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
                         {experiences.length}
                     </span>
-                </button>
-
-                <button
-                    onClick={() => setViewMode('map')}
-                    className={`
-                        flex items-center gap-2 px-6 py-3 font-medium transition-all duration-200
-                        border-b-2 -mb-[2px]
-                        ${viewMode === 'map'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                    }
-                    `}
-                >
-                    <MapIcon className="w-5 h-5" />
-                    Map View
                 </button>
             </div>
 

@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import SearchResultsCard from "@/app/(ui)/experience/search/search-results-card";
+import {SearchResultsCard} from "@/app/(ui)/experience/search/search-results-card";
 import Pagination from "@/app/(ui)/general/pagination";
 import {Experience} from "@/lib/types";
 

@@ -54,7 +54,7 @@ export default function ComboSearchBar() {
     return (
         <form onSubmit={handleSearch} className="w-full">
             <div className="flex flex-col md:flex-row items-stretch gap-3 p-3
-            bg-white rounded-xl shadow-md border border-gray-400
+            bg-white rounded-3xl shadow-md border border-gray-700
             hover:shadow-lg duration-200"
             >
                 {/* Keywords */}
@@ -79,7 +79,7 @@ export default function ComboSearchBar() {
                 {/*Submit Button*/}
                 <button
                     type="submit"
-                    className="px-3 py-2.5 flex-shrink-0
+                    className="px-3 py-2.5 flex-shrink-0 cursor-pointer
                                bg-blue-600 text-white font-semibold rounded-lg
                                hover:bg-blue-700 transition-colors duration-200"
                 >

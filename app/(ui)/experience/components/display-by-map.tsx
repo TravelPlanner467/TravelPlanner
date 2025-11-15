@@ -1,14 +1,17 @@
 'use client'
 
 import {useCallback, useEffect, useRef, useState} from "react";
-import {ArrowPathIcon, ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/outline";
+import {ArrowPathIcon, ChevronLeftIcon, ChevronRightIcon, XMarkIcon} from "@heroicons/react/24/outline";
 
 import {LocationSearch} from "@/app/(ui)/experience/components/location-search";
 import {InteractiveMap} from "@/app/(ui)/experience/components/leaflet-map";
-import MapExperienceListCard from "@/app/(ui)/experience/map-experiences-list-card";
+import {SearchResultsCard} from "@/app/(ui)/experience/search/search-results-card";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {Experience} from "@/lib/types";
-import SearchResultsCard from "@/app/(ui)/experience/search/search-results-card";
+import {
+    ChevronDoubleLeftIcon,
+    ChevronDoubleRightIcon
+} from "@heroicons/react/16/solid";
 
 interface DisplayByMapProps {
     experiences: Experience[];
@@ -32,6 +35,8 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
 : DisplayByMapProps
 ) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isFullWidth, setIsFullWidth] = useState(false);
+
     const [location, setLocation] = useState<Location>({
         lat: MAP_CONFIG.defaultCenter.lat,
         lng: MAP_CONFIG.defaultCenter.lng,
@@ -53,7 +58,7 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
     const sidebarItemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
     const sidebarContainerRef = useRef<HTMLDivElement>(null);
 
-    // Key & Ref for handling map resizing
+    // Key to reset map after sidebar state change
     const [mapKey, setMapKey] = useState(0);
 
     // Set Coordinates when user uses LocationSearch
@@ -161,7 +166,20 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
     // Toggle sidebar
     const toggleSidebar = () => {
         setIsSidebarOpen(prev => !prev);
-        // Force map to resize after sidebar animation
+        // If closing sidebar, also reset full width
+        if (isSidebarOpen && isFullWidth) {
+            setIsFullWidth(false);
+        }
+        // Force map to resize after sidebar open/close
+        setTimeout(() => {
+            setMapKey(prev => prev + 1);
+        }, 300);
+    };
+
+    // Toggle full width mode
+    const toggleFullWidth = () => {
+        setIsFullWidth(prev => !prev);
+        // Force map to resize after sidebar open/close
         setTimeout(() => {
             setMapKey(prev => prev + 1);
         }, 300);
@@ -173,9 +191,10 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                 {/*=================================== SIDEBAR (OPEN) ====================================*/}
                 {isSidebarOpen && (
                     <div
-                        className="flex flex-col w-2xl h-full shrink-0
+                        className={`flex flex-col h-full shrink-0
                                 border-2 border-gray-300 rounded-xl shadow-md
-                                transition-all duration-300 ease-in-out overflow-hidden"
+                                transition-all duration-300 ease-in-out overflow-hidden
+                                ${isFullWidth ? 'w-full' : 'w-lg'}`}
                     >
                         {/* Sidebar Header with Toggle Button */}
                         <div className="flex items-center justify-between p-3 bg-gray-50
@@ -184,15 +203,37 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                             <h2 className="font-semibold text-gray-800">
                                 Experiences ({experiences.length})
                             </h2>
-                            <button
-                                onClick={toggleSidebar}
-                                className="p-1.5 rounded-md text-gray-600
-                                           hover:bg-gray-200 hover:text-gray-900 transition-colors duration-200
-                                           focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                aria-label="Collapse sidebar"
-                            >
-                                <ChevronLeftIcon className="w-5 h-5" />
-                            </button>
+                            <div className="flex gap-2">
+                                {/* Collapse Sidebar Button */}
+                                <button
+                                    onClick={toggleSidebar}
+                                    className="p-1.5 rounded-md text-gray-600
+                                               hover:bg-gray-200 hover:text-gray-900 transition-colors duration-200
+                                               focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    aria-label="Collapse sidebar"
+                                >
+                                    {isFullWidth ? (
+                                        <XMarkIcon className="size-7" />
+                                    ) : (
+                                        <ChevronLeftIcon className="size-6" />
+                                    )}
+
+                                </button>
+                                {/* Full Width Toggle Button */}
+                                <button
+                                    onClick={toggleFullWidth}
+                                    className="p-1.5 rounded-md text-gray-600
+                                               hover:bg-gray-200 hover:text-gray-900 transition-colors duration-200
+                                               focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    aria-label={isFullWidth ? "Show map" : "Hide map"}
+                                >
+                                    {isFullWidth ? (
+                                        <ChevronDoubleLeftIcon className="size-7" />
+                                    ) : (
+                                        <ChevronDoubleRightIcon className="size-7" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
 
                         {/* Sidebar Content (List of Experiences) */}
@@ -238,69 +279,71 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                                    focus:outline-none focus:ring-2 focus:ring-blue-500"
                         aria-label="Expand sidebar"
                     >
-                        <ChevronRightIcon className="w-5 h-5" />
+                        <ChevronRightIcon className="size-7" />
                     </button>
                 )}
                 {/* =================================== SEARCH & MAP  ======================================= */}
-                <div className="flex flex-col w-full h-full gap-2 ">
-                    {/* ========== Search ==========*/}
-                    <div className="shrink-0">
-                        <LocationSearch
-                            onLocationSelect={handleLocationSelect}
-                            location={location}
-                            isRow={true}
-                        />
-                    </div>
-
-                    {/* ========== MAP ========== */}
-                    <div className="relative flex-1 min-h-o overflow-hidden border-2 border-gray-300 rounded-xl shadow-md">
-                        {/* "Search this area" Button */}
-                        {showRefreshButton && (
-                            <button
-                                onClick={handleRefreshClick}
-                                className="absolute top-4 right-4 px-4 py-2.5 bg-blue-600 text-white rounded-lg shadow-lg
-                                       hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                                       transition-all duration-200 flex items-center gap-2 font-medium pointer-events-auto"
-                                style={{
-                                    position: 'absolute',
-                                    top: '1rem',
-                                    right: '1rem',
-                                    zIndex: 9999
-                                }}
-                            >
-                                <ArrowPathIcon className="w-5 h-5" />
-                                Search this area
-                            </button>
-                        )}
-
-                        {/* Map */}
-                        <div className="w-full h-full">
-                            <InteractiveMap
-                                key={`map-${isSidebarOpen}`}
-                                center={{lat: location.lat, lng: location.lng}}
-                                zoom={MAP_CONFIG.defaultZoom}
-                                markers={experiences
-                                    .map(exp => ({
-                                        lat: exp.latitude,
-                                        lng: exp.longitude,
-                                        id: exp.experience_id,
-                                        title: exp.title
-                                    }))
-                                }
-                                selectedMarker={
-                                    isValidLatitude(location.lat) && isValidLongitude(location.lng)
-                                        ? { lat: location.lat, lng: location.lng }
-                                        : null
-                                }
-                                onMarkerHover={handleMarkerHover}
-                                onMarkerClick={handleMarkerClick}
-                                onMapClick={handleMapClick}
-                                onBoundsChange={handleMapBoundsChange}
-                                height="100%"
+                {!isFullWidth && (
+                    <div className="flex flex-col w-full h-full gap-2 ">
+                        {/* ========== Search ==========*/}
+                        <div className="shrink-0">
+                            <LocationSearch
+                                onLocationSelect={handleLocationSelect}
+                                location={location}
+                                isRow={true}
                             />
                         </div>
+
+                        {/* ========== MAP ========== */}
+                        <div className="relative flex-1 min-h-o overflow-hidden border-2 border-gray-300 rounded-xl shadow-md">
+                            {/* "Search this area" Button */}
+                            {showRefreshButton && (
+                                <button
+                                    onClick={handleRefreshClick}
+                                    className="absolute top-4 right-4 px-4 py-2.5 bg-blue-600 text-white rounded-lg shadow-lg
+                                           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                                           transition-all duration-200 flex items-center gap-2 font-medium pointer-events-auto"
+                                    style={{
+                                        position: 'absolute',
+                                        top: '1rem',
+                                        right: '1rem',
+                                        zIndex: 9999
+                                    }}
+                                >
+                                    <ArrowPathIcon className="w-5 h-5" />
+                                    Search this area
+                                </button>
+                            )}
+
+                            {/* Map */}
+                            <div className="w-full h-full">
+                                <InteractiveMap
+                                    key={mapKey}
+                                    center={{lat: location.lat, lng: location.lng}}
+                                    zoom={MAP_CONFIG.defaultZoom}
+                                    markers={experiences
+                                        .map(exp => ({
+                                            lat: exp.latitude,
+                                            lng: exp.longitude,
+                                            id: exp.experience_id,
+                                            title: exp.title
+                                        }))
+                                    }
+                                    selectedMarker={
+                                        isValidLatitude(location.lat) && isValidLongitude(location.lng)
+                                            ? { lat: location.lat, lng: location.lng }
+                                            : null
+                                    }
+                                    onMarkerHover={handleMarkerHover}
+                                    onMarkerClick={handleMarkerClick}
+                                    onMapClick={handleMapClick}
+                                    onBoundsChange={handleMapBoundsChange}
+                                    height="100%"
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     )

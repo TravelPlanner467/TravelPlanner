@@ -252,7 +252,7 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
     return (
         <div ref={wrapperRef} className="relative">
             <div className="flex items-center h-full w-full
-                    border border-gray-300 rounded-lg bg-white
+                    border border-gray-400 rounded-4xl bg-white
                     focus-within:ring-1 focus-within:ring-blue-500
                     transition-all duration-200"
             >
@@ -262,15 +262,14 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
                     onClick={handleGetCurrentLocation}
                     disabled={isGettingLocation}
                     aria-label="Use my current location"
-                    className={`px-3 py-2.5 flex-shrink-0 
-                                transition-colors duration-200
-                       border-r border-gray-300 ${
-                        isGettingLocation
-                            ? 'bg-gray-50 cursor-not-allowed'
-                            : 'hover:bg-gray-50'
+                    className={`px-3 py-2.5 flex-shrink-0 rounded-l-4xl
+                                transition-colors duration-200 
+                                border-r border-gray-300 ${isGettingLocation
+                                ? 'bg-gray-200 cursor-not-allowed'
+                                : 'hover:bg-gray-200'
                     }`}
                 >
-                    <MapPinIcon className={`w-5 h-5 ${
+                    <MapPinIcon className={`size-5 ${
                         isGettingLocation
                             ? 'text-gray-400 animate-pulse'
                             : 'text-blue-600'
@@ -286,10 +285,10 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
                     onFocus={handleFocus}
                     onKeyDown={handleKeyDown}
                     placeholder="Address, city, landmark, region..."
-                    className="flex-1 px-3 py-2.5
-                       text-md text-gray-700 placeholder-gray-400
-                       bg-transparent border-0 rounded-r-lg
-                       focus:outline-none focus:ring-0"
+                    className="flex-1 px-3 py-2.5 cursor-text
+                               text-md text-gray-700 placeholder-gray-400
+                               bg-transparent border-0 rounded-r-lg
+                               focus:outline-none focus:ring-0"
                     autoComplete="off"
                     data-1p-ignore
                     data-lpignore
