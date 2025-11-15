@@ -1,5 +1,5 @@
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
-import {useEffect, useRef, useState} from "react";
+import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from "react";
 
 interface KeywordsAutocompleteProps {
     keywords: string;
@@ -89,7 +89,7 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // HANDLE KEYBOARD NAVIGATION OF THE KEYWORD SUGGESTIONS
+    // Handle keyboard navigation of keywords dropdown
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (!isOpen && e.key === 'ArrowDown') {
             setIsOpen(true);
@@ -111,14 +111,13 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
             case 'Enter':
                 e.preventDefault();
                 if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
-                    setKeywords(filteredOptions[highlightedIndex].label);
-                    setIsOpen(false);
-                    setHighlightedIndex(-1);
+                    handleSelect(filteredOptions[highlightedIndex]);
                 }
                 break;
             case 'Escape':
                 setIsOpen(false);
                 setHighlightedIndex(-1);
+                inputRef.current?.blur();
                 break;
         }
     };
@@ -127,7 +126,7 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
         setKeywords(option.label);
         setIsOpen(false);
         setHighlightedIndex(-1);
-        inputRef.current?.focus();
+        inputRef.current?.blur();
     };
 
     const handleFocus = () => {
@@ -170,12 +169,16 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
                         {filteredOptions.map((option, index) => (
                             <li
                                 key={index}
-                                onClick={() => handleSelect(option)}
-                                className={`px-4 py-2 cursor-pointer text-left text-sm transition-colors duration-150 ${
-                                    index === highlightedIndex
-                                        ? 'bg-blue-50 text-blue-900'
-                                        : 'text-gray-900 hover:bg-gray-100'
-                                }`}
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    handleSelect(option);
+                                }}
+                                className={`px-4 py-2 cursor-pointer text-left text-sm 
+                                            transition-colors duration-150       
+                                            ${index === highlightedIndex
+                                                ? 'bg-blue-50 text-blue-900'
+                                                : 'text-gray-900 hover:bg-gray-100'}`
+                                }
                             >
                                 {option.label}
                             </li>
