@@ -1,7 +1,7 @@
 import ComboSearchBar from "@/app/(ui)/experience/search/combo-search-bar";
 import {getAllExperiences} from "@/lib/actions/experience-actions";
 import {ErrorResponse, Experience} from "@/lib/types";
-import ExperiencesDisplay from "@/app/(ui)/experience/search/experiences-display";
+import ExperiencesDisplay from "@/app/(ui)/experience/experiences-display";
 
 export default async function SearchResultsPage(
     props: { searchParams?: Promise<{ keywords?: string; location?: string }> }
@@ -49,7 +49,7 @@ export default async function SearchResultsPage(
     }
 
     return (
-        <main className="flex flex-col w-full h-full">
+        <div className="flex flex-col w-full h-full">
             <div className="w-screen">
                 <ComboSearchBar />
             </div>
@@ -60,6 +60,6 @@ export default async function SearchResultsPage(
                     experiences={experiences}
                 />
             </div>
-        </main>
+        </div>
     );
 }
