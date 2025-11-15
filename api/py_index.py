@@ -16,6 +16,10 @@ app.register_blueprint(trips_bp, url_prefix='/py/trips')
 app.register_blueprint(search_bp, url_prefix='/py/search')
 app.register_blueprint(keywords_bp, url_prefix='/py/keywords')
 
+# Photo Configs
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
 @app.route('/py', methods=['GET'])
 def root():
     return jsonify({"message": "Flask Index Root",

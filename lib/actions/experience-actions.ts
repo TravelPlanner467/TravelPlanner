@@ -1,10 +1,9 @@
 'use server'
 
 import {
-    CreateExperienceProps,
     DeleteExperienceProps, EditExperienceSendProps,
     ErrorResponse,
-    Experience, getUserExperienceProps, RateExperienceProps
+    Experience, getExperienceByLocationProps, getUserExperienceProps, RateExperienceProps
 } from "@/lib/types";
 import {PrismaClient} from "@/generated/prisma";
 
@@ -17,6 +16,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Fetch URL configurations
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_TEST_URL = "http://localhost:5001/py"
 const FETCH_TIMEOUT = 5000; // 5 seconds
 
 // Helper for calling URLs & returning error messages
@@ -68,16 +68,16 @@ async function handleApiRequest<T>(url: string, options: RequestInit, errorConte
 }
 
 // CREATE ====================================================================
-export async function createExperience(formData: CreateExperienceProps): Promise<ErrorResponse | undefined> {
+export async function createExperience(formData: FormData): Promise<ErrorResponse | undefined> {
+    const userId = formData.get('user_id') as string;
+
     const result = await handleApiRequest<void>(
         `${API_BASE_URL}/experiences/create`,
         {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                "X-User-Id": formData.user_id,
-            },
-            body: JSON.stringify(formData),
+            method: 'POST',
+            headers: { "X-User-Id": userId },
+            body: formData,
+            credentials: 'include',
         },
         'Failed to create experience'
     );
@@ -155,7 +155,6 @@ export async function deleteExperience(formData: DeleteExperienceProps): Promise
 }
 
 
-
 export async function getUserExperiencesDetails(formData: getUserExperienceProps): Promise<Experience | ErrorResponse> {
     return handleApiRequest<Experience>(
         `${API_BASE_URL}/experiences/user_details/${formData.experience_id}`,
@@ -184,6 +183,10 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
 
     if ('error' in result) return result;
     return result;
+}
+
+export async function getExperiencesByLocation(formData: getExperienceByLocationProps) {
+    console.log("Getting experiences by location: ", formData);
 }
 
 export async function getTopExperiences(): Promise<Experience[] | ErrorResponse> {
@@ -237,4 +240,9 @@ export async function getUserByID(user_id: string): Promise<string> {
         console.error('Failed to fetch username:', error);
         return "Unknown";
     }
+}
+
+export async function fetchSuggestedKeywords({title, description}: {title: string, description: string}): Promise<string[]> {
+    console.log("Fetching suggested keywords for: ", {title, description});
+    return ["Test"]
 }

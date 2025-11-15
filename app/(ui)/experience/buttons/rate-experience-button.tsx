@@ -43,7 +43,7 @@ export function RateExperienceButton({user_id, experience_id}: RateExperiencePro
 
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+                    className="fixed inset-0 flex z-50 p-4 items-center justify-center  bg-gray-500/50   "
                     onClick={handleClose}
                 >
                     <div

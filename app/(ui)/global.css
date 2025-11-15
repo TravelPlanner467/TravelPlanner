@@ -20,7 +20,50 @@
   --spacing-72: 18rem;
 }
 
-/* Custom utilities */
+/* ======================================================================== */
+/* Button Styles */
+/* ======================================================================== */
 @utility btn-primary {
   @apply bg-primary text-white px-4 py-2 rounded-lg;
+}
+
+/* ======================================================================== */
+/* Lightbox Container Customization */
+/* ======================================================================== */
+/* Larger Navigation buttons click area */
+.lightbox-container .yarl__navigation_prev,
+.lightbox-container .yarl__navigation_next {
+  width: 70px !important;
+  height: 100% !important;
+  padding: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Larger icon Lightbox for navigation buttons */
+.lightbox-container .yarl__navigation_prev .yarl__icon,
+.lightbox-container .yarl__navigation_next .yarl__icon {
+  width: 64px !important;
+  height: 64px !important;
+}
+
+
+/* Mobile Mode Lightbox Style*/
+@media (max-width: 768px) {
+  .lightbox-container .yarl__navigation_prev,
+  .lightbox-container .yarl__navigation_next {
+    width: 50px !important;
+  }
+
+  .lightbox-container .yarl__navigation_prev:hover,
+  .lightbox-container .yarl__navigation_next:hover {
+    width: 55px !important;
+  }
+
+  .lightbox-container .yarl__navigation_prev .yarl__icon,
+  .lightbox-container .yarl__navigation_next .yarl__icon {
+    width: 36px !important;
+    height: 36px !important;
+  }
 }

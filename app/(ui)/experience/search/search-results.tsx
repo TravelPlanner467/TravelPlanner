@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import SearchResultsCard from "@/app/(ui)/experience/search/search-results-card";
+import {SearchResultsCard} from "@/app/(ui)/experience/search/search-results-card";
 import Pagination from "@/app/(ui)/general/pagination";
 import {Experience} from "@/lib/types";
 
@@ -12,7 +12,7 @@ interface SearchResultsProps {
 
 const ITEMS_PER_PAGE = 6;
 
-export function SearchResults({ keywords, location, experiences }: SearchResultsProps) {
+export default function SearchResults({ keywords, location, experiences }: SearchResultsProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(experiences.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;

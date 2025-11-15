@@ -1,15 +1,33 @@
+import json
 import os
 import psycopg2
 from dotenv import load_dotenv
 from flask import jsonify, Blueprint,request, g
 from functools import wraps
 from psycopg2.extras import RealDictCursor
+import firebase_admin
+from firebase_admin import credentials, storage
+import uuid
 
 experiences_bp = Blueprint('experiences', __name__)
 
+
+
+
 # Load environment variables
 load_dotenv()
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.getenv("DATABASE_URL")
+FIREBASE_BUCKET = os.getenv('FIREBASE_BUCKET')
+
+# Initialize Firebase
+try:
+    cred = credentials.Certificate('firebase-credentials.json')
+    firebase_admin.initialize_app(cred, {
+        'storageBucket': FIREBASE_BUCKET
+    })
+    print("Firebase initialized successfully!")
+except Exception as e:
+    print(f"Warning: Firebase not initialized: {e}")
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
@@ -35,6 +53,48 @@ def require_auth(f):
         return f(*args, **kwargs)
     return decorated
 
+# Verify file extension type
+def allowed_file(filename):
+    """Check if file extension is allowed"""
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+# Upload photo (to firebase)
+def upload_to_firebase(file, experience_id):
+    """Upload file to Firebase Storage and return public URL"""
+    try:
+        # Generate unique filename
+        file_extension = file.filename.rsplit('.', 1)[1].lower()
+        unique_filename = f"experiences/{experience_id}/{uuid.uuid4()}.{file_extension}"
+
+        # Get Firebase storage bucket
+        bucket = storage.bucket()
+        blob = bucket.blob(unique_filename)
+
+        # Upload file
+        blob.upload_from_file(file, content_type=file.content_type)
+
+        # Make the blob publicly accessible
+        blob.make_public()
+
+        # Get public URL
+        return blob.public_url
+    except Exception as e:
+        print(f"Firebase upload error: {e}")
+        raise
+
+# Delete Photo (from firebase)
+def delete_from_firebase(photo_url):
+    """Delete file from Firebase Storage"""
+    try:
+        if 'storage.googleapis.com' in photo_url:
+            path = photo_url.split(FIREBASE_BUCKET + '/')[-1]
+            bucket = storage.bucket()
+            blob = bucket.blob(path)
+            blob.delete()
+            print(f"Deleted from Firebase: {path}")
+    except Exception as e:
+        print(f"Firebase delete error: {e}")
 
 @experiences_bp.route('', methods=['GET'])
 def experiences_root():
@@ -118,7 +178,7 @@ def get_user_experiences():
             cur.execute("""
                         SELECT e.*,
                                COALESCE(ROUND(AVG(r.rating::numeric), 2), 0.00) AS average_rating,
-                               COUNT(r.rating) AS rating_count,
+                               COUNT(DISTINCT r.rating) AS rating_count,
                                ARRAY_AGG(k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
                         FROM experiences e
                                  LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
@@ -191,22 +251,32 @@ def get_experience_details(experience_id):
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Fetch experience details along with average rating, number of ratings, and keywords
             cur.execute("""
-                SELECT e.*, 
-                       COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
-                       COUNT(DISTINCT r.user_id) AS rating_count,
-                       ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
-                FROM experiences e
-                LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
-                LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
-                LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
-                WHERE e.experience_id = %s
-                GROUP BY e.experience_id
-            """, (experience_id,))
+                        SELECT e.*,
+                               COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
+                               COUNT(DISTINCT r.rating) AS rating_count,
+                               ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
+                        FROM experiences e
+                                 LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
+                                 LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
+                                 LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
+                        WHERE e.experience_id = %s
+                        GROUP BY e.experience_id
+                        """, (experience_id,))
             experience = cur.fetchone()
 
             if not experience:
                 return jsonify({"error": "Experience not found"}), 404
 
+            # Get photos metadata
+            cur.execute("""
+                        SELECT photo_id, photo_url, caption, upload_date
+                        FROM experience_photos
+                        WHERE experience_id = %s
+                        ORDER BY upload_date ASC
+                        """, (experience_id,))
+            experience['photos'] = cur.fetchall()
+
+            # Ensure proper type for average_rating
             experience["average_rating"] = float(experience["average_rating"])
 
         return jsonify(experience), 200
@@ -232,7 +302,7 @@ def get_user_experience_details(experience_id):
             cur.execute("""
                 SELECT e.*, 
                        COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating, 
-                       COUNT(r.rating) AS rating_count,
+                       COUNT(DISTINCT r.rating) AS rating_count,
                        ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
                 FROM experiences e
                 LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
@@ -285,22 +355,34 @@ def create_experience():
     Returns:
         tuple: JSON object with created experience data and HTTP 201, or error and HTTP 400
     """
-    data = request.get_json()
-    required_fields = ["title", "description", "experience_date"]
-    if not all(field in data for field in required_fields):
-        return jsonify({"error": "Missing required fields"}), 400
+    try:
+        title = request.form.get('title')
+        description = request.form.get('description')
+        exp_date = request.form.get('experience_date')
 
-    user_id = g.user_id
-    title = data["title"]
-    description = data["description"]
-    exp_date = data["experience_date"]
-    address = data.get("address", "")
-    lat = data.get("latitude")
-    lon = data.get("longitude")
-    keywords = data.get("keywords", [])
-    user_rating = data.get("user_rating")
+        if not all([title, description, exp_date]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        user_id = g.user_id
+        address = request.form.get('address', '')
+        lat = request.form.get('latitude')
+        lon = request.form.get('longitude')
+
+        # Parse JSON arrays from form data
+        keywords = json.loads(request.form.get('keywords', '[]'))
+        user_rating = request.form.get('user_rating')
+        if user_rating:
+            user_rating = int(user_rating)
+
+        # Get uploaded files
+        files = request.files.getlist('photos')
+        captions = json.loads(request.form.get('captions', '[]'))
+
+    except (ValueError, json.JSONDecodeError) as e:
+        return jsonify({"error": f"Invalid input  {str(e)}"}), 400
 
     conn = get_db_connection()
+
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Insert experience
@@ -326,12 +408,36 @@ def create_experience():
                 cur.execute("""
                             INSERT INTO experience_ratings (experience_id, user_id, rating)
                             VALUES (%s, %s, %s) ON CONFLICT (experience_id, user_id)
-                        DO
-                            UPDATE SET rating = EXCLUDED.rating, updated_at = NOW()
+                                DO UPDATE SET rating = EXCLUDED.rating, updated_at = NOW()
                             """, (experience_id, user_id, user_rating))
 
+            # Upload photos to firebase & insert metadata into database
+            for idx, file in enumerate(files):
+                if file and file.filename and allowed_file(file.filename):
+                    try:
+                        # Upload to Firebase Storage
+                        photo_url = upload_to_firebase(file, experience_id)
+
+                        # Get caption if provided
+                        caption = captions[idx] if idx < len(captions) else ''
+
+                        # Save to database
+                        cur.execute("""
+                                    INSERT INTO experience_photos (experience_id, photo_url, caption)
+                                    VALUES (%s, %s, %s)
+                                        RETURNING photo_id, experience_id, photo_url, caption, upload_date
+                                    """, (experience_id, photo_url, caption))
+
+                    except Exception as e:
+                        print(f"Error uploading {file.filename}: {e}")
+                        continue
+
         conn.commit()
-        return jsonify({"message": "Experience created", "experience_id": experience_id}), 201
+        return jsonify({
+            "message": "Experience created",
+            "experience_id": experience_id,
+        }), 201
+
     except Exception as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500

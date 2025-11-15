@@ -4,7 +4,7 @@ import {MapPinIcon} from "@heroicons/react/16/solid";
 interface PlacesAutocompleteProps {
     onLocationSelect: (coords: { latitude: number; longitude: number; address: string } | null) => void;
     currentAddress?: string;
-    primaryTypes?: string[];  // Array of strings, optional
+    primaryTypes?: string[];
     apiKey: string
 }
 
@@ -18,10 +18,64 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
     const [suggestions, setSuggestions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const [isGettingLocation, setIsGettingLocation] = useState(false);
-    const wrapperRef = useRef<HTMLDivElement>(null);
 
-    // Session Token for API use minimization
+    // References to help with dropdowns
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const isSelectingRef = useRef(false);
+
+    // Session Token & Geocode Cache for API use minimization
     const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
+    const geocodeCache = useRef<Map<string, string>>(new Map());
+
+    // ================================================================================================
+    // useEffect Hooks
+    // ================================================================================================
+    // Debounce input changes
+    useEffect(() => {
+        // Don't trigger search if suggestion is being selected
+        if (isSelectingRef.current) {
+            isSelectingRef.current = false;
+            return;
+        }
+
+        const timeoutId = setTimeout(() => {
+            if (inputValue && inputValue !== currentAddress) {
+                handleInputChange(inputValue);
+            }
+        }, 300);
+
+        return () => clearTimeout(timeoutId);
+    }, [inputValue, currentAddress]);
+
+    // Handle clicking outside the component
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+                setSuggestions([]);
+                setHighlightedIndex(-1);
+                // Reset token if user clicks away
+                if (suggestions.length > 0) {
+                    resetSessionToken();
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [suggestions.length]);
+
+    // Update input when currentAddress changes externally
+    useEffect(() => {
+        setInputValue(currentAddress);
+    }, [currentAddress]);
+
+    // ================================================================================================
+    // Functions
+    // ================================================================================================
+    // Session Token for API use minimization
     const getOrCreateSessionToken = () => {
         if (!sessionTokenRef.current) {
             sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken();
@@ -32,8 +86,6 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
         sessionTokenRef.current = null;
     };
 
-    // Geocode Cache to store data for minimizing API usage
-    const geocodeCache = useRef<Map<string, string>>(new Map());
 
     // Reverse geocode coordinates to address (checks cache first)
     const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
@@ -60,7 +112,6 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
         }
     };
 
-
     // Get user's current location
     const handleGetCurrentLocation = () => {
         if (!navigator.geolocation) {
@@ -77,6 +128,7 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
                 // Get address from coordinates
                 const address = await reverseGeocode(lat, lng);
 
+                isSelectingRef.current = true;
                 setInputValue(address);
                 setSuggestions([]);
                 onLocationSelect({
@@ -104,14 +156,10 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
         getOrCreateSessionToken();
     };
 
-    // Update input when currentAddress changes externally
-    useEffect(() => {
-        setInputValue(currentAddress);
-    }, [currentAddress]);
-
     const handleInputChange = async (value: string) => {
         setInputValue(value);
 
+        // if no input, clear suggestions and return
         if (!value.trim()) {
             setSuggestions([]);
             setHighlightedIndex(-1);
@@ -141,16 +189,18 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
 
     const handleSelect = async (suggestion: google.maps.places.AutocompleteSuggestion) => {
         const placePrediction = suggestion.placePrediction;
-
         if (!placePrediction) return;
 
         try {
+            isSelectingRef.current = true;
+
+            // Extract location and formatted address from place prediction object
             const place = placePrediction.toPlace();
             await place.fetchFields({ fields: ['location', 'formattedAddress'] });
-
             const location = place.location;
             const address = place.formattedAddress || '';
 
+            // Set input value and clear suggestions
             if (location) {
                 setInputValue(address);
                 setSuggestions([]);
@@ -160,10 +210,12 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
                     longitude: roundCoordinate(location.lng()),
                     address: address
                 });
+                inputRef.current?.blur();
                 resetSessionToken();
             }
         } catch (error) {
             console.error('Error getting place details:', error);
+            isSelectingRef.current = false;
         }
     };
 
@@ -190,45 +242,17 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
             case 'Escape':
                 setSuggestions([]);
                 setHighlightedIndex(-1);
+                inputRef.current?.blur();
                 resetSessionToken();
                 break;
         }
     };
 
-    // Handle clicking outside the component
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-                setSuggestions([]);
-                setHighlightedIndex(-1);
-                // Reset token if user clicks away
-                if (suggestions.length > 0) {
-                    resetSessionToken();
-                }
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [suggestions.length]);
-
-    // Debounce input change
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            if (inputValue && inputValue !== currentAddress) {
-                handleInputChange(inputValue);
-            }
-        }, 300);
-
-        return () => clearTimeout(timeoutId);
-    }, [inputValue, currentAddress]);
 
     return (
         <div ref={wrapperRef} className="relative">
             <div className="flex items-center h-full w-full
-                    border border-gray-300 rounded-lg bg-white
+                    border border-gray-400 rounded-4xl bg-white
                     focus-within:ring-1 focus-within:ring-blue-500
                     transition-all duration-200"
             >
@@ -238,15 +262,14 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
                     onClick={handleGetCurrentLocation}
                     disabled={isGettingLocation}
                     aria-label="Use my current location"
-                    className={`px-3 py-2.5 flex-shrink-0 
-                                transition-colors duration-200
-                       border-r border-gray-300 ${
-                        isGettingLocation
-                            ? 'bg-gray-50 cursor-not-allowed'
-                            : 'hover:bg-gray-50'
+                    className={`px-3 py-2.5 flex-shrink-0 rounded-l-4xl
+                                transition-colors duration-200 
+                                border-r border-gray-300 ${isGettingLocation
+                                ? 'bg-gray-200 cursor-not-allowed'
+                                : 'hover:bg-gray-200'
                     }`}
                 >
-                    <MapPinIcon className={`w-5 h-5 ${
+                    <MapPinIcon className={`size-5 ${
                         isGettingLocation
                             ? 'text-gray-400 animate-pulse'
                             : 'text-blue-600'
@@ -255,16 +278,17 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
 
                 {/* Search Input */}
                 <input
+                    ref={inputRef}
                     type="text"
                     value={inputValue ?? ''}
                     onChange={(e) => setInputValue(e.target.value)}
                     onFocus={handleFocus}
                     onKeyDown={handleKeyDown}
                     placeholder="Address, city, landmark, region..."
-                    className="flex-1 px-3 py-2.5
-                       text-md text-gray-700 placeholder-gray-400
-                       bg-transparent border-0 rounded-r-lg
-                       focus:outline-none focus:ring-0"
+                    className="flex-1 px-3 py-2.5 cursor-text
+                               text-md text-gray-700 placeholder-gray-400
+                               bg-transparent border-0 rounded-r-lg
+                               focus:outline-none focus:ring-0"
                     autoComplete="off"
                     data-1p-ignore
                     data-lpignore
@@ -282,7 +306,10 @@ export function GooglePlacesAutocomplete({onLocationSelect, currentAddress, prim
                         return (
                             <li
                                 key={placePrediction.placeId || index}
-                                onClick={() => handleSelect(suggestion)}
+                                onMouseDown={async (e) => {
+                                    e.preventDefault();
+                                    await handleSelect(suggestion);
+                                }}
                                 className={`px-4 py-2 cursor-pointer text-left text-sm transition-colors duration-150 ${
                                     index === highlightedIndex
                                         ? 'bg-blue-50 text-blue-900'

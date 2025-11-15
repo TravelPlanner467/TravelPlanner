@@ -20,21 +20,27 @@ export interface Experience {
     average_rating: number;
     rating_count: number;
     owner_rating?: number;
-    imageURLs?: string[];
+    photos: Photo[]
+}
+
+export interface Photo {
+    caption: string;
+    photo_id: string;
+    photo_url: string;
+    upload_date: string;
 }
 
 export interface CreateExperienceProps {
     user_id: string;
     title: string;
-    description?: string;
+    description: string;
     experience_date: string;
-    create_date: string;
-    address: string;
     latitude: number;
     longitude: number;
-    keywords: string[];
+    address: string;
     user_rating: number;
-    imageURLs?: string[];
+    keywords: string[];
+    photos: File[];
 }
 
 export interface EditExperienceSendProps {
@@ -72,6 +78,11 @@ export interface DeleteExperienceProps {
 export interface getUserExperienceProps {
     experience_id: string;
     session_user_id: string;
+}
+
+export interface getExperienceByLocationProps {
+    northEast: { lat: number; lng: number };
+    southWest: { lat: number; lng: number };
 }
 
 

@@ -4,8 +4,9 @@ import {StarIcon} from "@heroicons/react/16/solid";
 
 interface RatingDisplayProps {
     rating: number;
-    showLabel?: boolean;
     rating_count: number;
+    showLabel?: boolean;
+    compact?: boolean;
 }
 
 interface SelectableRatingProps {
@@ -13,7 +14,7 @@ interface SelectableRatingProps {
     onRatingChange: (rating: number) => void;
 }
 
-export function RatingDisplay({rating, showLabel = true, rating_count}: RatingDisplayProps) {
+export function RatingDisplay({rating, showLabel = true, rating_count, compact = false}: RatingDisplayProps) {
     const stars = Array.from({ length: 5 }, (_, i) => i);
     const numericRating = Number(rating) || 0;
 
@@ -25,24 +26,28 @@ export function RatingDisplay({rating, showLabel = true, rating_count}: RatingDi
         return difference * 100;
     };
 
+    const starSize = compact ? 'w-5 h-5' : 'w-7 h-7';
+
     return (
-        <div className="flex flex-col items-center gap-1">
+        <div className={`flex flex-col items-center ${compact ? 'gap-0.5' : 'gap-1'}`}>
             {/* Stars */}
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center md:gap-0.5">
                 {stars.map((starIndex) => {
                     const fillPercentage = getStarFillPercentage(starIndex);
 
                     return (
-                        <div key={starIndex} className="relative w-7 h-7">
+                        <div key={starIndex} className={`relative ${starSize}`}>
                             {/* Gray background star */}
-                            <StarIcon className="w-7 h-7 text-gray-300 absolute drop-shadow-sm" />
+                            <StarIcon className={`${starSize} text-gray-300 absolute drop-shadow-sm`} />
 
                             {/* Gradient filled portion */}
                             <div
                                 className="overflow-hidden absolute top-0 left-0 h-full"
                                 style={{ width: `${fillPercentage}%` }}
                             >
-                                <StarIcon className="relative w-7 h-7 text-blue-400 drop-shadow-md" />
+                                <StarIcon className={`relative ${starSize} 
+                                                    text-blue-400 drop-shadow-sm`}
+                                />
                             </div>
                         </div>
                     );
@@ -51,22 +56,22 @@ export function RatingDisplay({rating, showLabel = true, rating_count}: RatingDi
 
             {/* Rating */}
             {showLabel && numericRating > 0 && (
-                <div className="flex items-center gap-2 px-3">
+                <div className={`flex items-center ${compact ? 'gap-1.5 px-2' : 'gap-2 px-3'}`}>
                     {/*Average Score*/}
-                    <div className="flex items-baseline gap-1.5">
-                        <span className="text-lg font-bold text-gray-900">
+                    <div className="flex items-baseline gap-1">
+                        <span className={`font-bold text-gray-900 ${compact ? 'text-base' : 'text-lg'}`}>
                             {numericRating.toFixed(1)}
                         </span>
-                        <span className="text-sm font-medium text-gray-600">
+                        <span className={`font-medium text-gray-600 ${compact ? 'text-xs' : 'text-sm'}`}>
                             / 5
                         </span>
                     </div>
 
                     {/*Divider*/}
-                    <div className="w-px h-4 bg-gray-300" />
+                    <div className={`w-px bg-gray-300 ${compact ? 'h-3' : 'h-4'}`} />
 
                     {/*Review Count*/}
-                    <p className="text-sm font-medium text-gray-600">
+                    <p className={`font-medium text-gray-600 ${compact ? 'text-xs' : 'text-sm'}`}>
                         {rating_count?.toLocaleString() || 0} {rating_count === 1 ? 'review' : 'reviews'}
                     </p>
                 </div>

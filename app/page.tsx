@@ -1,36 +1,29 @@
-import {getTopExperiences} from "@/lib/actions/experience-actions";
-import {ErrorResponse, Experience} from "@/lib/types";
-import {HomepageRecommendations} from "@/app/(ui)/experience/recommendations/homepage-results";
-import ErrorCard from "@/app/(ui)/general/error-display";
 import ComboSearchBar from "@/app/(ui)/experience/search/combo-search-bar";
 
 export default async function Page() {
-    // // Fetch top 6 experiences from database
-    // const topExperiences: Experience[] | ErrorResponse = await getTopExperiences();
-    // if ("error" in topExperiences) {
-    //     return (
-    //         <ErrorCard error={topExperiences.error} message={topExperiences.message} />
-    //     );
-    // }
-
     return (
-        <div className="flex flex-col w-full p-4 gap-24 text-center items-center">
+        <div className="flex flex-col w-full h-full justify-center items-center">
             {/*Site Title*/}
-            <div className="mt-12">
-                <h1 className="text-4xl font-bold">
-                    Crowd-Sourced Travel Planner
+            <div className="mb-16 -mt-96 text-center">
+                <h1 className="text-6xl md:text-7xl font-bold text-gray-900 mb-6
+                               tracking-tight">
+                    Crowd-Sourced
+                    <span className="block text-transparent bg-clip-text
+                                   bg-gradient-to-r from-blue-500 to-blue-800">
+                        Travel Planner
+                    </span>
                 </h1>
+                <p className="text-xl text-gray-600 font-medium">
+                    Plan your next adventure
+                </p>
             </div>
 
             {/*Experiences Search Bar*/}
-            <div className="w-3/4">
+            <div className="flex w-3/4 max-w-5xl justify-center items-center">
                 <ComboSearchBar />
             </div>
 
-            {/*/!*Recommended Experiences*!/*/}
-            {/*<div className="w-3/4">*/}
-            {/*    <HomepageRecommendations experiences={topExperiences}/>*/}
-            {/*</div>*/}
+
         </div>
     );
 }
