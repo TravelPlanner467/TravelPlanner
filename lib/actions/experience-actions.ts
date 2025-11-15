@@ -1,7 +1,6 @@
 'use server'
 
 import {
-    CreateExperienceProps,
     DeleteExperienceProps, EditExperienceSendProps,
     ErrorResponse,
     Experience, getExperienceByLocationProps, getUserExperienceProps, RateExperienceProps
@@ -241,4 +240,9 @@ export async function getUserByID(user_id: string): Promise<string> {
         console.error('Failed to fetch username:', error);
         return "Unknown";
     }
+}
+
+export async function fetchSuggestedKeywords({title, description}: {title: string, description: string}): Promise<string[]> {
+    console.log("Fetching suggested keywords for: ", {title, description});
+    return ["Test"]
 }
