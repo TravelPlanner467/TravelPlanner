@@ -31,8 +31,6 @@ interface InteractiveMapProps {
         northEast: { lat: number; lng: number };
         southWest: { lat: number; lng: number };
     }) => void;
-    hoveredMarkerId?: string | null;
-    selectedMarkerId?: string | null;
     onMarkerHover?: (experienceId: string | null) => void;
     onMarkerClick?: (experienceId: string) => void;
 }
@@ -73,7 +71,7 @@ function MapClickHandler({ onClick, onBoundsChange }: OnMapClickProps) {
                 onClick(e.latlng.lat, e.latlng.lng);
             }
         },
-        moveend: () => {
+        dragend: () => {
             if (onBoundsChange) {
                 const bounds = map.getBounds();
                 const northEast = bounds.getNorthEast();
@@ -105,14 +103,15 @@ function RecenterMap({ center }: { center: { lat: number; lng: number } }) {
     const map = useMap();
 
     useEffect(() => {
-        map.setView([center.lat, center.lng], map.getZoom());
+        map.flyTo([center.lat, center.lng], map.getZoom(), { duration: 1.5 });
     }, [center.lat, center.lng, map]);
 
     return null;
 }
 
 export function InteractiveMap({center, zoom, height = '400px', selectedMarker,
-                                   markers = [], onMapClick, onBoundsChange,}
+                                   markers = [], onMapClick, onBoundsChange
+                                , onMarkerHover, onMarkerClick = () => { }}
                                : InteractiveMapProps) {
     // Validate center coordinates
     const isValidCenter =
@@ -151,7 +150,7 @@ export function InteractiveMap({center, zoom, height = '400px', selectedMarker,
 
     return (
         <MapContainer
-            center={[safeCenter.lat, safeCenter.lng]}
+            center={[center.lat, center.lng]}
             zoom={zoom}
             style={{ height, width: '100%' }}
             scrollWheelZoom={true}
@@ -162,28 +161,36 @@ export function InteractiveMap({center, zoom, height = '400px', selectedMarker,
             />
 
             <MapClickHandler onClick={onMapClick} onBoundsChange={onBoundsChange} />
-            <RecenterMap center={safeCenter} />
+            <RecenterMap center={center} />
+
+            {/* Selected location marker */}
+            {selectedMarker && (
+                <Marker
+                    position={[selectedMarker.lat, selectedMarker.lng]}
+                    icon={selectedIcon} zIndexOffset={-1000}
+                >
+                    <Popup autoPan={false}>Selected Location</Popup>
+                </Marker>
+            )}
 
             {/* Experience markers */}
-            {validMarkers.map((marker) => (
+            {markers.map((marker) => (
                 <Marker
                     key={marker.id}
                     position={[marker.lat, marker.lng]}
                     icon={experienceIcon}
+                    zIndexOffset={1000}
+                    eventHandlers={{
+                        click: () => onMarkerClick?.(marker.id),
+                        mouseover: () => onMarkerHover?.(marker.id),
+                        mouseout: () => onMarkerHover?.(null)
+                    }}
                 >
-                    <Popup><strong>{marker.title}</strong></Popup>
+                    <Popup autoPan={false} autoClose={true} closeButton={true}>
+                        <div className="text-lg font-semibold">{marker.title}</div>
+                    </Popup>
                 </Marker>
             ))}
-
-            {/* Selected location marker */}
-            {validSelectedMarker && (
-                <Marker
-                    position={[validSelectedMarker.lat, validSelectedMarker.lng]}
-                    icon={selectedIcon}
-                >
-                    <Popup>Selected Location</Popup>
-                </Marker>
-            )}
         </MapContainer>
     );
 }

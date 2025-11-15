@@ -1,6 +1,6 @@
 'use client'
 
-import {useCallback, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {ArrowPathIcon, ChevronLeftIcon, ChevronRightIcon} from "@heroicons/react/24/outline";
 
 import {LocationSearch} from "@/app/(ui)/experience/components/location-search";
@@ -25,7 +25,6 @@ interface DisplayByMapProps {
 const MAP_CONFIG = {
     defaultCenter: { lat: 44.5618, lng: -123.2823 },
     defaultZoom: 13,
-    mapHeight: "78vh"
 } as const;
 
 export default function DisplayByMap({experiences, onBoundsChange, mapBounds, onRequestRefresh}
@@ -53,7 +52,10 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
     const sidebarItemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
     const sidebarContainerRef = useRef<HTMLDivElement>(null);
 
-    // Set Coordinates when user uses SearchBar
+    // Key & Ref for handling map resizing
+    const [mapKey, setMapKey] = useState(0);
+
+    // Set Coordinates when user uses LocationSearch
     const handleLocationSelect = useCallback((selectedLocation: Location) => {
         setLocation(selectedLocation);
     }, []);
@@ -65,10 +67,8 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
             console.warn('Coordinates out of valid range from map click:', { lat, lng });
             return;
         }
-
         // Pass coordinates with empty address to LocationSearch
         handleLocationSelect({lat, lng, address: ''});
-
     }, [handleLocationSelect]);
 
     // Handle when user moves the map or zooms in/out
@@ -148,7 +148,6 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
     // Handle sidebar item click
     const handleSidebarItemClick = useCallback((experience: Experience) => {
         setSelectedExperienceId(experience.experience_id);
-        // Center map on this experience
         if (experience.latitude && experience.longitude) {
             setLocation({
                 lat: experience.latitude,
@@ -161,27 +160,21 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
     // Toggle sidebar
     const toggleSidebar = () => {
         setIsSidebarOpen(prev => !prev);
+        // Force map to resize after sidebar animation
+        setTimeout(() => {
+            setMapKey(prev => prev + 1);
+        }, 300);
     };
 
     return (
-        <div className="flex flex-col min-h-0 w-full">
-            {/*=================================== SEARCH BAR ====================================*/}
-            <div className="shrink-0">
-                <LocationSearch
-                    onLocationSelect={handleLocationSelect}
-                    location={location}
-                />
-            </div>
-
-            {/* Map and Experiences Section */}
-            <div className="flex gap-3 p-3">
+        <div className="flex flex-col min-h-0 h-full w-full overflow-hidden">
+            <div className="flex gap-3 p-2 flex-1 min-h-0">
                 {/*=================================== SIDEBAR (OPEN) ====================================*/}
                 {isSidebarOpen && (
                     <div
-                        className={`flex flex-col w-80 min-h-0 shrink-0
-                                    border-2 border-gray-300 rounded-xl shadow-md
-                                    transition-all duration-300 ease-in-out overflow-hidden`}
-                        style={{height: MAP_CONFIG.mapHeight}}
+                        className="flex flex-col w-80 h-full shrink-0
+                                border-2 border-gray-300 rounded-xl shadow-md
+                                transition-all duration-300 ease-in-out overflow-hidden"
                     >
                         {/* Sidebar Header with Toggle Button */}
                         <div className="flex items-center justify-between p-3 bg-gray-50
@@ -237,64 +230,73 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                 {!isSidebarOpen && (
                     <button
                         onClick={toggleSidebar}
-                        className="p-2 rounded-md bg-white text-gray-600 hover:text-gray-900
-                                   border-2 border-gray-300 shadow-md hover:bg-gray-50
-                                   transition-colors duration-200 self-start shrink-0
+                        className="p-2 mt-2 rounded-md bg-white text-gray-900 self-start shrink-0
+                                   border-2 border-gray-300 shadow-md
+                                   hover:bg-gray-50 transition-colors duration-200
                                    focus:outline-none focus:ring-2 focus:ring-blue-500"
                         aria-label="Expand sidebar"
                     >
                         <ChevronRightIcon className="w-5 h-5" />
                     </button>
                 )}
+                {/* =================================== SEARCH & MAP  ======================================= */}
+                <div className="flex flex-col w-full h-full gap-2 ">
+                    {/* ========== Search ==========*/}
+                    <div className="shrink-0">
+                        <LocationSearch
+                            onLocationSelect={handleLocationSelect}
+                            location={location}
+                        />
+                    </div>
 
-                {/*====================================== MAP ======================================*/}
-                <div className="relative flex-1 h-full min-h-0 overflow-hidden
-                                border-2 border-gray-300 rounded-xl shadow-md"
-                >
-                    {/* "Search this area" Button */}
-                    {showRefreshButton && (
-                        <button
-                            onClick={handleRefreshClick}
-                            className="absolute top-4 right-4 px-4 py-2.5 bg-blue-600 text-white rounded-lg shadow-lg
+                    {/* ========== MAP ========== */}
+                    <div className="relative flex-1 min-h-o overflow-hidden border-2 border-gray-300 rounded-xl shadow-md">
+                        {/* "Search this area" Button */}
+                        {showRefreshButton && (
+                            <button
+                                onClick={handleRefreshClick}
+                                className="absolute top-4 right-4 px-4 py-2.5 bg-blue-600 text-white rounded-lg shadow-lg
                                        hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                                        transition-all duration-200 flex items-center gap-2 font-medium pointer-events-auto"
-                            style={{
-                                position: 'absolute',
-                                top: '1rem',
-                                right: '1rem',
-                                zIndex: 9999
-                            }}
-                        >
-                            <ArrowPathIcon className="w-5 h-5" />
-                            Search this area
-                        </button>
-                    )}
+                                style={{
+                                    position: 'absolute',
+                                    top: '1rem',
+                                    right: '1rem',
+                                    zIndex: 9999
+                                }}
+                            >
+                                <ArrowPathIcon className="w-5 h-5" />
+                                Search this area
+                            </button>
+                        )}
 
-                    {/* Map */}
-                    <InteractiveMap
-                        center={{lat: location.lat, lng: location.lng}}
-                        zoom={MAP_CONFIG.defaultZoom}
-                        markers={experiences
-                            .map(exp => ({
-                                lat: exp.latitude,
-                                lng: exp.longitude,
-                                id: exp.experience_id,
-                                title: exp.title
-                            }))
-                        }
-                        selectedMarker={
-                            isValidLatitude(location.lat) && isValidLongitude(location.lng)
-                                ? { lat: location.lat, lng: location.lng }
-                                : null
-                        }
-                        hoveredMarkerId={hoveredExperienceId}
-                        selectedMarkerId={selectedExperienceId}
-                        onMarkerHover={handleMarkerHover}
-                        onMarkerClick={handleMarkerClick}
-                        onMapClick={handleMapClick}
-                        onBoundsChange={handleMapBoundsChange}
-                        height={MAP_CONFIG.mapHeight}
-                    />
+                        {/* Map */}
+                        <div className="w-full h-full">
+                            <InteractiveMap
+                                key={`map-${isSidebarOpen}`}
+                                center={{lat: location.lat, lng: location.lng}}
+                                zoom={MAP_CONFIG.defaultZoom}
+                                markers={experiences
+                                    .map(exp => ({
+                                        lat: exp.latitude,
+                                        lng: exp.longitude,
+                                        id: exp.experience_id,
+                                        title: exp.title
+                                    }))
+                                }
+                                selectedMarker={
+                                    isValidLatitude(location.lat) && isValidLongitude(location.lng)
+                                        ? { lat: location.lat, lng: location.lng }
+                                        : null
+                                }
+                                onMarkerHover={handleMarkerHover}
+                                onMarkerClick={handleMarkerClick}
+                                onMapClick={handleMapClick}
+                                onBoundsChange={handleMapBoundsChange}
+                                height="100%"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

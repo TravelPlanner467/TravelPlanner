@@ -20,7 +20,7 @@ export default function MapExperienceListCard({ experience, isHovered, isSelecte
     });
 
     const handleClick = () => {
-        console.log(experience.experience_id);
+
     };
 
     return (

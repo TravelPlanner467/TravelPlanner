@@ -334,156 +334,153 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
     };
 
     return (
-        <div className="relative flex flex-col h-full w-full gap-4">
-            {/*=============Search Section==============*/}
-            <div className="relative flex flex-col w-full gap-4 items-center justify-center
-                            4xl:flex-row"
+        <div className="relative flex flex-col h-full w-full gap-4 pr-2 pl-10 items-center justify-center
+                        lg:flex-row"
+        >
+            {/* Search Bar */}
+            <div className="relative flex items-center w-full
+                            lg:w-1/2"
+                 ref={searchContainerRef}
             >
-                {/* Search Bar */}
-                <div className="relative flex w-full items-center min-w-48 shrink-0
-                                4xl:flex-1 4xl:min-w-48 4xl:w-1/2"
-                     ref={searchContainerRef}
+                {/* Get My Location */}
+                <button
+                    type="button"
+                    onClick={handleGetMyLocation}
+                    disabled={isGettingLocation}
+                    className="group absolute left-2 z-10 p-2 rounded-lg text-white shadow-sm
+                            bg-green-600 hover:bg-green-700
+                            disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    title="Get my location"
                 >
-                    {/* Get My Location */}
-                    <button
-                        type="button"
-                        onClick={handleGetMyLocation}
-                        disabled={isGettingLocation}
-                        className="group absolute left-2 z-10 p-2 rounded-lg text-white shadow-sm
-                                bg-green-600 hover:bg-green-700
-                                disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        title="Get my location"
-                    >
-                        {isGettingLocation ? (
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                            <MapPinIcon className="w-5 h-5" />
-                        )}
-                        <span className="absolute -top-8 left-1/2 -translate-x-1/2
-                                         bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap
-                                         opacity-0 transition-opacity
-                                         group-hover:opacity-100 pointer-events-none">
-                            Get my location
-                        </span>
-                    </button>
+                    {isGettingLocation ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                        <MapPinIcon className="w-5 h-5" />
+                    )}
+                    <span className="absolute -top-8 left-1/2 -translate-x-1/2
+                                     bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap
+                                     opacity-0 transition-opacity
+                                     group-hover:opacity-100 pointer-events-none">
+                        Get my location
+                    </span>
+                </button>
 
-                    {/* Search input */}
+                {/* Search input */}
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={handleInputChange}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
+                    onKeyDown={(e) => e.key === 'Enter' && handleManualSearch()}
+                    placeholder="Search address or use current location..."
+                    className="w-full py-3 pl-14 pr-14 rounded-xl border-2 border-gray-300 bg-white shadow-sm
+                               hover:border-gray-400 transition
+                               focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                />
+
+                {/* Search Button */}
+                <button
+                    type="button"
+                    onClick={handleManualSearch}
+                    disabled={isSearching}
+                    className="group absolute right-2 p-2 rounded-lg text-white shadow-sm
+                               bg-blue-600 hover:bg-blue-700
+                               disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    title="Search address"
+                >
+                    {isSearching ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                        <MagnifyingGlassIcon className="w-5 h-5" />
+                    )}
+                    <span className="absolute -top-8 left-1/2 -translate-x-1/2
+                                     bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap
+                                     opacity-0 transition-opacity
+                                     group-hover:opacity-100 pointer-events-none"
+                    >
+                      Search
+                    </span>
+                </button>
+
+                {/*=============Search Results Dropdown==============*/}
+                {showResults && results.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 z-20 mt-2 max-h-60
+                                    bg-white border-2 border-gray-300 rounded-xl shadow-lg
+                                    overflow-y-auto"
+                    >
+                        {results.map((result, index) => (
+                            <button
+                                key={index}
+                                type="button"
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    handleSelect(result);
+                                }}
+                                className="w-full px-4 py-3 text-left hover:bg-blue-50
+                                           transition-colors border-b border-gray-200 last:border-b-0
+                                           flex items-start gap-3"
+                            >
+                                <MapPinIcon className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                                <span className="flex-1">{result.address}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/*============= Coordinates Input ==============*/}
+            <div className="flex gap-3">
+                <div className="relative flex gap-2 justify-center items-center">
+                    <label htmlFor="latitude"
+                           className="flex text-lg font-semibold text-gray-700">
+                        Lat:
+                    </label>
                     <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleInputChange}
-                        onFocus={handleInputFocus}
-                        onBlur={handleInputBlur}
-                        onKeyDown={(e) => e.key === 'Enter' && handleManualSearch()}
-                        placeholder="Search address or use current location..."
-                        className="w-full py-3 pl-14 pr-14 rounded-xl border-2 border-gray-300 bg-white shadow-sm
-                                   hover:border-gray-400 transition
-                                   focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        id="latitude"
+                        type="number"
+                        value={location.lat}
+                        onChange={(e) => handleCoordinateChange(e.target.value, 'lat')}
+                        step="0.0000001"
+                        min="-90"
+                        max="90"
+                        required
+                        className="w-32 px-4 py-3 rounded-xl border-2 border-gray-300
+                                  bg-white transition-all duration-200 [appearance:textfield]
+                                  focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                                  hover:border-gray-400 shadow-sm"
+                        placeholder="-90 to 90"
                     />
-
-                    {/* Search Button */}
-                    <button
-                        type="button"
-                        onClick={handleManualSearch}
-                        disabled={isSearching}
-                        className="group absolute right-2 p-2 rounded-lg text-white shadow-sm
-                                   bg-blue-600 hover:bg-blue-700
-                                   disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        title="Search address"
-                    >
-                        {isSearching ? (
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                            <MagnifyingGlassIcon className="w-5 h-5" />
-                        )}
-                        <span className="absolute -top-8 left-1/2 -translate-x-1/2
-                                         bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap
-                                         opacity-0 transition-opacity
-                                         group-hover:opacity-100 pointer-events-none"
-                        >
-                          Search
-                        </span>
-                    </button>
-
-                    {/*=============Search Results Dropdown==============*/}
-                    {showResults && results.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 z-20 mt-2 max-h-60
-                                        bg-white border-2 border-gray-300 rounded-xl shadow-lg
-                                        overflow-y-auto"
-                        >
-                            {results.map((result, index) => (
-                                <button
-                                    key={index}
-                                    type="button"
-                                    onMouseDown={(e) => {
-                                        e.preventDefault();
-                                        handleSelect(result);
-                                    }}
-                                    className="w-full px-4 py-3 text-left hover:bg-blue-50
-                                               transition-colors border-b border-gray-200 last:border-b-0
-                                               flex items-start gap-3"
-                                >
-                                    <MapPinIcon className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                                    <span className="flex-1">{result.address}</span>
-                                </button>
-                            ))}
-                        </div>
-                    )}
                 </div>
 
-                {/*============= Coordinates Input ==============*/}
-                <div className="flex gap-3">
-                    <div className="relative flex gap-2 justify-center items-center">
-                        <label htmlFor="latitude"
-                               className="flex text-lg font-semibold text-gray-700">
-                            Lat:
-                        </label>
-                        <input
-                            id="latitude"
-                            type="number"
-                            value={location.lat}
-                            onChange={(e) => handleCoordinateChange(e.target.value, 'lat')}
-                            step="0.0000001"
-                            min="-90"
-                            max="90"
-                            required
-                            className="w-32 px-4 py-3 rounded-xl border-2 border-gray-300
-                                      bg-white transition-all duration-200 [appearance:textfield]
-                                      focus:ring-4 focus:ring-blue-100 focus:border-blue-500
-                                      hover:border-gray-400 shadow-sm"
-                            placeholder="-90 to 90"
-                        />
-                    </div>
-
-                    <div className="flex gap-2 justify-center items-center">
-                        <label htmlFor="longitude"
-                               className="flex text-lg font-semibold text-gray-700">
-                            Lng:
-                        </label>
-                        <input
-                            id="longitude"
-                            type="number"
-                            value={location.lng}
-                            onChange={(e) => handleCoordinateChange(e.target.value, 'lng')}
-                            step="0.0000001"
-                            min="-180"
-                            max="180"
-                            required
-                            className="w-32 px-4 py-3 rounded-xl border-2 border-gray-300
-                                      bg-white transition-all duration-200 [appearance:textfield]
-                                      focus:ring-4 focus:ring-blue-100 focus:border-blue-500
-                                      hover:border-gray-400 shadow-sm"
-                            placeholder="-180 to 180"
-                        />
-                    </div>
-
-                    {/* Action Button Slot */}
-                    {mapButton && (
-                        <div className="flex items-center ml-10">
-                            {mapButton}
-                        </div>
-                    )}
+                <div className="flex gap-2 justify-center items-center">
+                    <label htmlFor="longitude"
+                           className="flex text-lg font-semibold text-gray-700">
+                        Lng:
+                    </label>
+                    <input
+                        id="longitude"
+                        type="number"
+                        value={location.lng}
+                        onChange={(e) => handleCoordinateChange(e.target.value, 'lng')}
+                        step="0.0000001"
+                        min="-180"
+                        max="180"
+                        required
+                        className="w-32 px-4 py-3 rounded-xl border-2 border-gray-300
+                                  bg-white transition-all duration-200 [appearance:textfield]
+                                  focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                                  hover:border-gray-400 shadow-sm"
+                        placeholder="-180 to 180"
+                    />
                 </div>
+
+                {/* Action Button Slot */}
+                {mapButton && (
+                    <div className="flex items-center ml-10">
+                        {mapButton}
+                    </div>
+                )}
             </div>
         </div>
     );
