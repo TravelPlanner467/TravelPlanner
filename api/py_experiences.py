@@ -178,7 +178,7 @@ def get_user_experiences():
             cur.execute("""
                         SELECT e.*,
                                COALESCE(ROUND(AVG(r.rating::numeric), 2), 0.00) AS average_rating,
-                               COUNT(r.rating) AS rating_count,
+                               COUNT(DISTINCT r.rating) AS rating_count,
                                ARRAY_AGG(k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
                         FROM experiences e
                                  LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
@@ -253,7 +253,7 @@ def get_experience_details(experience_id):
             cur.execute("""
                         SELECT e.*,
                                COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
-                               COUNT(r.rating) AS rating_count,
+                               COUNT(DISTINCT r.rating) AS rating_count,
                                ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
                         FROM experiences e
                                  LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
@@ -302,7 +302,7 @@ def get_user_experience_details(experience_id):
             cur.execute("""
                 SELECT e.*, 
                        COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating, 
-                       COUNT(r.rating) AS rating_count,
+                       COUNT(DISTINCT r.rating) AS rating_count,
                        ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
                 FROM experiences e
                 LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
