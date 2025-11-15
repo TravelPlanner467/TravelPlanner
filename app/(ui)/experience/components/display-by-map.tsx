@@ -8,6 +8,7 @@ import {InteractiveMap} from "@/app/(ui)/experience/components/leaflet-map";
 import MapExperienceListCard from "@/app/(ui)/experience/map-experiences-list-card";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {Experience} from "@/lib/types";
+import SearchResultsCard from "@/app/(ui)/experience/search/search-results-card";
 
 interface DisplayByMapProps {
     experiences: Experience[];
@@ -172,7 +173,7 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                 {/*=================================== SIDEBAR (OPEN) ====================================*/}
                 {isSidebarOpen && (
                     <div
-                        className="flex flex-col w-80 h-full shrink-0
+                        className="flex flex-col w-2xl h-full shrink-0
                                 border-2 border-gray-300 rounded-xl shadow-md
                                 transition-all duration-300 ease-in-out overflow-hidden"
                     >
@@ -195,7 +196,7 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                         </div>
 
                         {/* Sidebar Content (List of Experiences) */}
-                        <div className="flex-1 overflow-y-auto min-h-0"
+                        <div className="flex flex-col overflow-y-auto min-h-0 pt-2 px-2 gap-1"
                              ref={sidebarContainerRef}
                         >
                             {experiences.map((exp: Experience) => (
@@ -211,14 +212,15 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                                          }
                                      }}
                                      className={`transition-all duration-200 cursor-pointer
-                                        ${hoveredExperienceId === exp.experience_id ? 'bg-blue-50 scale-[1.02]' : ''}
-                                        ${selectedExperienceId === exp.experience_id ? 'ring-2 ring-blue-500' : ''}
+                                        ${hoveredExperienceId === exp.experience_id ? 'bg-blue-50' : ''}
+                                        ${selectedExperienceId === exp.experience_id ? 'ring-2 ring-blue-500 rounded-xl' : ''}
                                     `}
                                 >
-                                    <MapExperienceListCard
+                                    <SearchResultsCard
                                         experience={exp}
                                         isHovered={hoveredExperienceId === exp.experience_id}
                                         isSelected={selectedExperienceId === exp.experience_id}
+                                        compact={true}
                                     />
                                 </div>
                             ))}
@@ -246,6 +248,7 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                         <LocationSearch
                             onLocationSelect={handleLocationSelect}
                             location={location}
+                            isRow={true}
                         />
                     </div>
 

@@ -17,6 +17,7 @@ interface LocationSearchProps {
     location: Location;
     onMapClick?: (lat: number, lng: number) => void;
     mapButton?: React.ReactNode;
+    isRow?: boolean;
 }
 
 // ============================================================================
@@ -89,7 +90,7 @@ const searchAddress = async (query: string): Promise<Array<Location>> => {
 // =====================================================================================================================
 // MAIN COMPONENT
 // =====================================================================================================================
-export function LocationSearch({onLocationSelect, location, onMapClick, mapButton}: LocationSearchProps) {
+export function LocationSearch({onLocationSelect, location, onMapClick, mapButton, isRow = false}: LocationSearchProps) {
     const [searchQuery, setSearchQuery] = useState(location.address || '');
     const [results, setResults] = useState<Location[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -334,11 +335,11 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
     };
 
     return (
-        <div className="relative flex flex-col h-full w-full gap-4 p-2 items-center justify-center
-                        3xl:flex-row"
+        <div className={`relative flex h-full w-full gap-4 p-2 items-center justify-center
+                        ${isRow ? 'flex-row' : 'flex-col'}`}
         >
             {/* Search Bar */}
-            <div className="relative flex items-center w-full 3xl:w-1/2"
+            <div className={`relative flex items-center ${isRow ? 'w-1/2' : 'w-full'}`}
                  ref={searchContainerRef}
             >
                 {/* Get My Location */}
