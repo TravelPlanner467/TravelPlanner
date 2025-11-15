@@ -45,7 +45,6 @@ async function handleApiRequest<T>(url: string, options: RequestInit, errorConte
                 message: data.message || response.statusText,
             } as any;
         }
-        console.log('Data:', data);
 
         // Return data
         return (data || undefined) as any;

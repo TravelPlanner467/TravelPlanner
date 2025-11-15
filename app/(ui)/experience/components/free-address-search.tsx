@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
+import {isValidLatitude, isValidLongitude, Location, roundCoordinate} from "@/lib/utils/nomatim-utils";
 import {InteractiveMap} from "@/app/(ui)/experience/components/leaflet-map";
 import {LocationSearch} from "@/app/(ui)/experience/components/location-search";
 
@@ -45,14 +45,17 @@ export function FreeAddressSearch({onLocationSelect, initialLocation, mapZoom = 
 
     // Handle map clicks
     const handleMapClick = async (lat: number, lng: number) => {
+        const roundedLat = roundCoordinate(lat);
+        const roundedLng = roundCoordinate(lng);
+
         const newLocation = {
-            lat,
-            lng,
+            lat: roundedLat,
+            lng: roundedLng,
             address: '' // LocationSearch will handle reverse geocoding
         };
 
         setLocation(newLocation);
-        setMapCenter({lat, lng});
+        setMapCenter({lat: roundedLat, lng: roundedLng});
         onLocationSelect(newLocation);
     };
 
@@ -93,6 +96,7 @@ export function FreeAddressSearch({onLocationSelect, initialLocation, mapZoom = 
                         }
                         onMapClick={handleMapClick}
                         height="450px"
+
                     />
                 </div>
             )}

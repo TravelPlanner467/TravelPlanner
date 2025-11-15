@@ -5,9 +5,9 @@ import Pagination from "@/app/(ui)/general/pagination";
 import {Experience} from "@/lib/types";
 
 interface SearchResultsProps {
-    keywords: string;
-    location: string
     experiences: Experience[]
+    keywords?: string;
+    location?: string
 }
 
 const ITEMS_PER_PAGE = 6;
@@ -28,7 +28,6 @@ export default function SearchResults({ keywords, location, experiences }: Searc
         <div className="flex flex-col p-4">
             {/*Search Results Header*/}
             <div className="mb-4">
-                <h1 className="text-4xl font-bold mb-2">Search Results</h1>
                 <p className="text-gray-600">
                     Showing {startIndex + 1}-{Math.min(endIndex, experiences.length)} of {experiences.length} results for {JSON.stringify(keywords)} near {location}
                 </p>

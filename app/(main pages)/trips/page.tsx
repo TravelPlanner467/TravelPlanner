@@ -8,7 +8,6 @@ import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
 import {GoBackButton} from "@/app/(ui)/general/buttons/nav-buttons";
-import {UserExperiences} from "@/app/(ui)/account/experiences/user-experiences";
 
 
 export default async function Page() {
