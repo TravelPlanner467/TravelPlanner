@@ -7,7 +7,7 @@ import {XMarkIcon} from "@heroicons/react/24/outline";
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
 import {KeywordsAutocomplete} from "@/app/(ui)/experience/components/keywords-autocomplete";
 import {FreeAddressSearch} from "@/app/(ui)/experience/components/free-address-search";
-import {createExperience} from "@/lib/actions/experience-actions";
+import {createExperience, fetchSuggestedKeywords} from "@/lib/actions/experience-actions";
 import {PhotoUpload} from "@/app/(ui)/experience/components/photo-upload";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {PhotoFile} from "@/lib/utils/photo-utils";
@@ -56,11 +56,14 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
         }
     });
 
-    // Watch values for reactive updates
+    // Watch values for updating individual form-fields
     const keywords = watch('keywords');
     const currentKeywordInput = watch('currentKeywordInput');
-    const location = watch('location');
+    const [title, description] = watch(['title', 'description']);
 
+    // State for keyword generation
+    const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
+    const canGenerateKeywords = title.trim().length > 0 && description.trim().length > 0;
 
     // ========================================================================
     // EVENT HANDLERS
@@ -99,6 +102,25 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
         setValue('keywords', keywords.filter((_, index) => index !== indexToRemove));
     };
 
+    // Handle keyword generation
+    const handleGenerateKeywords = async () => {
+        setIsGeneratingKeywords(true);
+        try {
+            const suggestedKeywords = await fetchSuggestedKeywords({title, description});
+
+            // Merge suggested keywords with existing ones, avoiding duplicates
+            const newKeywords = suggestedKeywords.filter(
+                keyword => !keywords.some(k => k.toLowerCase() === keyword.toLowerCase())
+            );
+
+            setValue('keywords', [...keywords, ...newKeywords]);
+        } catch (error) {
+            console.error('Failed to generate keywords:', error);
+            alert('Failed to generate keywords. Please try again.');
+        } finally {
+            setIsGeneratingKeywords(false);
+        }
+    };
 
     // ========================================================================
     // FORM SUBMISSION
@@ -260,6 +282,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
 
             {/* =========================================== LOCATION  ============================================== */}
             <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
+                {/* Section Header */}
                 <div className="flex flex-wrap items-baseline gap-3">
                     <h3 className="text-lg font-bold text-gray-900">Location</h3>
                     <div className="hidden sm:block h-5 w-px bg-gray-300"></div>
@@ -318,19 +341,52 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                     </p>
                 </div>
 
-                <div onKeyDown={handleKeywordKeyDown}>
-                    <Controller
-                        name="currentKeywordInput"
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                            <KeywordsAutocomplete
-                                keywords={value}
-                                setKeywords={onChange}
-                            />
-                        )}
-                    />
+                <div className="flex w-full gap-2">
+                    {/*Keywords Input Area*/}
+                    <div onKeyDown={handleKeywordKeyDown}
+                         className="flex-1"
+                    >
+                        <Controller
+                            name="currentKeywordInput"
+                            control={control}
+                            render={({ field: { value, onChange } }) => (
+                                <KeywordsAutocomplete
+                                    keywords={value}
+                                    setKeywords={onChange}
+                                />
+                            )}
+                        />
+                    </div>
+
+                    {/*Generate Keywords Button*/}
+                    {canGenerateKeywords && (
+                        <button
+                            type="button"
+                            onClick={handleGenerateKeywords}
+                            disabled={isGeneratingKeywords}
+                            className={`px-6 py-3 font-semibold text-sm rounded-lg 
+                                    transition-all duration-200 shadow-md cursor-pointer
+                                    ${isGeneratingKeywords
+                                ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                                : 'bg-blue-600 text-white hover:shadow-lg active:scale-95'
+                            }`}
+                        >
+                            {isGeneratingKeywords ? (
+                                <span className="flex items-center justify-center gap-2">
+                                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full
+                                                animate-spin"
+                                />
+                                Generating Keywords...
+                            </span>
+                            ) : (
+                                '✨ Generate Keywords'
+                            )}
+                        </button>
+                    )}
                 </div>
 
+
+                {/*Entered Keywords Display*/}
                 {keywords.length > 0 && (
                     <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
                         {keywords.map((keyword, index) => (
@@ -356,15 +412,14 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                 )}
             </div>
 
-            {/* SUBMIT BUTTON */}
+            {/* ========================================  SUBMIT BUTTON ============================================ */}
             <button
                 type="submit"
                 disabled={isSubmitting}
                 className={`mt-4 px-8 py-4 font-bold text-lg rounded-xl 
-                            transition-all duration-200 shadow-lg
-                            ${isSubmitting
-                    ? 'bg-gray-400 cursor-not-allowed text-gray-200'
-                    : 'bg-blue-700 hover:to-blue-800 text-white hover:shadow-xl active:scale-95'
+                            transition-all duration-200 shadow-lg ${isSubmitting
+                        ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                        : 'bg-blue-700 hover:to-blue-800 text-white hover:shadow-xl active:scale-95'
                 }`}
             >
                 {isSubmitting ? (
