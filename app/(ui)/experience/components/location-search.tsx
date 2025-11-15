@@ -1,4 +1,5 @@
 'use client'
+
 import React, {useEffect, useRef, useState} from "react";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 import {MapPinIcon} from "@heroicons/react/16/solid";
@@ -15,6 +16,7 @@ interface LocationSearchProps {
     onLocationSelect: (location: Location) => void;
     location: Location;
     onMapClick?: (lat: number, lng: number) => void;
+    mapButton?: React.ReactNode;
 }
 
 // ============================================================================
@@ -87,7 +89,7 @@ const searchAddress = async (query: string): Promise<Array<Location>> => {
 // =====================================================================================================================
 // MAIN COMPONENT
 // =====================================================================================================================
-export function LocationSearch({onLocationSelect, location, onMapClick}: LocationSearchProps) {
+export function LocationSearch({onLocationSelect, location, onMapClick, mapButton}: LocationSearchProps) {
     const [searchQuery, setSearchQuery] = useState(location.address || '');
     const [results, setResults] = useState<Location[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -332,14 +334,14 @@ export function LocationSearch({onLocationSelect, location, onMapClick}: Locatio
     };
 
     return (
-        <div className="relative flex flex-col h-full p-4 gap-4">
+        <div className="relative flex flex-col h-full w-full gap-4">
             {/*=============Search Section==============*/}
-            <div className="relative flex flex-col gap-4 items-center justify-center
-                            sm:flex-row"
+            <div className="relative flex flex-col w-full gap-4 items-center justify-center
+                            4xl:flex-row"
             >
                 {/* Search Bar */}
-                <div className="relative flex w-1/2 items-center
-                                sm:flex-1 sm:min-w-48"
+                <div className="relative flex w-full items-center min-w-48 shrink-0
+                                4xl:flex-1 4xl:min-w-48 4xl:w-1/2"
                      ref={searchContainerRef}
                 >
                     {/* Get My Location */}
@@ -427,15 +429,14 @@ export function LocationSearch({onLocationSelect, location, onMapClick}: Locatio
                             ))}
                         </div>
                     )}
-
                 </div>
 
                 {/*============= Coordinates Input ==============*/}
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                     <div className="relative flex gap-2 justify-center items-center">
                         <label htmlFor="latitude"
                                className="flex text-lg font-semibold text-gray-700">
-                            Lat: <span className="text-red-500">*</span>
+                            Lat:
                         </label>
                         <input
                             id="latitude"
@@ -457,7 +458,7 @@ export function LocationSearch({onLocationSelect, location, onMapClick}: Locatio
                     <div className="flex gap-2 justify-center items-center">
                         <label htmlFor="longitude"
                                className="flex text-lg font-semibold text-gray-700">
-                            Lng: <span className="text-red-500">*</span>
+                            Lng:
                         </label>
                         <input
                             id="longitude"
@@ -475,6 +476,13 @@ export function LocationSearch({onLocationSelect, location, onMapClick}: Locatio
                             placeholder="-180 to 180"
                         />
                     </div>
+
+                    {/* Action Button Slot */}
+                    {mapButton && (
+                        <div className="flex items-center ml-10">
+                            {mapButton}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
