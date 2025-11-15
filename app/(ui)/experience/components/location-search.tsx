@@ -99,22 +99,28 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
     const [isInputFocused, setIsInputFocused] = useState(false);
 
     const debouncedSearchQuery = useDebounce(searchQuery, 1000);
-    // Tracks last searched query to prevent duplicate searches when user clicks on a suggestion
+    // Track last searched query to prevent duplicate searches when user clicks on a suggestion
     const lastSearchedQueryRef = useRef<string>('');
-    // Tracks if user is clicked in the search container
+    // Track if user is clicked in the search container
     const searchContainerRef = useRef<HTMLDivElement>(null);
     // Track previous location to detect coordinate changes
     const prevLocationRef = useRef<Location>(location);
+    // Track if user is actively typing
+    const isTypingRef = useRef(false);
 
     // Sync search query with location when it changes via the map
     useEffect(() => {
         const newAddress = location.address || '';
 
-        if (newAddress !== searchQuery) {
+        // Only update if not actively typing and address actually changed
+        if (!isTypingRef.current
+            && newAddress !== searchQuery
+            && newAddress !== lastSearchedQueryRef.current)
+        {
             setSearchQuery(newAddress);
             lastSearchedQueryRef.current = newAddress;
         }
-    }, [location.address, searchQuery]);
+    }, [location.address]);
 
     // Handle reverse geocoding when coordinates change but address is empty
     useEffect(() => {
@@ -122,42 +128,48 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
             const prev = prevLocationRef.current;
             const curr = location;
 
-            // Validate that coordinates are valid numbers before proceeding
-            if (typeof curr.lat !== 'number' || typeof curr.lng !== 'number' ||
-                isNaN(curr.lat) || isNaN(curr.lng)) {
-                return;
-            }
-
-            // Check if coordinates are within valid ranges
+            // Skip if coordinates are invalid
             if (!isValidLatitude(curr.lat) || !isValidLongitude(curr.lng)) {
                 return;
             }
 
-            // Check if coordinates changed
-            const coordsChanged = prev.lat !== curr.lat || prev.lng !== curr.lng;
+            // Round both current and previous coordinates to same precision for comparison
+            const currRounded = {
+                lat: roundCoordinate(curr.lat),
+                lng: roundCoordinate(curr.lng)
+            };
+            const prevRounded = {
+                lat: roundCoordinate(prev.lat),
+                lng: roundCoordinate(prev.lng)
+            };
 
-            // Check if address is empty, null, or whitespace
+            // Check if coordinates changed
+            const coordsChanged = prevRounded.lat !== currRounded.lat ||
+                prevRounded.lng !== currRounded.lng;
+
+            // Check if address is null or empty
             const addressEmpty = !curr.address || curr.address.trim() === '';
 
             // Reverse geocode if coordinates changed AND address is empty
             if (coordsChanged && addressEmpty) {
-                const address = await reverseGeocode(curr.lat, curr.lng);
+                const address = await reverseGeocode(currRounded.lat, currRounded.lng);
 
                 // Update refs BEFORE calling onLocationSelect to prevent loops
                 lastSearchedQueryRef.current = address;
-                prevLocationRef.current = { ...curr, address };
+                prevLocationRef.current = { lat: currRounded.lat, lng: currRounded.lng, address };
 
                 setSearchQuery(address);
 
                 const newLocation = {
-                    lat: curr.lat,
-                    lng: curr.lng,
+                    lat: currRounded.lat,
+                    lng: currRounded.lng,
                     address,
                 };
 
                 onLocationSelect(newLocation);
             } else {
-                prevLocationRef.current = curr;
+                // Update ref even if we don't geocode
+                prevLocationRef.current = { ...curr };
             }
         };
 
@@ -221,7 +233,7 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
                 onLocationSelect({lat, lng, address});
             };
 
-            // Store it so parent can call it
+            // Store data so parent component can call it
             (window as any).__handleMapClick = handleMapClickWithGeocode;
         }
     }, [onMapClick, onLocationSelect]);
@@ -267,10 +279,12 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        isTypingRef.current = true;
         setSearchQuery(e.target.value);
     };
 
     const handleInputFocus = () => {
+        isTypingRef.current = true;
         setIsInputFocused(true);
         if (results.length > 0 && searchQuery.trim().length >= 2) {
             setShowResults(true);
@@ -278,10 +292,12 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
     };
 
     const handleInputBlur = () => {
+        isTypingRef.current = false;
         setIsInputFocused(false);
     };
 
     const handleSelect = (result: Location) => {
+        isTypingRef.current = false;
         lastSearchedQueryRef.current = result.address;
         setSearchQuery(result.address);
         setShowResults(false);
@@ -439,7 +455,7 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
                     <input
                         id="latitude"
                         type="number"
-                        value={location.lat}
+                        value={isValidLatitude(location.lat) ? location.lat : ''}
                         onChange={(e) => handleCoordinateChange(e.target.value, 'lat')}
                         step="0.0000001"
                         min="-90"
@@ -461,7 +477,7 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
                     <input
                         id="longitude"
                         type="number"
-                        value={location.lng}
+                        value={isValidLongitude(location.lng) ? location.lng : ''}
                         onChange={(e) => handleCoordinateChange(e.target.value, 'lng')}
                         step="0.0000001"
                         min="-180"

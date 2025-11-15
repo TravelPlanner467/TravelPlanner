@@ -6,6 +6,7 @@ import L, {Icon} from 'leaflet';
 
 // Leaflet Marker Icon Fix (specific to Next.js)
 import 'leaflet/dist/leaflet.css';
+import {roundCoordinate} from "@/lib/utils/nomatim-utils";
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -68,7 +69,10 @@ function MapClickHandler({ onClick, onBoundsChange }: OnMapClickProps) {
     const map = useMapEvents({
         click: (e) => {
             if (onClick) {
-                onClick(e.latlng.lat, e.latlng.lng);
+                // Round to 6 decimal places
+                const lat = roundCoordinate(e.latlng.lat, 6);
+                const lng = roundCoordinate(e.latlng.lng, 6);
+                onClick(lat, lng);
             }
         },
         dragend: () => {
@@ -113,41 +117,6 @@ export function InteractiveMap({center, zoom, height = '400px', selectedMarker,
                                    markers = [], onMapClick, onBoundsChange
                                 , onMarkerHover, onMarkerClick = () => { }}
                                : InteractiveMapProps) {
-    // Validate center coordinates
-    const isValidCenter =
-        typeof center.lat === 'number' &&
-        typeof center.lng === 'number' &&
-        !isNaN(center.lat) &&
-        !isNaN(center.lng) &&
-        center.lat >= -90 && center.lat <= 90 &&
-        center.lng >= -180 && center.lng <= 180;
-
-    // Fallback to default if invalid
-    const safeCenter = isValidCenter
-        ? center
-        : { lat: 44.5618, lng: -123.2823  };
-
-    // Filter out invalid markers
-    const validMarkers = markers.filter(marker =>
-        typeof marker.lat === 'number' &&
-        typeof marker.lng === 'number' &&
-        !isNaN(marker.lat) &&
-        !isNaN(marker.lng) &&
-        marker.lat >= -90 && marker.lat <= 90 &&
-        marker.lng >= -180 && marker.lng <= 180
-    );
-
-    // Validate selected marker
-    const validSelectedMarker = selectedMarker &&
-    typeof selectedMarker.lat === 'number' &&
-    typeof selectedMarker.lng === 'number' &&
-    !isNaN(selectedMarker.lat) &&
-    !isNaN(selectedMarker.lng) &&
-    selectedMarker.lat >= -90 && selectedMarker.lat <= 90 &&
-    selectedMarker.lng >= -180 && selectedMarker.lng <= 180
-        ? selectedMarker
-        : null;
-
     return (
         <MapContainer
             center={[center.lat, center.lng]}
