@@ -9,15 +9,17 @@ import { Experience } from "@/lib/types";
 
 interface ExperienceViewProps {
     experiences: Experience[];
-    keywords: string;
-    location: string
+    keywords?: string;
+    location?: string
+    session_user_id?: string;
+    default_view_mode?: ViewMode;
 }
 
 type ViewMode = 'list' | 'map';
 
 // Dynamically import List & Map Views
-const SearchResults = dynamic(
-    () => import('@/app/(ui)/experience/search/search-results'),
+const UserExperiences = dynamic(
+    () => import('@/app/(ui)/account/experiences/user-experiences'),
     {
         ssr: true,
         loading: () => (
@@ -40,8 +42,15 @@ const DisplayByMap = dynamic(
     }
 );
 
-export default function ExperiencesDisplay({experiences, keywords, location}: ExperienceViewProps) {
-    const [viewMode, setViewMode] = useState<ViewMode>('map');
+export default function ExperiencesDisplay({
+                                               experiences,
+                                               keywords,
+                                               location,
+                                               session_user_id,
+                                               default_view_mode = "map"}
+: ExperienceViewProps)
+{
+    const [viewMode, setViewMode] = useState<ViewMode>(default_view_mode);
 
     // Map boundaries for searching experiences by location
     const [mapBounds, setMapBounds] = useState<{
@@ -123,12 +132,11 @@ export default function ExperiencesDisplay({experiences, keywords, location}: Ex
             </div>
 
             {/* Search Results Views */}
-            <div className="flex-1 min-h-0">
+            <div className="flex min-h-0 w-full h-full justify-center items-center">
                 {viewMode === 'list' && (
-                    <SearchResults
+                    <UserExperiences
+                        session_user_id={session_user_id}
                         experiences={experiences}
-                        keywords={keywords}
-                        location={location}
                     />
                 )}
 
