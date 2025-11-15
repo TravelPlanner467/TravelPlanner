@@ -261,7 +261,7 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                                         experience={exp}
                                         isHovered={hoveredExperienceId === exp.experience_id}
                                         isSelected={selectedExperienceId === exp.experience_id}
-                                        compact={true}
+                                        compact={!isFullWidth}
                                     />
                                 </div>
                             ))}

@@ -22,20 +22,19 @@ export function ProfileDropdown({ session }: { session: Session }) {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="group flex h-full items-center gap-2 px-4 py-2
-                   text-gray-700 font-medium text-sm
-                   hover:bg-gray-100 transition-all duration-200
-                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                           text-gray-700 font-medium text-sm
+                           hover:bg-gray-100 transition-all duration-200"
                 aria-expanded={isOpen}
                 aria-haspopup="true"
                 aria-label="Account menu"
             >
                 <UserCircleIcon
-                    className="w-5 h-5 group-hover:scale-[1.2] transition-transform"
+                    className="size-6 group-hover:scale-[1.2] transition-transform"
                     aria-hidden="true"
                 />
                 <p className="hidden md:block">Account</p>
                 <ChevronDownIcon
-                    className={`w-4 h-4 transition-transform duration-200 ${
+                    className={`hidden md:block w-5 h-5 transition-transform duration-200 ${
                         isOpen ? 'rotate-180' : ''
                     }`}
                     aria-hidden="true"
@@ -43,7 +42,7 @@ export function ProfileDropdown({ session }: { session: Session }) {
             </button>
 
             {isOpen && (
-                <>
+                <div>
                     <div
                         className="fixed inset-0 z-10"
                         onClick={() => setIsOpen(false)}
@@ -51,8 +50,8 @@ export function ProfileDropdown({ session }: { session: Session }) {
                     />
 
                     <div
-                        className="absolute right-0 top-full mt-1 w-56 bg-white rounded-lg shadow-lg
-                       border border-gray-200 py-2 z-20"
+                        className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl
+                                   border border-gray-400 py-2 z-50"
                         role="menu"
                         aria-orientation="vertical"
                     >
@@ -60,21 +59,23 @@ export function ProfileDropdown({ session }: { session: Session }) {
                         <Link
                             href="/account/profile"
                             onClick={() => setIsOpen(false)}
-                            className="block w-full p-3 text-xs text-gray-600 border-b-2 border-gray-300
-                            hover:bg-gray-100 transition-colors
-                            focus:outline-none focus:bg-gray-100"
+                            className="block w-full px-5 py-4 text-sm text-gray-600 border-b border-gray-200
+                            hover:bg-gray-50 transition-colors
+                            focus:outline-none focus:bg-gray-50"
                             role="menuitem"
                         >
-                            {session.user.email}
+                            <div className="font-medium text-gray-900 mb-1">Profile</div>
+                            <div className="text-xs truncate">{session.user.email}</div>
                         </Link>
 
                         {/*Edit Profile*/}
                         <Link
                             href="/account/edit"
                             onClick={() => setIsOpen(false)}
-                            className="block w-full p-3 text-sm text-gray-700
-                                       hover:bg-gray-100 transition-colors
-                                       focus:outline-none focus:bg-gray-100"
+                            className="block w-full px-5 py-3.5 text-base text-gray-700 font-medium
+                                       hover:bg-gray-50 hover:text-blue-600
+                                       transition-colors
+                                       focus:outline-none focus:bg-gray-50"
                             role="menuitem"
                         >
                             Edit Profile
@@ -83,15 +84,15 @@ export function ProfileDropdown({ session }: { session: Session }) {
                         {/*Sign Out Button*/}
                         <button
                             onClick={handleSignOut}
-                            className="block w-full px-3 py-2 text-left text-sm text-red-600
+                            className="block w-full px-5 py-3.5 text-left text-base text-red-600 font-medium
                                        hover:bg-red-50 transition-colors
-                                       focus:outline-none focus:bg-red-50"
+                                       focus:outline-none focus:bg-red-50 rounded-b-xl"
                             role="menuitem"
                         >
                             Sign Out
                         </button>
                     </div>
-                </>
+                </div>
             )}
         </div>
     );

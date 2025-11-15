@@ -52,40 +52,45 @@ export default function ComboSearchBar() {
     }
 
     return (
-        <form onSubmit={handleSearch} className="w-full">
-            <div className="flex flex-col md:flex-row items-stretch gap-3 p-3
-            bg-white rounded-3xl shadow-md border border-gray-700
-            hover:shadow-lg duration-200"
-            >
-                {/* Keywords */}
-                <div className="flex-1 min-w-0">
-                    <KeywordsAutocomplete
-                        keywords={keywords}
-                        setKeywords={setKeywords}
-                    />
-                </div>
-
-                <div className="h-px md:h-auto md:w-px bg-gray-300 my-3 md:my-0" />
-
-                {/* Location */}
-                <div className="flex-1 min-w-0">
-                    <GooglePlacesAutocomplete
-                        onLocationSelect={setLocation}
-                        primaryTypes={['(regions)']}
-                        apiKey={apiKey}
-                    />
-                </div>
-
-                {/*Submit Button*/}
-                <button
-                    type="submit"
-                    className="px-3 py-2.5 flex-shrink-0 cursor-pointer
-                               bg-blue-600 text-white font-semibold rounded-lg
-                               hover:bg-blue-700 transition-colors duration-200"
+        <div className="flex justify-center items-center w-full">
+            <form onSubmit={handleSearch} className="w-full max-w-6xl">
+                <div className="flex flex-col items-stretch gap-1 p-3 m-2
+                                bg-white rounded-4xl shadow-md border border-gray-700
+                                hover:shadow-lg duration-200
+                                md:gap-2 md:flex-row"
                 >
-                    Search
-                </button>
-            </div>
-        </form>
+                    {/* Keywords */}
+                    <div className="flex-1 min-w-0">
+                        <KeywordsAutocomplete
+                            keywords={keywords}
+                            setKeywords={setKeywords}
+                        />
+                    </div>
+
+                    <div className="h-px md:h-auto md:w-px bg-gray-300 my-3 md:my-0" />
+
+                    {/* Location */}
+                    <div className="flex-1 min-w-0">
+                        <GooglePlacesAutocomplete
+                            onLocationSelect={setLocation}
+                            primaryTypes={['(regions)']}
+                            apiKey={apiKey}
+                        />
+                    </div>
+
+                    <div className="h-px bg-gray-300 my-3 md:hidden" />
+
+                    {/*Submit Button*/}
+                    <button
+                        type="submit"
+                        className="px-3 py-2.5 flex-shrink-0 cursor-pointer rounded-4xl
+                                   bg-blue-600 text-white font-semibold
+                                   hover:bg-blue-700 transition-colors duration-200"
+                    >
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
     );
 }

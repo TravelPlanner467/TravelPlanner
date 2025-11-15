@@ -91,7 +91,7 @@ export default function ExperiencesDisplay({experiences, keywords, location}: Ex
                 <button
                     onClick={() => setViewMode('map')}
                     className={`
-                        flex items-center gap-2 px-6 py-3 font-medium transition-all duration-200
+                        flex items-center gap-2 px-6 py-1 font-medium transition-all duration-200
                         border-b-2 -mb-[2px]
                         ${viewMode === 'map'
                         ? 'border-blue-600 text-blue-600'
@@ -106,7 +106,7 @@ export default function ExperiencesDisplay({experiences, keywords, location}: Ex
                 <button
                     onClick={() => setViewMode('list')}
                     className={`
-                        flex items-center gap-2 px-6 py-3 font-medium transition-all duration-200
+                        flex items-center gap-2 px-6 py-1 font-medium transition-all duration-200
                         border-b-2 -mb-[2px]
                         ${viewMode === 'list'
                         ? 'border-blue-600 text-blue-600'
