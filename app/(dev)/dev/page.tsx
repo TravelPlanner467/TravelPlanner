@@ -4,7 +4,7 @@ import {redirect} from "next/navigation";
 import {CodeBracketIcon} from "@heroicons/react/16/solid";
 
 import {getAllExperiences} from "@/lib/actions/experience-actions";
-import MapPageClient from "@/app/(dev)/dev/components/map-display-client";
+import MapPageClient from "@/app/(dev)/dev/old/map-display-client";
 
 export default async function DevPage() {
     // Session Validation
