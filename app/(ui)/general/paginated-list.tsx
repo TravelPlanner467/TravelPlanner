@@ -1,4 +1,3 @@
-// components/PaginatedList.tsx
 'use client'
 import { ReactNode } from 'react';
 import { usePagination } from '@/lib/utils/use-pagination';
