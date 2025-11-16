@@ -79,7 +79,7 @@ export function RateExperienceButton({user_id, experience_id}: RateExperiencePro
                             <p className="text-center text-gray-600 mb-4">
                                 How would you rate this experience?
                             </p>
-                            <SelectableRating experience_rating={rating} onRatingChange={setRating} />
+                            <SelectableRating value={rating} onChange={setRating} />
                         </div>
 
                         <div className="flex justify-center items-center">

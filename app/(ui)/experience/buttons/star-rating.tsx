@@ -1,5 +1,5 @@
 // Star Rating Component
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {StarIcon} from "@heroicons/react/16/solid";
 
 interface RatingDisplayProps {
@@ -10,8 +10,8 @@ interface RatingDisplayProps {
 }
 
 interface SelectableRatingProps {
-    experience_rating?: number;
-    onRatingChange: (rating: number) => void;
+    value: number;
+    onChange: (rating: number) => void;
 }
 
 export function RatingDisplay({rating, showLabel = true, rating_count, compact = false}: RatingDisplayProps) {
@@ -80,13 +80,11 @@ export function RatingDisplay({rating, showLabel = true, rating_count, compact =
     );
 }
 
-export function SelectableRating({experience_rating = 0, onRatingChange}: SelectableRatingProps) {
-    const [rating, setRating] = useState(experience_rating);
+export function SelectableRating({ value = 0, onChange }: SelectableRatingProps) {
     const [hover, setHover] = useState(0);
 
     function handleRatingClick(selectedRating: number) {
-        setRating(selectedRating);
-        onRatingChange(selectedRating);
+        onChange(selectedRating);  // ✅ Just call onChange, no local state needed
     }
 
     return (
@@ -106,7 +104,7 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
                     >
                         <StarIcon
                             className={`w-8 h-8 transition-colors ${
-                                star <= (hover || rating)
+                                star <= (hover || value)  // ✅ Use value prop directly
                                     ? 'text-blue-300'
                                     : 'text-gray-300'
                             }`}
@@ -114,13 +112,6 @@ export function SelectableRating({experience_rating = 0, onRatingChange}: Select
                     </button>
                 ))}
             </div>
-
-            {/*{rating > 0 && (*/}
-            {/*    <p className="text-sm text-gray-600">*/}
-            {/*        {rating} {rating === 1 ? 'star' : 'stars'}*/}
-            {/*    </p>*/}
-            {/*)}*/}
-
         </div>
     );
 }

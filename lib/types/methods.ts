@@ -30,6 +30,16 @@ export interface Photo {
     upload_date: string;
 }
 
+export interface UploadedPhoto {
+    id?: string;
+    file?: File;              // For new uploads
+    preview?: string;         // Preview URL
+    photoId?: string;         // For existing photos from firebase
+    photoUrl?: string;        // For existing photos from firebase
+    caption?: string;
+    isExisting?: boolean;     // Flag to differentiate existing vs new
+}
+
 export interface CreateExperienceProps {
     user_id: string;
     title: string;

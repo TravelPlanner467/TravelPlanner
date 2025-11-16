@@ -4,42 +4,35 @@ import {InteractiveMap} from "@/app/(ui)/experience/components/leaflet-map";
 import {LocationSearch} from "@/app/(ui)/experience/components/location-search";
 
 interface FreeAddressSearchProps {
+    location: Location;
     onLocationSelect: (location: Location) => void;
-    initialLocation?: Location;
     mapZoom?: number;
 }
 
-// ============================================================================
-// MAP CONFIG
-// ============================================================================
 const MAP_CONFIG = {
     defaultCenter: { lat: 44.5618, lng: -123.2823 },
-    defaultZoom: 13,
 } as const;
 
 // =====================================================================================================================
 // MAIN COMPONENT
 // =====================================================================================================================
-export function FreeAddressSearch({onLocationSelect, initialLocation, mapZoom = 13,}: FreeAddressSearchProps) {
+export function FreeAddressSearch({location, onLocationSelect, mapZoom = 13}: FreeAddressSearchProps) {
     const [isMapExpanded, setIsMapExpanded] = useState(false);
 
-    // Current location state
-    const [location, setLocation] = useState<Location>(
-        initialLocation || {
-            lat: MAP_CONFIG.defaultCenter.lat,
-            lng: MAP_CONFIG.defaultCenter.lng,
-            address: ''
-        }
-    );
-    const [mapCenter, setMapCenter] = useState<{lat: number, lng: number}>({
-        lat: location.lat,
-        lng: location.lng
-    });
+    // default map center is the current location if no location is provided
+    const currentLocation = location || {
+        lat: MAP_CONFIG.defaultCenter.lat,
+        lng: MAP_CONFIG.defaultCenter.lng,
+        address: ''
+    };
+
+    const mapCenter = {
+        lat: currentLocation.lat,
+        lng: currentLocation.lng
+    };
 
     // Handle location selection from LocationSearch
     const handleLocationSelect = (selectedLocation: Location) => {
-        setLocation(selectedLocation);
-        setMapCenter({lat: selectedLocation.lat, lng: selectedLocation.lng});
         onLocationSelect(selectedLocation);
     };
 
@@ -51,11 +44,9 @@ export function FreeAddressSearch({onLocationSelect, initialLocation, mapZoom = 
         const newLocation = {
             lat: roundedLat,
             lng: roundedLng,
-            address: '' // LocationSearch will handle reverse geocoding
+            address: ''
         };
 
-        setLocation(newLocation);
-        setMapCenter({lat: roundedLat, lng: roundedLng});
         onLocationSelect(newLocation);
     };
 
@@ -67,7 +58,6 @@ export function FreeAddressSearch({onLocationSelect, initialLocation, mapZoom = 
                     onLocationSelect={handleLocationSelect}
                     location={location}
                     onMapClick={handleMapClick}
-                    // pass map expansion button to LocationSearch
                     mapButton={
                         <button
                             type="button"
@@ -83,7 +73,6 @@ export function FreeAddressSearch({onLocationSelect, initialLocation, mapZoom = 
                 />
             </div>
 
-            {/* Map Section */}
             {isMapExpanded && (
                 <div className="h-[450px] w-full border-2 border-gray-300 rounded-xl overflow-hidden shadow-md">
                     <InteractiveMap
@@ -96,7 +85,6 @@ export function FreeAddressSearch({onLocationSelect, initialLocation, mapZoom = 
                         }
                         onMapClick={handleMapClick}
                         height="450px"
-
                     />
                 </div>
             )}

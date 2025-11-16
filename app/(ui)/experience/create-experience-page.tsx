@@ -227,8 +227,8 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                                 rules={{ required: 'Rating is required', min: 1, max: 5 }}
                                 render={({ field: { value, onChange } }) => (
                                     <SelectableRating
-                                        experience_rating={value}
-                                        onRatingChange={onChange}
+                                        value={value}
+                                        onChange={onChange}
                                     />
                                 )}
                             />
@@ -297,7 +297,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                     render={({ field: { value } }) => (
                         <FreeAddressSearch
                             onLocationSelect={handleLocationSelect}
-                            initialLocation={value}
+                            location={value}
                             mapZoom={13}
                         />
                     )}

@@ -38,6 +38,8 @@ async function handleApiRequest<T>(url: string, options: RequestInit, errorConte
         // If no response, return data = {}
         const data = await response.json().catch(() => ({}));
 
+        console.log("Data: ", data);
+
         // Parse error messages
         if (!response.ok) {
             return {
@@ -85,6 +87,43 @@ export async function createExperience(formData: FormData): Promise<ErrorRespons
     console.log('Experience created successfully');
 }
 
+// UPDATE ========================================================================
+export async function updateExperience(formData: FormData): Promise<ErrorResponse | undefined> {
+    const userId = formData.get('session_user_id') as string;
+
+    const result = await handleApiRequest<void>(
+        `${API_BASE_URL}/experiences/update`,
+        {
+            method: 'POST',
+            headers: { "X-User-Id": userId },
+            body: formData,
+            credentials: 'include',
+        },
+        'Failed to update experience'
+    );
+
+    if (result) return result;
+    console.log('Experience updated successfully');
+}
+
+// DELETE ========================================================================
+export async function deleteExperience(formData: DeleteExperienceProps): Promise<ErrorResponse | undefined> {
+    const result = await handleApiRequest<void>(
+        `${API_BASE_URL}/experiences/delete/${formData.experience_id}`,
+        {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-id": formData.user_id,
+            },
+        },
+        'Failed to delete experience'
+    );
+
+    if (result) return result;
+    console.log('Experience deleted successfully');
+}
+
 // READ ======================================================================
 export async function getUserExperiences(userID: string): Promise<Experience[] | ErrorResponse> {
     const result = await handleApiRequest<Experience[]>(
@@ -115,44 +154,6 @@ export async function getExperienceDetails(experience_id: string): Promise<Exper
         'Failed to fetch experience details'
     );
 }
-
-// UPDATE ========================================================================
-export async function updateExperience(formData: EditExperienceSendProps): Promise<void | ErrorResponse> {
-    const result = await handleApiRequest<void>(
-        `${API_BASE_URL}/experiences/update`,
-        {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                "X-User-Id": formData.session_user_id,
-            },
-            body: JSON.stringify(formData),
-        },
-        'Failed to update experience'
-    );
-
-    if (result) return result;
-    console.log('Experience updated successfully');
-}
-
-// DELETE ========================================================================
-export async function deleteExperience(formData: DeleteExperienceProps): Promise<ErrorResponse | undefined> {
-    const result = await handleApiRequest<void>(
-        `${API_BASE_URL}/experiences/delete/${formData.experience_id}`,
-        {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                "X-User-id": formData.user_id,
-            },
-        },
-        'Failed to delete experience'
-    );
-
-    if (result) return result;
-    console.log('Experience deleted successfully');
-}
-
 
 export async function getUserExperiencesDetails(formData: getUserExperienceProps): Promise<Experience | ErrorResponse> {
     return handleApiRequest<Experience>(

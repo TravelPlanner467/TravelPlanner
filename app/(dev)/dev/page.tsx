@@ -7,10 +7,8 @@ import {getAllExperiences} from "@/lib/actions/experience-actions";
 import MapPageClient from "@/app/(dev)/dev/old/map-display-client";
 
 export default async function DevPage() {
-    // Session Validation
     const session = await auth.api.getSession({headers: await headers()});
     if ( !session ) {redirect('/account/login');}
-    // Get User ID
     const session_user_id = session.user.id;
 
     const experiences = await getAllExperiences()
