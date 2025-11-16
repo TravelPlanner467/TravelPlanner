@@ -219,6 +219,7 @@ export default function EditExperienceForm({ session_user_id, experience }: Expe
         // Append photos to delete
         formData.append('photos_to_delete', JSON.stringify(photosToDelete));
 
+        console.log(formData);
         console.log('New photos:', newPhotos.length);
         console.log('Photos to delete:', photosToDelete.length);
 
@@ -382,10 +383,11 @@ export default function EditExperienceForm({ session_user_id, experience }: Expe
                 <Controller
                     name="uploadedPhotos"
                     control={control}
-                    render={({ field: { onChange } }) => (
+                    render={({ field: { value, onChange } }) => (
                         <PhotoUpload
                             maxPhotos={10}
                             maxFileSizeMB={16}
+                            photos={value}
                             onPhotosChange={onChange}
                         />
                     )}
@@ -487,10 +489,10 @@ export default function EditExperienceForm({ session_user_id, experience }: Expe
             >
                 {isSubmitting ? (
                     <p className="flex items-center justify-center gap-3">
-                        Creating Experience...
+                        Saving Changes...
                     </p>
                 ) : (
-                    'Create Experience'
+                    'Save Changes'
                 )}
             </button>
         </form>

@@ -8,6 +8,8 @@ from psycopg2.extras import RealDictCursor
 import firebase_admin
 from firebase_admin import credentials, storage
 import uuid
+from urllib.parse import unquote
+import traceback
 
 # ==============================================================================
 # Configuration
@@ -89,14 +91,42 @@ def upload_to_firebase(file, experience_id):
 def delete_from_firebase(photo_url):
     """Delete file from Firebase Storage"""
     try:
+        # Extract the file path from the URL
         if 'storage.googleapis.com' in photo_url:
-            path = photo_url.split(FIREBASE_BUCKET + '/')[-1]
+            # Extract path after bucket name
+            bucket_marker = f'{FIREBASE_BUCKET}/'
+            if bucket_marker in photo_url:
+                path = photo_url.split(bucket_marker)[-1]
+                # Decode URL-encoded characters
+                path = unquote(path)
+            else:
+                # Parse URL more carefully
+                # URL format: https://storage.googleapis.com/bucket-name/experiences/123/uuid.jpg
+                parts = photo_url.split('/')
+                # Find index of bucket name and get everything after
+                try:
+                    bucket_index = parts.index(FIREBASE_BUCKET)
+                    path = '/'.join(parts[bucket_index + 1:])
+                    path = unquote(path)
+                except ValueError:
+                    print(f"Could not find bucket '{FIREBASE_BUCKET}' in URL: {photo_url}")
+                    return
+
+            print(f"Attempting to delete Firebase path: {path}")  # Debug
+
             bucket = storage.bucket()
             blob = bucket.blob(path)
-            blob.delete()
-            print(f"Deleted from Firebase: {path}")
+
+            # Check if blob exists before deleting
+            if blob.exists():
+                blob.delete()
+                print(f"✅ Deleted from Firebase: {path}")
+            else:
+                print(f"⚠️ Blob not found in Firebase: {path}")
+
     except Exception as e:
         print(f"Firebase delete error: {e}")
+        traceback.print_exc()
 
 # ==============================================================================
 # FLASK ROUTES
@@ -207,7 +237,7 @@ def create_experience():
 # ==============================================================================
 # Update
 # ==============================================================================
-@experiences_bp.route('/update', methods=['PUT'])
+@experiences_bp.route('/update', methods=['POST'])
 @require_auth
 def update_experience():
     """Update an existing experience, including keywords and user rating."""
@@ -237,8 +267,6 @@ def update_experience():
         # Get uploaded files and captions
         files = request.files.getlist('photos')
         captions = json.loads(request.form.get('captions', '[]'))
-
-        # Optional: Get list of photo IDs to delete
         photos_to_delete = json.loads(request.form.get('photos_to_delete', '[]'))
 
     except (ValueError, json.JSONDecodeError, KeyError) as e:
@@ -553,71 +581,60 @@ def get_user_experiences():
 
 @experiences_bp.route('/user_details/<int:experience_id>', methods=['GET'])
 @require_auth
-def get_user_experience_details(experience_id):
-    """
-    Get single experience with all details for editing.
-
-    Returns: experience details, average_rating, user_rating, keywords, and photos.
-
-    Requires authentication.
-    """
+def delete_experience(experience_id):
+    """Delete an experience and all associated data including Firebase photos"""
     user_id = g.user_id
 
     conn = get_db_connection()
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Fetch experience details with average rating and keywords
+            # Verify ownership
             cur.execute("""
-                        SELECT e.*,
-                               COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
-                               COUNT(DISTINCT r.user_id) AS rating_count,
-                               ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
-                        FROM experiences e
-                                 LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
-                                 LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
-                                 LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
-                        WHERE e.experience_id = %s
-                        GROUP BY e.experience_id
+                        SELECT user_id
+                        FROM experiences
+                        WHERE experience_id = %s
                         """, (experience_id,))
             experience = cur.fetchone()
 
             if not experience:
-                return jsonify({"error": "Experience not found"}), 404
+                return jsonify({'error': 'Experience not found'}), 404
 
-            # Verify experience ownership
             if experience['user_id'] != user_id:
-                return jsonify({"error": "Unauthorized to edit this experience"}), 403
+                return jsonify({'error': 'Unauthorized'}), 403
 
-            # Fetch user-specific rating
+            # Get all photo URLs before deletion (to delete from Firebase)
             cur.execute("""
-                        SELECT rating
-                        FROM experience_ratings
-                        WHERE experience_id = %s AND user_id = %s
-                        """, (experience_id, user_id))
-            user_rating = cur.fetchone()
-
-            # Fetch all photos for this experience
-            cur.execute("""
-                        SELECT photo_id, photo_url, caption, upload_date
+                        SELECT photo_url
                         FROM experience_photos
                         WHERE experience_id = %s
-                        ORDER BY upload_date ASC
                         """, (experience_id,))
             photos = cur.fetchall()
 
-            # Add all data to the response object
-            experience["owner_rating"] = user_rating["rating"] if user_rating else None
-            experience["average_rating"] = float(experience["average_rating"])
-            experience["photos"] = photos
+            # Delete experience
+            cur.execute("""
+                        DELETE
+                        FROM experiences
+                        WHERE experience_id = %s
+                        """, (experience_id,))
 
-            # Format dates for frontend
-            experience["experience_date"] = experience["experience_date"].strftime("%Y-%m-%d")
-            experience["create_date"] = experience["create_date"].isoformat()
-            if experience.get("last_updated"):
-                experience["last_updated"] = experience["last_updated"].isoformat()
+        conn.commit()
 
-        return jsonify(experience), 200
+        # Delete photos from Firebase after successful DB deletion
+        for photo in photos:
+            try:
+                delete_from_firebase(photo['photo_url'])
+            except Exception as e:
+                print(f"Failed to delete photo {photo['photo_url']}: {e}")
 
+        return jsonify({
+            "message": "Experience deleted successfully",
+            "deleted_photos": len(photos)
+        }), 200
+
+    except Exception as e:
+        conn.rollback()
+        print(f"Error deleting experience: {e}")
+        return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
 
