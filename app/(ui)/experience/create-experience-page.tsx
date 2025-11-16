@@ -319,7 +319,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                 <Controller
                     name="uploadedPhotos"
                     control={control}
-                    render={({ field: { onChange } }) => (
+                    render={({ field: { value, onChange } }) => (
                         <PhotoUpload
                             photos={value}
                             onPhotosChange={onChange}
