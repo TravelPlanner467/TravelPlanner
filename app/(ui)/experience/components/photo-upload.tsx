@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import {PhotoFile, usePhotoUpload} from "@/lib/utils/photo-utils";
 import {UploadedPhoto} from "@/lib/types";
 
 interface PhotoUploadProps {

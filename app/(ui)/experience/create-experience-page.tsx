@@ -321,9 +321,10 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                     control={control}
                     render={({ field: { onChange } }) => (
                         <PhotoUpload
+                            photos={value}
+                            onPhotosChange={onChange}
                             maxPhotos={10}
                             maxFileSizeMB={16}
-                            onPhotosChange={onChange}
                         />
                     )}
                 />

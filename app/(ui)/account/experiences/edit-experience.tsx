@@ -385,10 +385,10 @@ export default function EditExperienceForm({ session_user_id, experience }: Expe
                     control={control}
                     render={({ field: { value, onChange } }) => (
                         <PhotoUpload
-                            maxPhotos={10}
-                            maxFileSizeMB={16}
                             photos={value}
                             onPhotosChange={onChange}
+                            maxPhotos={10}
+                            maxFileSizeMB={16}
                         />
                     )}
                 />
