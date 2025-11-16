@@ -417,7 +417,7 @@ export default function HybridCreatePage({ user_id }: { user_id: string }) {
                         Rating <span className="text-red-500">*</span>
                     </label>
                     <div className="px-3 py-2 bg-gray-50 rounded-xl border-2 border-gray-200">
-                        <SelectableRating experience_rating={rating} onRatingChange={setRating} />
+                        <SelectableRating value={rating} onChange={setRating} />
                     </div>
                 </div>
             </div>
