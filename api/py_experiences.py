@@ -88,8 +88,8 @@ def upload_to_firebase(file, experience_id):
 
         # Get public URL
         return blob.public_url
-    except Exception as e:
-        print(f"Firebase upload error: {e}")
+    except Exception as error:
+        print(f"Firebase upload error: {error}")
         raise
 
 # Delete Photo (from firebase)
@@ -129,8 +129,8 @@ def delete_from_firebase(photo_url):
             else:
                 print(f"⚠️ Blob not found in Firebase: {path}")
 
-    except Exception as e:
-        print(f"Firebase delete error: {e}")
+    except Exception as error:
+        print(f"Firebase delete error: {error}")
         traceback.print_exc()
 
 # ==============================================================================
@@ -170,8 +170,8 @@ def create_experience():
         files = request.files.getlist('photos')
         captions = json.loads(request.form.get('captions', '[]'))
 
-    except (ValueError, json.JSONDecodeError) as e:
-        return jsonify({"error": f"Invalid input  {str(e)}"}), 400
+    except (ValueError, json.JSONDecodeError) as error:
+        return jsonify({"error": f"Invalid input  {str(error)}"}), 400
 
     conn = get_db_connection()
 
@@ -223,8 +223,8 @@ def create_experience():
                             RETURNING photo_id, experience_id, photo_url, caption, upload_date
                         """, (experience_id, photo_url, caption))
 
-                    except Exception as e:
-                        print(f"Error uploading {file.filename}: {e}")
+                    except Exception as error:
+                        print(f"Error uploading {file.filename}: {error}")
                         continue
 
         conn.commit()
@@ -233,9 +233,9 @@ def create_experience():
             "experience_id": experience_id,
         }), 201
 
-    except Exception as e:
+    except Exception as error:
         conn.rollback()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(error)}), 500
     finally:
         conn.close()
 
@@ -274,8 +274,8 @@ def update_experience():
         captions = json.loads(request.form.get('captions', '[]'))
         photos_to_delete = json.loads(request.form.get('photos_to_delete', '[]'))
 
-    except (ValueError, json.JSONDecodeError, KeyError) as e:
-        return jsonify({"error": f"Invalid input: {str(e)}"}), 400
+    except (ValueError, json.JSONDecodeError, KeyError) as error:
+        return jsonify({"error": f"Invalid input: {str(error)}"}), 400
 
     conn = psycopg2.connect(DATABASE_URL)
     try:
@@ -356,8 +356,8 @@ def update_experience():
                         # Delete from Firebase
                         try:
                             delete_from_firebase(photo['photo_url'])
-                        except Exception as e:
-                            print(f"Error deleting photo {photo_id} from Firebase: {e}")
+                        except Exception as error:
+                            print(f"Error deleting photo {photo_id} from Firebase: {error}")
 
             # Upload new photos to Firebase & insert metadata into database
             uploaded_photos = []
@@ -379,8 +379,8 @@ def update_experience():
 
                         uploaded_photos.append(cur.fetchone())
 
-                    except Exception as e:
-                        print(f"Error uploading {file.filename}: {e}")
+                    except Exception as error:
+                        print(f"Error uploading {file.filename}: {error}")
                         continue
 
         conn.commit()
@@ -391,9 +391,9 @@ def update_experience():
             "deleted_photos": len(photos_to_delete) if photos_to_delete else 0
         }), 200
 
-    except Exception as e:
+    except Exception as error:
         conn.rollback()
-        print(f"Error updating experience: {str(e)}")
+        print(f"Error updating experience: {str(error)}")
         return jsonify({'error': 'Failed to update experience'}), 500
 
     finally:
@@ -553,7 +553,7 @@ def get_user_experiences():
     ordered by creation date (newest first).
 
     Args:
-        user_id (STR): The ID of the user whose experiences to retrieve
+        user_id (STR): The ID of the user whose experiences are to retrieve
 
     Returns:
         tuple: JSON array of experience objects and HTTP 200
@@ -586,60 +586,71 @@ def get_user_experiences():
 
 @experiences_bp.route('/user_details/<int:experience_id>', methods=['GET'])
 @require_auth
-def delete_experience(experience_id):
-    """Delete an experience and all associated data including Firebase photos"""
+def get_user_experience_details(experience_id):
+    """
+    Get single experience with all details for editing.
+
+    Returns: experience details, average_rating, user_rating, keywords, and photos.
+
+    Requires authentication.
+    """
     user_id = g.user_id
 
     conn = get_db_connection()
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Verify ownership
+            # Fetch experience details with average rating and keywords
             cur.execute("""
-                        SELECT user_id
-                        FROM experiences
-                        WHERE experience_id = %s
+                        SELECT e.*,
+                               COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
+                               COUNT(DISTINCT r.user_id) AS rating_count,
+                               ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
+                        FROM experiences e
+                                 LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
+                                 LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
+                                 LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
+                        WHERE e.experience_id = %s
+                        GROUP BY e.experience_id
                         """, (experience_id,))
             experience = cur.fetchone()
 
             if not experience:
-                return jsonify({'error': 'Experience not found'}), 404
+                return jsonify({"error": "Experience not found"}), 404
 
+            # Verify experience ownership
             if experience['user_id'] != user_id:
-                return jsonify({'error': 'Unauthorized'}), 403
+                return jsonify({"error": "Unauthorized to edit this experience"}), 403
 
-            # Get all photo URLs before deletion (to delete from Firebase)
+            # Fetch user-specific rating
             cur.execute("""
-                        SELECT photo_url
+                        SELECT rating
+                        FROM experience_ratings
+                        WHERE experience_id = %s AND user_id = %s
+                        """, (experience_id, user_id))
+            user_rating = cur.fetchone()
+
+            # Fetch all photos for this experience
+            cur.execute("""
+                        SELECT photo_id, photo_url, caption, upload_date
                         FROM experience_photos
                         WHERE experience_id = %s
+                        ORDER BY upload_date ASC
                         """, (experience_id,))
             photos = cur.fetchall()
 
-            # Delete experience
-            cur.execute("""
-                        DELETE
-                        FROM experiences
-                        WHERE experience_id = %s
-                        """, (experience_id,))
+            # Add all data to the response object
+            experience["owner_rating"] = user_rating["rating"] if user_rating else None
+            experience["average_rating"] = float(experience["average_rating"])
+            experience["photos"] = photos
 
-        conn.commit()
+            # Format dates for frontend
+            experience["experience_date"] = experience["experience_date"].strftime("%Y-%m-%d")
+            experience["create_date"] = experience["create_date"].isoformat()
+            if experience.get("last_updated"):
+                experience["last_updated"] = experience["last_updated"].isoformat()
 
-        # Delete photos from Firebase after successful DB deletion
-        for photo in photos:
-            try:
-                delete_from_firebase(photo['photo_url'])
-            except Exception as e:
-                print(f"Failed to delete photo {photo['photo_url']}: {e}")
+        return jsonify(experience), 200
 
-        return jsonify({
-            "message": "Experience deleted successfully",
-            "deleted_photos": len(photos)
-        }), 200
-
-    except Exception as e:
-        conn.rollback()
-        print(f"Error deleting experience: {e}")
-        return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
 
@@ -652,7 +663,7 @@ def get_batch_experiences():
     ordered by creation date (newest first).
 
     Args:
-        user_id (STR): The ID of the user whose experiences to retrieve
+        user_id (STR): The ID of the user whose experiences are to retrieve
 
     Returns:
         tuple: JSON array of experience objects and HTTP 200
@@ -711,8 +722,8 @@ def get_top_experiences():
             # Convert Row objects to dictionaries for JSON serialization
             return jsonify([dict(exp) for exp in top_experiences]), 200
 
-    except Exception as e:
-        print(f"Error fetching top experiences: {str(e)}")
+    except Exception as error:
+        print(f"Error fetching top experiences: {str(error)}")
         return jsonify({'error': 'Failed to fetch top experiences'}), 500
 
     finally:
