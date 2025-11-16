@@ -1,15 +1,20 @@
 import json
 import os
-import psycopg2
-from dotenv import load_dotenv
-from flask import jsonify, Blueprint,request, g
+import traceback
+import uuid
 from functools import wraps
+from urllib.parse import unquote
+
+# psycopg2-binary==2.9.11
+import psycopg2
 from psycopg2.extras import RealDictCursor
+# python-dotenv==1.0.1
+from dotenv import load_dotenv
+# Flask==3.1.0
+from flask import jsonify, Blueprint,request, g
+# firebase-admin==6.4.0
 import firebase_admin
 from firebase_admin import credentials, storage
-import uuid
-from urllib.parse import unquote
-import traceback
 
 # ==============================================================================
 # Configuration
