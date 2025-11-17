@@ -1,80 +1,65 @@
 import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
-import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import {getSearchSuggestions} from "@/lib/actions/search-actions";
 
 interface KeywordsAutocompleteProps {
     keywords: string;
     setKeywords: (keywords: string) => void;
 }
 
-interface KeywordOption {
-    label: string;
-    rank: number;
-}
-
 export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocompleteProps) {
-    const [keywordOptions, setKeywordOptions] = useState<KeywordOption[]>([]);
-    const [filteredOptions, setFilteredOptions] = useState<KeywordOption[]>([]);
-
-    const [isLoading, setIsLoading] = useState(true);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-    // Load keywords from JSON file
+    // Fetch suggestions from API with debouncing
     useEffect(() => {
-        const loadKeywords = async () => {
+        // Clear previous timer
+        if (debounceTimer.current) {
+            clearTimeout(debounceTimer.current);
+        }
+
+        // Don't search if query is too short
+        if (keywords.trim().length < 2) {
+            setSuggestions([]);
+            setIsOpen(false);
+            return;
+        }
+
+        // Debounce API call by 300ms
+        debounceTimer.current = setTimeout(async () => {
+            setIsLoading(true);
             try {
-                const response = await fetch('/keywords.json');
-                const data = await response.json() as string[];
+                const result = await getSearchSuggestions(keywords.trim());
 
-                // Convert to KeywordOption format with rank based on position
-                const options = data.map((label, index) => ({
-                    label,
-                    rank: data.length - index // First item gets highest rank
-                }));
-
-                setKeywordOptions(options);
-
+                if ('suggestions' in result && Array.isArray(result.suggestions)) {
+                    setSuggestions(result.suggestions);
+                    setIsOpen(result.suggestions.length > 0);
+                } else {
+                    setSuggestions([]);
+                    setIsOpen(false);
+                }
             } catch (error) {
-                console.error('Error loading keywords:', error);
+                console.error('Error fetching suggestions:', error);
+                setSuggestions([]);
+                setIsOpen(false);
             } finally {
                 setIsLoading(false);
             }
+        }, 300);
+
+        // Cleanup
+        return () => {
+            if (debounceTimer.current) {
+                clearTimeout(debounceTimer.current);
+            }
         };
-
-        loadKeywords();
-    }, []);
-
-    // Filter options based on input
-    useEffect(() => {
-        if (keywords.trim().length === 0) {
-            setFilteredOptions([]); // Don't show suggestions when empty
-            setIsOpen(false);
-        } else {
-            const searchTerm = keywords.toLowerCase();
-
-            // Separate into starts-with and contains
-            const startsWithMatches: KeywordOption[] = [];
-            const containsMatches: KeywordOption[] = [];
-
-            // Filter by starts-with and contains
-            keywordOptions.forEach(option => {
-                const label = option.label.toLowerCase();
-                if (label.startsWith(searchTerm)) {
-                    startsWithMatches.push(option);
-                } else if (label.includes(searchTerm)) {
-                    containsMatches.push(option);
-                }
-            });
-
-            // Combine results and set variables
-            const filtered = [...startsWithMatches, ...containsMatches].slice(0, 10);
-            setFilteredOptions(filtered);
-            setIsOpen(filtered.length > 0);
-        }
-    }, [keywords, keywordOptions]);
+    }, [keywords]);
 
     // Handle click outside
     useEffect(() => {
@@ -101,7 +86,7 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
             case 'ArrowDown':
                 e.preventDefault();
                 setHighlightedIndex(prev =>
-                    prev < filteredOptions.length - 1 ? prev + 1 : prev
+                    prev < suggestions.length - 1 ? prev + 1 : prev
                 );
                 break;
             case 'ArrowUp':
@@ -110,8 +95,8 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
                 break;
             case 'Enter':
                 e.preventDefault();
-                if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
-                    handleSelect(filteredOptions[highlightedIndex]);
+                if (highlightedIndex >= 0 && suggestions[highlightedIndex]) {
+                    handleSelect(suggestions[highlightedIndex]);
                 }
                 break;
             case 'Escape':
@@ -122,15 +107,15 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
         }
     };
 
-    const handleSelect = (option: KeywordOption) => {
-        setKeywords(option.label);
+    const handleSelect = (suggestion: string) => {
+        setKeywords(suggestion);
         setIsOpen(false);
         setHighlightedIndex(-1);
-        inputRef.current?.blur();
+        inputRef.current?.focus();
     };
 
     const handleFocus = () => {
-        if (keywords.trim().length > 0) {
+        if (keywords.trim().length >= 2 && suggestions.length > 0) {
             setIsOpen(true);
         }
     };
@@ -150,37 +135,41 @@ export function KeywordsAutocomplete({keywords, setKeywords}: KeywordsAutocomple
                         onChange={(e) => setKeywords(e.target.value)}
                         onFocus={handleFocus}
                         onKeyDown={handleKeyDown}
-                        placeholder={isLoading ? "Loading keywords..." : "Activities, attractions, keywords..."}
-                        disabled={isLoading}
+                        placeholder="Activities, attractions, keywords..."
                         className="w-full text-md text-gray-700 placeholder-gray-400
-                                 bg-transparent border-0 focus:outline-none focus:ring-0
-                                 disabled:text-gray-400"
+                                 bg-transparent border-0 focus:outline-none focus:ring-0"
                         autoComplete="off"
                         data-1p-ignore
                         data-lpignore
                         data-form-type="other"
                     />
+                    {isLoading && (
+                        <div className="flex-shrink-0">
+                            <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600
+                                          rounded-full animate-spin"></div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Dropdown */}
-                {isOpen && filteredOptions.length > 0 && (
+                {isOpen && suggestions.length > 0 && (
                     <ul className="absolute w-full z-50 mt-1 max-h-60 overflow-y-auto
                                    bg-white border border-gray-300 rounded-md shadow-lg">
-                        {filteredOptions.map((option, index) => (
+                        {suggestions.map((suggestion, index) => (
                             <li
                                 key={index}
                                 onMouseDown={(e) => {
                                     e.preventDefault();
-                                    handleSelect(option);
+                                    handleSelect(suggestion);
                                 }}
-                                className={`px-4 py-2 cursor-pointer text-left text-sm 
-                                            transition-colors duration-150       
+                                className={`px-4 py-2 cursor-pointer text-left text-sm
+                                            transition-colors duration-150
                                             ${index === highlightedIndex
                                                 ? 'bg-blue-50 text-blue-900'
                                                 : 'text-gray-900 hover:bg-gray-100'}`
                                 }
                             >
-                                {option.label}
+                                {suggestion}
                             </li>
                         ))}
                     </ul>

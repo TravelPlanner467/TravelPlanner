@@ -81,33 +81,38 @@ def search_by_keyword():
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Search using ILIKE for case-insensitive pattern matching
-            # Also search in the keywords array
+            # Search in title, description, and keywords using proper JOINs
             search_pattern = f'%{query}%'
 
             cur.execute("""
                 SELECT
-                    *,
-                    CASE
-                        WHEN LOWER(title) LIKE LOWER(%s) THEN 3
-                        WHEN LOWER(description) LIKE LOWER(%s) THEN 2
-                        WHEN EXISTS (
-                            SELECT 1 FROM unnest(keywords) AS keyword
-                            WHERE LOWER(keyword) LIKE LOWER(%s)
-                        ) THEN 1
+                    e.*,
+                    ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords,
+                    COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
+                    COUNT(DISTINCT r.user_id) AS rating_count,
+                    owner_rating.rating AS owner_rating,
+                    MAX(CASE
+                        WHEN LOWER(e.title) LIKE LOWER(%s) THEN 3
+                        WHEN LOWER(e.description) LIKE LOWER(%s) THEN 2
+                        WHEN k.name IS NOT NULL AND LOWER(k.name) LIKE LOWER(%s) THEN 1
                         ELSE 0
-                    END as relevance_score
-                FROM experiences
+                    END) as relevance_score
+                FROM experiences e
+                    LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
+                    LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
+                    LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
+                    LEFT JOIN experience_ratings owner_rating
+                        ON e.experience_id = owner_rating.experience_id
+                        AND e.user_id = owner_rating.user_id
                 WHERE
-                    LOWER(title) LIKE LOWER(%s)
-                    OR LOWER(description) LIKE LOWER(%s)
-                    OR EXISTS (
-                        SELECT 1 FROM unnest(keywords) AS keyword
-                        WHERE LOWER(keyword) LIKE LOWER(%s)
-                    )
+                    LOWER(e.title) LIKE LOWER(%s)
+                    OR LOWER(e.description) LIKE LOWER(%s)
+                    OR (k.name IS NOT NULL AND LOWER(k.name) LIKE LOWER(%s))
+                GROUP BY e.experience_id, owner_rating.rating
                 ORDER BY
                     relevance_score DESC,
-                    user_rating DESC NULLS LAST,
-                    create_date DESC
+                    average_rating DESC,
+                    e.create_date DESC
                 LIMIT %s OFFSET %s
             """, (search_pattern, search_pattern, search_pattern,
                   search_pattern, search_pattern, search_pattern,
@@ -181,25 +186,36 @@ def search_by_location():
             cur.execute("""
                 SELECT * FROM (
                     SELECT
-                        *,
+                        e.*,
+                        ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords,
+                        COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
+                        COUNT(DISTINCT r.user_id) AS rating_count,
+                        owner_rating.rating AS owner_rating,
                         (
                             6371 * acos(
                                 cos(radians(%s)) *
-                                cos(radians(latitude)) *
-                                cos(radians(longitude) - radians(%s)) +
+                                cos(radians(e.latitude)) *
+                                cos(radians(e.longitude) - radians(%s)) +
                                 sin(radians(%s)) *
-                                sin(radians(latitude))
+                                sin(radians(e.latitude))
                             )
                         ) AS distance_km
-                    FROM experiences
+                    FROM experiences e
+                        LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
+                        LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
+                        LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
+                        LEFT JOIN experience_ratings owner_rating
+                            ON e.experience_id = owner_rating.experience_id
+                            AND e.user_id = owner_rating.user_id
                     WHERE
-                        latitude IS NOT NULL
-                        AND longitude IS NOT NULL
+                        e.latitude IS NOT NULL
+                        AND e.longitude IS NOT NULL
+                    GROUP BY e.experience_id, owner_rating.rating
                 ) AS exp_with_distance
                 WHERE distance_km <= %s
                 ORDER BY
                     distance_km ASC,
-                    user_rating DESC NULLS LAST
+                    average_rating DESC
                 LIMIT %s OFFSET %s
             """, (lat, lon, lat, radius, limit, offset))
 
@@ -278,43 +294,48 @@ def search_combined():
             cur.execute("""
                 SELECT * FROM (
                     SELECT
-                        *,
-                        CASE
-                            WHEN LOWER(title) LIKE LOWER(%s) THEN 3
-                            WHEN LOWER(description) LIKE LOWER(%s) THEN 2
-                            WHEN EXISTS (
-                                SELECT 1 FROM unnest(keywords) AS keyword
-                                WHERE LOWER(keyword) LIKE LOWER(%s)
-                            ) THEN 1
+                        e.*,
+                        ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords,
+                        COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
+                        COUNT(DISTINCT r.user_id) AS rating_count,
+                        owner_rating.rating AS owner_rating,
+                        MAX(CASE
+                            WHEN LOWER(e.title) LIKE LOWER(%s) THEN 3
+                            WHEN LOWER(e.description) LIKE LOWER(%s) THEN 2
+                            WHEN k.name IS NOT NULL AND LOWER(k.name) LIKE LOWER(%s) THEN 1
                             ELSE 0
-                        END as relevance_score,
+                        END) as relevance_score,
                         (
                             6371 * acos(
                                 cos(radians(%s)) *
-                                cos(radians(latitude)) *
-                                cos(radians(longitude) - radians(%s)) +
+                                cos(radians(e.latitude)) *
+                                cos(radians(e.longitude) - radians(%s)) +
                                 sin(radians(%s)) *
-                                sin(radians(latitude))
+                                sin(radians(e.latitude))
                             )
                         ) AS distance_km
-                    FROM experiences
+                    FROM experiences e
+                        LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
+                        LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
+                        LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
+                        LEFT JOIN experience_ratings owner_rating
+                            ON e.experience_id = owner_rating.experience_id
+                            AND e.user_id = owner_rating.user_id
                     WHERE
-                        latitude IS NOT NULL
-                        AND longitude IS NOT NULL
+                        e.latitude IS NOT NULL
+                        AND e.longitude IS NOT NULL
                         AND (
-                            LOWER(title) LIKE LOWER(%s)
-                            OR LOWER(description) LIKE LOWER(%s)
-                            OR EXISTS (
-                                SELECT 1 FROM unnest(keywords) AS keyword
-                                WHERE LOWER(keyword) LIKE LOWER(%s)
-                            )
+                            LOWER(e.title) LIKE LOWER(%s)
+                            OR LOWER(e.description) LIKE LOWER(%s)
+                            OR (k.name IS NOT NULL AND LOWER(k.name) LIKE LOWER(%s))
                         )
+                    GROUP BY e.experience_id, owner_rating.rating
                 ) AS exp_with_scores
                 WHERE distance_km <= %s
                 ORDER BY
                     relevance_score DESC,
                     distance_km ASC,
-                    user_rating DESC NULLS LAST
+                    average_rating DESC
                 LIMIT %s OFFSET %s
             """, (search_pattern, search_pattern, search_pattern,
                   lat, lon, lat,
@@ -368,20 +389,18 @@ def get_search_suggestions():
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             search_pattern = f'{query}%'
 
-            # Get suggestions from titles and keywords
+            # Get suggestions from titles and keywords using proper JOINs
             cur.execute("""
                 WITH keyword_suggestions AS (
-                    SELECT DISTINCT unnest(keywords) as suggestion
-                    FROM experiences
-                    WHERE EXISTS (
-                        SELECT 1 FROM unnest(keywords) AS k
-                        WHERE LOWER(k) LIKE LOWER(%s)
-                    )
+                    SELECT DISTINCT k.name as suggestion
+                    FROM keywords k
+                    JOIN experience_keywords ek ON k.keyword_id = ek.keyword_id
+                    WHERE LOWER(k.name) LIKE LOWER(%s)
                 ),
                 title_suggestions AS (
-                    SELECT DISTINCT title as suggestion
-                    FROM experiences
-                    WHERE LOWER(title) LIKE LOWER(%s)
+                    SELECT DISTINCT e.title as suggestion
+                    FROM experiences e
+                    WHERE LOWER(e.title) LIKE LOWER(%s)
                 )
                 SELECT suggestion FROM keyword_suggestions
                 UNION
