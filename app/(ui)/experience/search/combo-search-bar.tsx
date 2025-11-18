@@ -14,7 +14,22 @@ export default function ComboSearchBar() {
     const searchParams = useSearchParams();
 
     const [keywords, setKeywords] = useState(searchParams.get('keywords') || '');
-    const [location, setLocation] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
+
+    // Initialize location from URL parameters if available
+    const [location, setLocation] = useState<{ latitude: number; longitude: number; address: string } | null>(() => {
+        const lat = searchParams.get('latitude');
+        const lng = searchParams.get('longitude');
+        const addr = searchParams.get('address');
+
+        if (lat && lng) {
+            return {
+                latitude: parseFloat(lat),
+                longitude: parseFloat(lng),
+                address: addr || `${lat}, ${lng}`
+            };
+        }
+        return null;
+    });
 
     const { isLoaded, loadError } = useGoogleMaps();
 
@@ -29,6 +44,10 @@ export default function ComboSearchBar() {
         if (location) {
             params.set('latitude', location.latitude.toString());
             params.set('longitude', location.longitude.toString());
+            // Add address for better display and URL sharing
+            if (location.address) {
+                params.set('address', location.address);
+            }
         }
 
         router.push(`/experience/search?${params.toString()}`);

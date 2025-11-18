@@ -13,6 +13,11 @@ interface ExperienceViewProps {
     location?: string
     session_user_id?: string;
     default_view_mode?: ViewMode;
+    initialCenter?: {
+        lat: number;
+        lng: number;
+        address: string;
+    } | null;
 }
 
 type ViewMode = 'list' | 'map';
@@ -47,7 +52,8 @@ export default function ExperiencesDisplay({
                                                keywords,
                                                location,
                                                session_user_id,
-                                               default_view_mode = "map"}
+                                               default_view_mode = "map",
+                                               initialCenter}
 : ExperienceViewProps)
 {
     const [viewMode, setViewMode] = useState<ViewMode>(default_view_mode);
@@ -146,6 +152,7 @@ export default function ExperiencesDisplay({
                         mapBounds={mapBounds || null}
                         onBoundsChange={handleBoundsChange}
                         onRequestRefresh={handleRequestRefresh}
+                        initialCenter={initialCenter}
                     />
                 )}
             </div>

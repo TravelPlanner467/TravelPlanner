@@ -114,3 +114,48 @@ export function roundCoordinate(coord: number, decimals: number = 6): number {
 
 export const isValidLatitude = (lat: number): boolean => lat >= -90 && lat <= 90;
 export const isValidLongitude = (lng: number): boolean => lng >= -180 && lng <= 180;
+
+// ============================================================================
+// CACHED REVERSE GEOCODING
+// ============================================================================
+
+/**
+ * Cached reverse geocoding to reduce API calls
+ * Cache key is rounded to ~100m precision (4 decimal places)
+ */
+const geocodeCache = new Map<string, string>();
+const MAX_CACHE_SIZE = 100;
+
+export async function reverseGeocodeWithCache(
+    lat: number,
+    lng: number
+): Promise<string | null> {
+    // Round to 4 decimal places (~11m precision)
+    const cacheKey = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+
+    // Check cache first
+    if (geocodeCache.has(cacheKey)) {
+        return geocodeCache.get(cacheKey) || null;
+    }
+
+    try {
+        const address = await reverseGeocode(lat, lng);
+
+        if (address && address !== 'Error fetching address') {
+            geocodeCache.set(cacheKey, address);
+
+            // Limit cache size to prevent memory issues
+            if (geocodeCache.size > MAX_CACHE_SIZE) {
+                const firstKey = geocodeCache.keys().next().value;
+                if (firstKey) {
+                    geocodeCache.delete(firstKey);
+                }
+            }
+        }
+
+        return address;
+    } catch (error) {
+        console.error('Cached reverse geocode failed:', error);
+        return null;
+    }
+}

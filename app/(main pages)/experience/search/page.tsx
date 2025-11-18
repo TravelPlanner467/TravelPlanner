@@ -4,12 +4,13 @@ import {Experience} from "@/lib/types";
 import ExperiencesDisplay from "@/app/(ui)/experience/experiences-display";
 
 export default async function SearchResultsPage(
-    props: { searchParams?: Promise<{ keywords?: string; latitude?: string; longitude?: string }> }
+    props: { searchParams?: Promise<{ keywords?: string; latitude?: string; longitude?: string; address?: string }> }
 ) {
     const searchParams = await props.searchParams;
     const keywords = searchParams?.keywords || '';
     const latitude = searchParams?.latitude;
     const longitude = searchParams?.longitude;
+    const address = searchParams?.address || '';
 
     let experiences: Experience[] = [];
     let location = '';
@@ -74,6 +75,13 @@ export default async function SearchResultsPage(
         );
     }
 
+    // Parse coordinates once and create structured object for map center
+    const initialCenter = latitude && longitude ? {
+        lat: parseFloat(latitude),
+        lng: parseFloat(longitude),
+        address: address || `${latitude}, ${longitude}`
+    } : null;
+
     return (
         <div className="flex flex-col w-full h-full">
             <div className="w-screen">
@@ -83,6 +91,7 @@ export default async function SearchResultsPage(
                 <ExperiencesDisplay
                     keywords={keywords}
                     location={location}
+                    initialCenter={initialCenter}
                     experiences={experiences}
                 />
             </div>
