@@ -23,7 +23,6 @@ export default async function Page() {
                 <ComboSearchBar />
             </div>
 
-
         </div>
     );
 }

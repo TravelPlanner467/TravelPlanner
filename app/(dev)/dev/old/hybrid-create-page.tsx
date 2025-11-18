@@ -6,8 +6,8 @@ import {XMarkIcon} from "@heroicons/react/24/outline";
 import {useDebounce} from "use-debounce";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
-import {GooglePlacesAutocomplete} from "@/app/(ui)/general/google-places-autocomplete";
-import {KeywordsAutocomplete} from "@/app/(ui)/experience/components/keywords-autocomplete";
+import {GooglePlacesAutocomplete} from "@/app/(ui)/experience/search/google-places-autocomplete";
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/search/keywords-autocomplete";
 import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
 import {createExperience} from "@/lib/actions/experience-actions";
 

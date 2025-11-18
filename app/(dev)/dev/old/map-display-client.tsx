@@ -1,9 +1,9 @@
-// app/(dev)/dev/components/map-page-client.tsx
+// app/(dev)/dev/display/map-page-client.tsx
 'use client'
 
 import {useState, useCallback, useTransition} from "react";
 
-import DisplayByMap from "@/app/(ui)/experience/components/display-by-map";
+import DisplayByMap from "@/app/(ui)/experience/display-by-map";
 import {getExperiencesByLocation} from "@/lib/actions/experience-actions";
 import {Experience} from "@/lib/types";
 

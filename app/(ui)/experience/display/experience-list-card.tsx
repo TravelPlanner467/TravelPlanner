@@ -1,19 +1,28 @@
 'use client'
 
 import {useRouter} from 'next/navigation';
-import {ChevronRightIcon, MapPinIcon, PhotoIcon} from "@heroicons/react/24/outline";
+import {CalendarIcon, ChevronRightIcon, MapPinIcon, PhotoIcon} from "@heroicons/react/24/outline";
 
 import {RatingDisplay} from "@/app/(ui)/experience/buttons/star-rating";
 import {Experience} from "@/lib/types";
+import {
+    DeleteExperienceButton,
+    EditExperienceButton,
+    ViewExperienceButton
+} from "@/app/(ui)/account/buttons/experience-buttons";
 
-interface ExperienceCardProps {
+interface ExperienceListCardProps {
     experience: Experience;
+    session_user_id?: string | null;
+    variant?: ExperienceCardVariant;
     isHovered?: boolean;
     isSelected?: boolean;
     compact?: boolean
 }
 
-export function SearchResultsCard({ experience, compact = false }: ExperienceCardProps) {
+type ExperienceCardVariant = 'search' | 'user';
+
+export function ExperienceListCard({ experience, session_user_id, compact = false }: ExperienceListCardProps) {
     const router = useRouter();
     const experienceDate = new Date(experience.experience_date).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -21,10 +30,134 @@ export function SearchResultsCard({ experience, compact = false }: ExperienceCar
         day: 'numeric'
     });
 
+    // Check if user is owner of the card
+    const isOwner =
+        typeof session_user_id === 'string' &&
+        session_user_id.length > 0 &&
+        session_user_id === experience.user_id;
+
+    // Set card variant
+    const variant: ExperienceCardVariant = isOwner ? 'user' : 'search';
+
     const handleClick = () => {
         router.push(`/experience/details?q=${experience.experience_id}`);
     };
 
+    // ================= USER/OWNER STYLE =================
+    if (variant === 'user') {
+        if (compact) {
+            // COMPACT USER/OWNER STYLE
+            return (
+                <div className="group flex bg-white border border-gray-400 shadow-md rounded-xl hover:shadow-xl hover:border-blue-300 transition-all duration-200">
+                    {/* LEFT: content */}
+                    <div className="flex flex-1 min-w-0 p-3 hover:bg-gray-50/50 transition-colors">
+                        <div className="flex flex-col flex-1 min-w-0 gap-1">
+                            {/* Top row: title + date */}
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                                <div className="flex flex-col min-w-0">
+                                    <h2 className="font-bold text-gray-900 truncate text-base">
+                                        {experience.title}
+                                    </h2>
+                                    <p className="text-gray-500 text-xs mt-0.5">
+                                        {experienceDate}
+                                    </p>
+                                </div>
+
+                                {/* Small inline actions for owner */}
+                                {isOwner && (
+                                    <div className="flex items-center gap-1 shrink-0">
+                                        <ViewExperienceButton experience_id={experience.experience_id} />
+                                        <EditExperienceButton experience_id={experience.experience_id} />
+                                        <DeleteExperienceButton
+                                            experience_id={experience.experience_id}
+                                            user_id={session_user_id}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Description */}
+                            <p className="text-gray-700 leading-relaxed line-clamp-2 text-xs mb-1">
+                                {experience.description}
+                            </p>
+
+                            {/* Location */}
+                            <div className="flex items-center border-t border-gray-300 pt-2">
+                                <MapPinIcon className="text-blue-600 shrink-0 w-3.5 h-3.5 mr-1" />
+                                <p className="truncate text-gray-600 text-xs">
+                                    {experience.address}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // FULL USER/OWNER STYLE
+        return (
+            <div className="group flex bg-white border border-gray-400 shadow-md rounded-xl hover:shadow-xl hover:border-blue-300 transition-all duration-200">
+                {/* LEFT: content */}
+                <div className="flex flex-col flex-1 px-4 py-3 gap-2">
+                    {/* TOP ROW */}
+                    <div className="flex flex-row justify-between items-start gap-4">
+                        {/* Date & Title */}
+                        <div className="flex flex-col gap-2 min-w-0">
+                            <h2 className="text-2xl font-semibold text-gray-900 line-clamp-1">
+                                {experience.title}
+                            </h2>
+
+                            <div className="flex text-gray-700 items-center">
+                                <CalendarIcon className="w-5 h-5 mr-1" />
+                                <p className="text-sm">{experienceDate}</p>
+                            </div>
+                        </div>
+
+                        {/* Keywords */}
+                        <div className="hidden md:flex flex-wrap gap-2 justify-end max-w-xs">
+                            {experience.keywords.map((keyword, index) => (
+                                <p
+                                    key={index}
+                                    className="px-2 py-1 text-xs font-medium border rounded-md"
+                                >
+                                    {keyword}
+                                </p>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* MIDDLE ROW */}
+                    <div className="px-1">
+                        <p className="text-gray-700 line-clamp-3">
+                            {experience.description}
+                        </p>
+                    </div>
+
+                    {/* BOTTOM ROW */}
+                    <div className="flex items-center mt-1">
+                        <MapPinIcon className="w-5 h-5 mr-1 text-blue-600" />
+                        <p className="truncate min-w-0 text-sm text-gray-600">
+                            {experience.address}
+                        </p>
+                    </div>
+                </div>
+
+                {/* RIGHT: vertical buttons */}
+                {isOwner && (
+                    <div className="flex flex-col items-stretch justify-center gap-2 px-3 py-3 border-l border-gray-300 bg-gray-50">
+                        <ViewExperienceButton experience_id={experience.experience_id} />
+                        <EditExperienceButton experience_id={experience.experience_id} />
+                        <DeleteExperienceButton
+                            experience_id={experience.experience_id}
+                            user_id={session_user_id}
+                        />
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // ================= GENERAL SEARCH STYLE (NO USER AUTH) =================
     return (
         <div className="group flex bg-white
                         border border-gray-400 shadow-md rounded-xl

@@ -1,7 +1,7 @@
 import {auth} from "@/lib/auth";
 import { Suspense } from 'react';
 import {headers} from "next/headers";
-import {ExperienceDetailsContent} from "@/app/(ui)/experience/components/experience-details-card";
+import {ExperienceDetailsContent} from "@/app/(ui)/experience/display/experience-details-card";
 import {getExperienceDetails, getUserByID} from "@/lib/actions/experience-actions";
 import {getUserTrips} from "@/lib/actions/trips-actions";
 import {GoBackButton} from "@/app/(ui)/general/buttons/nav-buttons";

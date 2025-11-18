@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {isValidLatitude, isValidLongitude, Location, roundCoordinate} from "@/lib/utils/nomatim-utils";
-import {InteractiveMap} from "@/app/(ui)/experience/components/leaflet-map";
-import {LocationSearch} from "@/app/(ui)/experience/components/location-search";
+import {InteractiveMap} from "@/app/(ui)/experience/display/leaflet-map";
+import {LocationSearch} from "@/app/(ui)/experience/search/location-search";
 
 interface FreeAddressSearchProps {
     location: Location;

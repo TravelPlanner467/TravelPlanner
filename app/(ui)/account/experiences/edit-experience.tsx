@@ -5,10 +5,10 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
-import {KeywordsAutocomplete} from "@/app/(ui)/experience/components/keywords-autocomplete";
-import {FreeAddressSearch} from "@/app/(ui)/experience/components/free-address-search";
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/search/keywords-autocomplete";
+import {FreeAddressSearch} from "@/app/(ui)/experience/display/free-address-search";
 import {fetchSuggestedKeywords, updateExperience} from "@/lib/actions/experience-actions";
-import {PhotoUpload} from "@/app/(ui)/experience/components/photo-upload";
+import {PhotoUpload} from "@/app/(ui)/experience/create-edit/photo-upload";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {Experience, Photo, UploadedPhoto} from "@/lib/types";
 

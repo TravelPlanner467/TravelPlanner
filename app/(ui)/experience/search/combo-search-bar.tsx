@@ -3,8 +3,8 @@
 import {useRouter, useSearchParams} from "next/navigation";
 import {FormEvent, useState} from "react";
 
-import {GooglePlacesAutocomplete} from "@/app/(ui)/general/google-places-autocomplete";
-import {KeywordsAutocomplete} from "@/app/(ui)/experience/components/keywords-autocomplete";
+import {GooglePlacesAutocomplete} from "@/app/(ui)/experience/search/google-places-autocomplete";
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/search/keywords-autocomplete";
 import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
