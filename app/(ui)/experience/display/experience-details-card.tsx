@@ -10,7 +10,7 @@ import LightboxImage from "@/app/(ui)/experience/display/lightbox-image";
 import {AddToTripButton} from "@/app/(ui)/experience/buttons/add-to-trip-button";
 import {RatingDisplay} from "@/app/(ui)/experience/buttons/star-rating";
 import {RateExperienceButton} from "@/app/(ui)/experience/buttons/rate-experience-button";
-import {Experience, ErrorResponse, UserTripsProps} from "@/lib/types";
+import {Experience, ErrorResponse, Trip, UserTripsProps} from "@/lib/types";
 import {Inline, Thumbnails} from "yet-another-react-lightbox/plugins";
 
 interface ExperienceDetailsProps {

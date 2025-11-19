@@ -23,7 +23,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     <Providers>
                         {children}
                     </Providers>
-                    <Analytics/>
+                    {/*<Analytics/>*/}
                 </main>
             </body>
         </html>

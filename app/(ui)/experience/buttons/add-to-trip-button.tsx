@@ -1,6 +1,12 @@
 import {useState} from "react";
-import {AddExperienceToTripButtonProps, Trip} from "@/lib/types";
+import {ErrorResponse, UserTripsProps} from "@/lib/types";
 import {addExperienceToTrip} from "@/lib/actions/trips-actions";
+
+export interface AddExperienceToTripButtonProps {
+    experience_id: string;
+    user_id: string;
+    trips?: UserTripsProps[] | ErrorResponse;
+}
 
 export function AddToTripButton({user_id, experience_id, trips}: AddExperienceToTripButtonProps) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -95,7 +101,7 @@ export function AddToTripButton({user_id, experience_id, trips}: AddExperienceTo
                     <div className="max-h-60 overflow-y-auto">
                         {validTrips ? (
                             <div className="py-1">
-                                {(trips as Trip[]).map((trip) => (
+                                {(trips as UserTripsProps[]).map((trip) => (
                                     <button
                                         key={trip.trip_id}
                                         className="w-full text-left px-4 py-2 hover:bg-gray-100 "

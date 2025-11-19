@@ -22,7 +22,6 @@ export default async function Page() {
             <div className="flex w-3/4 max-w-5xl justify-center items-center">
                 <ComboSearchBar />
             </div>
-
         </div>
     );
 }

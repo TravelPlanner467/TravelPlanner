@@ -2,18 +2,18 @@
 
 import { useRouter } from 'next/navigation';
 import {CalendarDaysIcon, MapPinIcon} from "@heroicons/react/24/outline";
-import {UserTripsProps,} from "@/lib/types";
+import {Trip,} from "@/lib/types";
 
 interface TripCardProps {
-    trip: UserTripsProps
-    index: number
+    trip: Trip
+    session_user_id: string
 }
 
-export default function TripsListCard({ trip, index }: TripCardProps) {
+export default function TripsListCard({ trip, session_user_id }: TripCardProps) {
     const router = useRouter();
 
     // Format dates
-    const formatDate = (date: string | null) => {
+    const formatDate = (date: string | undefined) => {
         return date
             ? new Date(date).toLocaleDateString("en-US", {
                 year: "numeric",
@@ -25,6 +25,8 @@ export default function TripsListCard({ trip, index }: TripCardProps) {
 
     const startDate = formatDate(trip.start_date);
     const endDate = formatDate(trip.end_date);
+
+    const experience_count = trip.experiences.length;
 
     const handleClick = () => {
         router.push(`/trips/details?q=${trip.trip_id}`);
@@ -68,7 +70,7 @@ export default function TripsListCard({ trip, index }: TripCardProps) {
             <div className="flex items-center text-gray-600 mt-2">
                 <MapPinIcon className="w-5 h-5 mr-1"/>
                 <p className="text-md font-medium">
-                    {trip.experience_count} {trip.experience_count === 1 ? 'experience' : 'experiences'}
+                    {experience_count} {experience_count === 1 ? 'experience' : 'experiences'}
                 </p>
             </div>
         </div>

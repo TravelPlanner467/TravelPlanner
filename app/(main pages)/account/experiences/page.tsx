@@ -26,7 +26,7 @@ export default async function Page() {
 
     return (
         <div className="flex flex-col w-full h-full">
-            <div className="flex flex-col w-full gap-4 py-3 items-center justify-center mx-auto">
+            <div className="flex w-3/5 gap-4 py-3 items-center justify-between mx-auto mb-3">
                 <h1 className="text-4xl font-bold">My Experiences</h1>
                 <NewExperienceButton />
             </div>

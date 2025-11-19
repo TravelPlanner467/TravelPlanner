@@ -11,18 +11,16 @@ export default async function EditTripPage(
     props: { searchParams?: Promise<{ q?: string }> }
 ) {
     // Session Authentication
-    const session = await auth.api.getSession(
-        {headers: await headers()}
-    );
+    const session = await auth.api.getSession({headers: await headers()});
     if ( !session ) { redirect('/account/login'); }
-    const session_user_id = session.user.id; // Get user_id from session
+    const session_user_id = session.user.id;
 
     // Fetch Experience Details
     const searchParams = await props.searchParams;
     const trip_id = searchParams?.q || '';
     const formData = {
         trip_id: trip_id,
-        user_id: session_user_id,
+        session_user_id: session_user_id,
     }
     const trip: Trip | ErrorResponse = await getTripDetails(formData);
 
@@ -65,7 +63,7 @@ export default async function EditTripPage(
             <div className='text-4xl font-bold'>
                 Edit Trip
             </div>
-            <EditTripForm session_user_id={session_user_id} trip={trip}/>
+            <EditTripForm trip={trip} session_user_id={session_user_id}/>
         </div>
     )
 }

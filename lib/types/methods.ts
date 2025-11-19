@@ -32,25 +32,12 @@ export interface Photo {
 
 export interface UploadedPhoto {
     id?: string;
-    file?: File;              // For new uploads
+    file?: File;              // New uploads
     preview?: string;         // Preview URL
-    photoId?: string;         // For existing photos from firebase
-    photoUrl?: string;        // For existing photos from firebase
+    photoId?: string;         // Existing photos from firebase
+    photoUrl?: string;        // Existing photos from firebase
     caption?: string;
-    isExisting?: boolean;     // Flag to differentiate existing vs new
-}
-
-export interface CreateExperienceProps {
-    user_id: string;
-    title: string;
-    description: string;
-    experience_date: string;
-    latitude: number;
-    longitude: number;
-    address: string;
-    user_rating: number;
-    keywords: string[];
-    photos: File[];
+    isExisting?: boolean;
 }
 
 export interface EditExperienceSendProps {
@@ -75,11 +62,6 @@ export interface RateExperienceProps {
     rating: number;
 }
 
-export interface EditExperienceLoadProps {
-    session_user_id: string;
-    experience: Experience;
-}
-
 export interface DeleteExperienceProps {
     experience_id: string;
     user_id: string
@@ -96,26 +78,6 @@ export interface getExperienceByLocationProps {
 }
 
 
-export interface NominatimResult {
-    place_id: number;
-    lat: string;
-    lon: string;
-    display_name: string;
-}
-
-export interface MapClickHandlerProps {
-    onMapClick: (latlng: LatLng) => void;
-}
-
-export interface ChangeMapViewProps {
-    center: [number, number];
-}
-
-export interface ExperienceListProps {
-    experiences: Experience[];
-}
-
-
 //---------------------------------------------------------------------------------------------------------------------
 // TRIP TYPE INTERFACES------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------------------------
@@ -123,10 +85,33 @@ export interface Trip {
     user_id: string;
     trip_id: string;
     title: string;
-    description: string;
-    start_date: string;
-    end_date: string;
-    experiences?: string[];
+    description?: string;
+    start_date?: string;
+    end_date?: string;
+    experiences: TripExperience[]
+}
+
+export interface TripExperience {
+    experience_id: string;
+    order: number;
+    title: string;
+    description?: string;
+    location:{
+        lat: number;
+        lng: number;
+        address: string;
+    };
+    average_rating: number;
+}
+
+export interface UserTripsProps {
+    user_id: string;
+    trip_id: string;
+    title: string;
+    description?: string;
+    start_date?: string;
+    end_date?: string;
+    experience_count: number;
 }
 
 export interface CreateTripProps {
@@ -138,19 +123,19 @@ export interface CreateTripProps {
     create_date: string;
 }
 
-export interface UserTripsProps {
-    user_id: string;
-    trip_id: string;
+export interface EditTripProps {
     title: string;
-    description: string | null;
-    start_date: string | null;
-    end_date: string | null;
-    experience_count: number;
+    trip_id: string;
+    user_id: string;
+    session_user_id?: string;
+    description?: string;
+    start_date?: string;
+    end_date?: string;
 }
 
 export interface TripIDProps {
     trip_id: string;
-    user_id: string;
+    session_user_id: string;
 }
 
 export interface ExperienceToTripsProps {
@@ -162,12 +147,6 @@ export interface ExperienceToTripsProps {
 export interface GetBatchExperiencesProps {
     experience_ids: string[] | undefined;
     user_id: string;
-}
-
-export interface AddExperienceToTripButtonProps {
-    experience_id: string;
-    user_id: string;
-    trips?: UserTripsProps[] | ErrorResponse;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -186,24 +165,4 @@ export interface NavButtonProps {
 export interface ErrorResponse {
     error: string;
     message?: string;
-}
-
-// --------------------------------------------------------------------------------------------------------------------
-// Google Maps Experience Interfaces-----------------------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------------------------------------
-interface Location {
-    lat: number;
-    lng: number;
-}
-
-export interface GeocodeResult {
-    place_id: string;
-    formatted_address: string;
-    display_name: string;
-    geometry: {
-        location: {
-            lat: number;
-            lng: number;
-        };
-    };
 }
