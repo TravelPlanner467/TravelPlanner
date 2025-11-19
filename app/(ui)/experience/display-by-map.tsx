@@ -7,7 +7,7 @@ import {ArrowPathIcon, ChevronLeftIcon, ChevronRightIcon, XMarkIcon} from "@hero
 import {LocationSearch} from "@/app/(ui)/experience/search/location-search";
 import {InteractiveMap} from "@/app/(ui)/experience/display/leaflet-map";
 import {ExperienceListCard} from "@/app/(ui)/experience/display/experience-list-card";
-import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
+import {isValidLatitude, isValidLongitude, Location, reverseGeocodeWithCache} from "@/lib/utils/nomatim-utils";
 import {Experience} from "@/lib/types";
 import {
     ChevronDoubleLeftIcon,
