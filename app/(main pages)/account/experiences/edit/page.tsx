@@ -2,9 +2,9 @@ import React from "react";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
-import EditExperienceWrapper from "@/app/(ui)/account/experiences/edit-experience-wrapper";
 import {getUserExperiencesDetails} from "@/lib/actions/experience-actions";
 import {GoBackButton} from "@/app/(ui)/general/buttons/nav-buttons";
+import EditExperienceForm from "@/app/(ui)/account/experiences/edit-experience";
 
 export default async function EditExperiencePage(
     props: { searchParams?: Promise<{ q?: string }> }
@@ -61,11 +61,8 @@ export default async function EditExperiencePage(
     }
 
     return (
-        <div className="flex flex-col w-full text-center gap-2 items-center">
-            <div className='text-4xl font-bold'>
-                Edit Experience
-            </div>
-            <EditExperienceWrapper session_user_id={session_user_id} experience={experience}/>
+        <div className="flex flex-col w-full items-center justify-center p-4">
+            <EditExperienceForm session_user_id={session_user_id} experience={experience}/>
         </div>
     )
 }

@@ -6,8 +6,8 @@ import {XMarkIcon} from "@heroicons/react/24/outline";
 import {useDebounce} from "use-debounce";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
-import {GooglePlacesAutocomplete} from "@/app/(ui)/general/google-places-autocomplete";
-import {KeywordsAutocomplete} from "@/app/(ui)/experience/components/keywords-autocomplete";
+import {GooglePlacesAutocomplete} from "@/app/(ui)/experience/search/google-places-autocomplete";
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/search/keywords-autocomplete";
 import {useGoogleMaps} from "@/app/(ui)/general/google-maps-provider";
 import {createExperience} from "@/lib/actions/experience-actions";
 
@@ -378,7 +378,7 @@ export default function CreateExperienceGoogle({ user_id }: { user_id: string })
                         Rating <span className="text-red-500">*</span>
                     </label>
                     <div className="px-3 py-2 bg-gray-50 rounded-xl border-2 border-gray-200">
-                        <SelectableRating experience_rating={rating} onRatingChange={setRating} />
+                        <SelectableRating value={rating} onChange={setRating} />
                     </div>
                 </div>
             </div>

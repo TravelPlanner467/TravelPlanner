@@ -6,7 +6,12 @@
     "description": "A scenic road trip along Highway 1 visiting Big Sur, Monterey, and Santa Barbara.",
     "start_date": "2025-08-14T10:00:00Z",
     "end_date": "2025-08-22T17:00:00Z",
-    "experiences": ["1", "8", "14", "9"]
+    "experiences": [
+      { "experience_id": 1, "order": 1 },
+      { "experience_id": 8, "order": 2 },
+      { "experience_id": 4, "order": 3 },
+      { "experience_id": 9, "order": 0 }
+    ]
   },
   {
     "user_id": "tEqrKTYULMLO2tLYV5P9hIJNACAg52uk",

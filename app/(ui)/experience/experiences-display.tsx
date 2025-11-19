@@ -9,9 +9,9 @@ import { Experience } from "@/lib/types";
 
 interface ExperienceViewProps {
     experiences: Experience[];
+    session_user_id?: string;
     keywords?: string;
     location?: string
-    session_user_id?: string;
     default_view_mode?: ViewMode;
     initialCenter?: {
         lat: number;
@@ -22,9 +22,50 @@ interface ExperienceViewProps {
 
 type ViewMode = 'list' | 'map';
 
+interface ViewToggleButtonProps {
+    viewMode: ViewMode;
+    onChange: (mode: ViewMode) => void;
+    count: number;
+}
+
+function ViewToggleButton({ viewMode, onChange, count }: ViewToggleButtonProps) {
+    return (
+        <div className="inline-flex border border-gray-400 rounded-lg bg-white overflow-hidden">
+            <button
+                type="button"
+                onClick={() => onChange('map')}
+                className={`
+                          flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-200
+                          border-r border-gray-400 ${viewMode === 'map'
+                            ? 'bg-blue-50 text-blue-600'
+                            : 'bg-white text-gray-600 hover:text-gray-900'}`}
+            >
+                <MapIcon className="w-4 h-4" />
+                Map
+            </button>
+
+            <button
+                type="button"
+                onClick={() => onChange('list')}
+                className={`
+                            flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-200
+                            ${viewMode === 'list'
+                                ? 'bg-blue-50 text-blue-600'
+                                : 'bg-white text-gray-600 hover:text-gray-900'}`}
+            >
+                <ListBulletIcon className="w-4 h-4" />
+                List
+                <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
+          {count}
+        </span>
+            </button>
+        </div>
+    );
+}
+
 // Dynamically import List & Map Views
-const UserExperiences = dynamic(
-    () => import('@/app/(ui)/account/experiences/user-experiences'),
+const ExperiencesList = dynamic(
+    () => import('@/app/(ui)/experience/experience-list'),
     {
         ssr: true,
         loading: () => (
@@ -36,7 +77,7 @@ const UserExperiences = dynamic(
 );
 
 const DisplayByMap = dynamic(
-    () => import('@/app/(ui)/experience/components/display-by-map'),
+    () => import('@/app/(ui)/experience/display-by-map'),
     {
         ssr: false,
         loading: () => (
@@ -100,48 +141,21 @@ export default function ExperiencesDisplay({
     }, [mapBounds]);
 
     return (
-        <div className="flex flex-col w-full h-full">
-            {/* Navigation Tab */}
-            <div className="flex border-b border-gray-300 bg-white">
-                <button
-                    onClick={() => setViewMode('map')}
-                    className={`
-                        flex items-center gap-2 px-6 py-1 font-medium transition-all duration-200
-                        border-b-2 -mb-[2px]
-                        ${viewMode === 'map'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                    }
-                    `}
-                >
-                    <MapIcon className="w-5 h-5" />
-                    Map View
-                </button>
-
-                <button
-                    onClick={() => setViewMode('list')}
-                    className={`
-                        flex items-center gap-2 px-6 py-1 font-medium transition-all duration-200
-                        border-b-2 -mb-[2px]
-                        ${viewMode === 'list'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                    }
-                    `}
-                >
-                    <ListBulletIcon className="w-5 h-5" />
-                    List View
-                    <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
-                        {experiences.length}
-                    </span>
-                </button>
+        <div className="relative flex flex-col w-full h-full">
+            {/* Toggle Button */}
+            <div className="absolute -top-8 left-4 z-20">
+                <ViewToggleButton
+                    viewMode={viewMode}
+                    onChange={setViewMode}
+                    count={experiences.length}
+                />
             </div>
 
             {/* Search Results Views */}
-            <div className="flex min-h-0 w-full h-full justify-center items-center">
+            <div className="flex min-h-0 w-full h-full justify-center items-stretch">
                 {viewMode === 'list' && (
-                    <UserExperiences
-                        session_user_id={session_user_id}
+                    <ExperiencesList
+                        session_user_id={session_user_id || undefined}
                         experiences={experiences}
                     />
                 )}
@@ -149,6 +163,7 @@ export default function ExperiencesDisplay({
                 {viewMode === 'map' && (
                     <DisplayByMap
                         experiences={experiences}
+                        session_user_id={session_user_id || undefined}
                         mapBounds={mapBounds || null}
                         onBoundsChange={handleBoundsChange}
                         onRequestRefresh={handleRequestRefresh}

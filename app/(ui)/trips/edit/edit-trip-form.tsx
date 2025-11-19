@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import { useRouter } from 'next/navigation'
 import {editTrip} from "@/lib/actions/trips-actions";
-import {Trip} from "@/lib/types";
+import {EditTripProps} from "@/lib/types";
 
 interface EditTripFormProps {
     session_user_id: string
-    trip: Trip
+    trip: EditTripProps
 }
 
 export function EditTripForm( {session_user_id, trip}: EditTripFormProps) {
@@ -16,13 +16,14 @@ export function EditTripForm( {session_user_id, trip}: EditTripFormProps) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<string>('');
 
-    const [tripData, setTripData] = useState<Trip>({
+    const [tripData, setTripData] = useState<EditTripProps>({
         title: trip.title,
+        trip_id: trip.trip_id,
+        user_id: trip.user_id,
+        session_user_id: session_user_id,
         description: trip.description ?? '',
         start_date: trip.start_date ?? '',
         end_date: trip.end_date ?? '',
-        user_id: session_user_id,
-        trip_id: trip.trip_id,
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

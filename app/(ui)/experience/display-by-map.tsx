@@ -4,9 +4,9 @@ import {useCallback, useEffect, useRef, useState, useMemo} from "react";
 import {useRouter, useSearchParams} from 'next/navigation';
 import {ArrowPathIcon, ChevronLeftIcon, ChevronRightIcon, XMarkIcon} from "@heroicons/react/24/outline";
 
-import {LocationSearch} from "@/app/(ui)/experience/components/location-search";
-import {InteractiveMap} from "@/app/(ui)/experience/components/leaflet-map";
-import {SearchResultsCard} from "@/app/(ui)/experience/search/search-results-card";
+import {LocationSearch} from "@/app/(ui)/experience/search/location-search";
+import {InteractiveMap} from "@/app/(ui)/experience/display/leaflet-map";
+import {ExperienceListCard} from "@/app/(ui)/experience/display/experience-list-card";
 import {isValidLatitude, isValidLongitude, Location, reverseGeocodeWithCache} from "@/lib/utils/nomatim-utils";
 import {Experience} from "@/lib/types";
 import {
@@ -34,6 +34,7 @@ function debounce<T extends (...args: any[]) => any>(
 
 interface DisplayByMapProps {
     experiences: Experience[];
+    session_user_id?: string;
     onBoundsChange: (bounds: {
         northEast: { lat: number; lng: number };
         southWest: { lat: number; lng: number };
@@ -55,7 +56,7 @@ const MAP_CONFIG = {
     defaultZoom: 13,
 } as const;
 
-export default function DisplayByMap({experiences, onBoundsChange, mapBounds, onRequestRefresh, initialCenter}
+export default function DisplayByMap({experiences, onBoundsChange, mapBounds, onRequestRefresh, session_user_id, initialCenter}
 : DisplayByMapProps
 ) {
     const router = useRouter();
@@ -394,8 +395,9 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                                         ${selectedExperienceId === exp.experience_id ? 'ring-2 ring-blue-500 rounded-xl' : ''}
                                     `}
                                 >
-                                    <SearchResultsCard
+                                    <ExperienceListCard
                                         experience={exp}
+                                        session_user_id={session_user_id || undefined}
                                         isHovered={hoveredExperienceId === exp.experience_id}
                                         isSelected={selectedExperienceId === exp.experience_id}
                                         compact={!isFullWidth}

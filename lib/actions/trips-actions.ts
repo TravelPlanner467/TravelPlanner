@@ -5,7 +5,7 @@ import {
     TripIDProps,
     Experience,
     GetBatchExperiencesProps,
-    ExperienceToTripsProps, UserTripsProps, ErrorResponse
+    ExperienceToTripsProps, UserTripsProps, ErrorResponse, EditTripProps,
 } from "@/lib/types";
 
 // CREATE ====================================================================
@@ -75,14 +75,14 @@ export async function getUserTrips(userID: string): Promise<UserTripsProps[] | E
     }
 }
 
-export async function getTripDetails(formData: TripIDProps) {
+export async function getTripDetails(formData: TripIDProps): Promise<Trip | ErrorResponse> {
     console.log("Getting Trip details: ", formData);
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/get-trip-details/${formData.trip_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                "X-User-Id": formData.user_id,
+                "X-User-Id": formData.session_user_id,
             },
         });
 
@@ -109,7 +109,7 @@ export async function getTripDetails(formData: TripIDProps) {
 }
 
 // UPDATE ========================================================================
-export async function editTrip(formData: Trip) {
+export async function editTrip(formData: EditTripProps) {
     console.log(`editTrip: ${JSON.stringify(formData)}`);
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/edit-trip`, {
@@ -151,7 +151,7 @@ export async function deleteTrip (formData: TripIDProps) {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                "X-User-Id": formData.user_id,
+                "X-User-Id": formData.session_user_id,
             },
         });
 

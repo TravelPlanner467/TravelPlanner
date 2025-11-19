@@ -18,7 +18,6 @@ app.register_blueprint(keywords_bp, url_prefix='/py/keywords')
 
 # Photo Configs
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 @app.route('/py', methods=['GET'])
 def root():

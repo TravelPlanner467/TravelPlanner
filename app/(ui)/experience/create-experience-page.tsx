@@ -5,10 +5,10 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import {XMarkIcon} from "@heroicons/react/24/outline";
 
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
-import {KeywordsAutocomplete} from "@/app/(ui)/experience/components/keywords-autocomplete";
-import {FreeAddressSearch} from "@/app/(ui)/experience/components/free-address-search";
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/search/keywords-autocomplete";
+import {FreeAddressSearch} from "@/app/(ui)/experience/display/free-address-search";
 import {createExperience, fetchSuggestedKeywords} from "@/lib/actions/experience-actions";
-import {PhotoUpload} from "@/app/(ui)/experience/components/photo-upload";
+import {PhotoUpload} from "@/app/(ui)/experience/create-edit/photo-upload";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {PhotoFile} from "@/lib/utils/photo-utils";
 
@@ -227,8 +227,8 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                                 rules={{ required: 'Rating is required', min: 1, max: 5 }}
                                 render={({ field: { value, onChange } }) => (
                                     <SelectableRating
-                                        experience_rating={value}
-                                        onRatingChange={onChange}
+                                        value={value}
+                                        onChange={onChange}
                                     />
                                 )}
                             />
@@ -297,7 +297,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                     render={({ field: { value } }) => (
                         <FreeAddressSearch
                             onLocationSelect={handleLocationSelect}
-                            initialLocation={value}
+                            location={value}
                             mapZoom={13}
                         />
                     )}
@@ -319,11 +319,12 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
                 <Controller
                     name="uploadedPhotos"
                     control={control}
-                    render={({ field: { onChange } }) => (
+                    render={({ field: { value, onChange } }) => (
                         <PhotoUpload
+                            photos={value}
+                            onPhotosChange={onChange}
                             maxPhotos={10}
                             maxFileSizeMB={16}
-                            onPhotosChange={onChange}
                         />
                     )}
                 />

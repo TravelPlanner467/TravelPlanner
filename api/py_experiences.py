@@ -1,13 +1,20 @@
 import json
 import os
-import psycopg2
-from dotenv import load_dotenv
-from flask import jsonify, Blueprint,request, g
+import traceback
+import uuid
 from functools import wraps
+from urllib.parse import unquote
+
+# psycopg2-binary==2.9.11
+import psycopg2
 from psycopg2.extras import RealDictCursor
+# python-dotenv==1.0.1
+from dotenv import load_dotenv
+# Flask==3.1.0
+from flask import jsonify, Blueprint,request, g
+# firebase-admin==6.4.0
 import firebase_admin
 from firebase_admin import credentials, storage
-import uuid
 
 # ==============================================================================
 # Configuration
@@ -19,6 +26,9 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 FIREBASE_BUCKET = os.getenv('FIREBASE_BUCKET')
 
+# Allowed file extensions
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
 # Initialize Firebase
 try:
     cred = credentials.Certificate('firebase-credentials.json')
@@ -28,7 +38,6 @@ try:
     print("Firebase initialized successfully!")
 except Exception as e:
     print(f"Warning: Firebase not initialized: {e}")
-
 
 
 # ==============================================================================
@@ -57,7 +66,7 @@ def require_auth(f):
 def allowed_file(filename):
     """Check if file extension is allowed"""
     return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Upload photo (to firebase)
 def upload_to_firebase(file, experience_id):
@@ -79,22 +88,50 @@ def upload_to_firebase(file, experience_id):
 
         # Get public URL
         return blob.public_url
-    except Exception as e:
-        print(f"Firebase upload error: {e}")
+    except Exception as error:
+        print(f"Firebase upload error: {error}")
         raise
 
 # Delete Photo (from firebase)
 def delete_from_firebase(photo_url):
     """Delete file from Firebase Storage"""
     try:
+        # Extract the file path from the URL
         if 'storage.googleapis.com' in photo_url:
-            path = photo_url.split(FIREBASE_BUCKET + '/')[-1]
+            # Extract path after bucket name
+            bucket_marker = f'{FIREBASE_BUCKET}/'
+            if bucket_marker in photo_url:
+                path = photo_url.split(bucket_marker)[-1]
+                # Decode URL-encoded characters
+                path = unquote(path)
+            else:
+                # Parse URL more carefully
+                # URL format: https://storage.googleapis.com/bucket-name/experiences/123/uuid.jpg
+                parts = photo_url.split('/')
+                # Find index of bucket name and get everything after
+                try:
+                    bucket_index = parts.index(FIREBASE_BUCKET)
+                    path = '/'.join(parts[bucket_index + 1:])
+                    path = unquote(path)
+                except ValueError:
+                    print(f"Could not find bucket '{FIREBASE_BUCKET}' in URL: {photo_url}")
+                    return
+
+            print(f"Attempting to delete Firebase path: {path}")  # Debug
+
             bucket = storage.bucket()
             blob = bucket.blob(path)
-            blob.delete()
-            print(f"Deleted from Firebase: {path}")
-    except Exception as e:
-        print(f"Firebase delete error: {e}")
+
+            # Check if blob exists before deleting
+            if blob.exists():
+                blob.delete()
+                print(f"✅ Deleted from Firebase: {path}")
+            else:
+                print(f"⚠️ Blob not found in Firebase: {path}")
+
+    except Exception as error:
+        print(f"Firebase delete error: {error}")
+        traceback.print_exc()
 
 # ==============================================================================
 # FLASK ROUTES
@@ -133,8 +170,8 @@ def create_experience():
         files = request.files.getlist('photos')
         captions = json.loads(request.form.get('captions', '[]'))
 
-    except (ValueError, json.JSONDecodeError) as e:
-        return jsonify({"error": f"Invalid input  {str(e)}"}), 400
+    except (ValueError, json.JSONDecodeError) as error:
+        return jsonify({"error": f"Invalid input  {str(error)}"}), 400
 
     conn = get_db_connection()
 
@@ -186,8 +223,8 @@ def create_experience():
                             RETURNING photo_id, experience_id, photo_url, caption, upload_date
                         """, (experience_id, photo_url, caption))
 
-                    except Exception as e:
-                        print(f"Error uploading {file.filename}: {e}")
+                    except Exception as error:
+                        print(f"Error uploading {file.filename}: {error}")
                         continue
 
         conn.commit()
@@ -196,44 +233,49 @@ def create_experience():
             "experience_id": experience_id,
         }), 201
 
-    except Exception as e:
+    except Exception as error:
         conn.rollback()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(error)}), 500
     finally:
         conn.close()
-
 
 # ==============================================================================
 # Update
 # ==============================================================================
-@experiences_bp.route('/update', methods=['PUT'])
+@experiences_bp.route('/update', methods=['POST'])
 @require_auth
 def update_experience():
-    """Update an existing experience.
+    """Update an existing experience, including keywords and user rating."""
+    try:
+        user_id = request.form.get('session_user_id')
+        header_user_id = g.user_id
 
-    Requires authentication via X-User-Id header. Only the experience creator
-    can update their own experiences.
+        # Authorization check
+        if user_id != header_user_id:
+            return jsonify({'error': 'User Unauthorized'}), 403
 
-    Args:
-        experience_id (int): The unique identifier of the experience to update
+        # Get form fields
+        experience_id = int(request.form.get('experience_id'))
+        title = request.form.get('title')
+        description = request.form.get('description')
+        exp_date = request.form.get('experience_date')
+        address = request.form.get('address', '')
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
 
-    Optional JSON fields:
-        - title (str): Updated experience title
-        - description (str): Updated experience description
-        - date (str): Updated experience date
+        # Parse JSON arrays from form data
+        keywords = json.loads(request.form.get('keywords', '[]'))
+        user_rating = request.form.get('user_rating')
+        if user_rating:
+            user_rating = int(user_rating)
 
-    Returns:
-        tuple: JSON object with updated experience data and HTTP 200,
-               or error message with HTTP 404/403
-    """
-    data = request.get_json()
-    user_id = data['session_user_id']
-    experience_id = data['experience_id']
-    header_user_id = g.user_id
+        # Get uploaded files and captions
+        files = request.files.getlist('photos')
+        captions = json.loads(request.form.get('captions', '[]'))
+        photos_to_delete = json.loads(request.form.get('photos_to_delete', '[]'))
 
-    # Authorization check
-    if user_id != header_user_id:
-        return jsonify({'error': 'User Unauthorized'}), 403
+    except (ValueError, json.JSONDecodeError, KeyError) as error:
+        return jsonify({"error": f"Invalid input: {str(error)}"}), 400
 
     conn = psycopg2.connect(DATABASE_URL)
     try:
@@ -241,38 +283,38 @@ def update_experience():
             # Verify ownership of experience
             cur.execute("SELECT * FROM experiences WHERE experience_id = %s", (experience_id,))
             experience = cur.fetchone()
+
             if not experience:
                 return jsonify({'error': 'Experience not found'}), 404
             if experience['user_id'] != user_id:
                 return jsonify({'error': 'Unauthorized to modify this experience'}), 403
 
-            # Load / Set experience data
-            title = data.get('title', experience['title'])
-            description = data.get('description', experience['description'])
-            date = data.get('experience_date', experience['experience_date'])
-            address = data.get('address', experience['address'])
-            latitude = data.get('latitude', experience['latitude'])
-            longitude = data.get('longitude', experience['longitude'])
-            keywords = data.get('keywords', [])
-            user_rating = data.get('user_rating')
-            last_updated = data.get('last_updated')
+            # Use existing values as defaults if not provided
+            title = title or experience['title']
+            description = description or experience['description']
+            exp_date = exp_date or experience['experience_date']
+            address = address or experience['address']
+            latitude = latitude or experience['latitude']
+            longitude = longitude or experience['longitude']
 
             # Update experience details
             cur.execute('''
                         UPDATE experiences
-                        SET title           = %s,
-                            description     = %s,
+                        SET title = %s,
+                            description = %s,
                             experience_date = %s,
-                            address         = %s,
-                            latitude        = %s,
-                            longitude       = %s,
-                            last_updated    = %s
-                        WHERE experience_id = %s RETURNING experience_id, title, description, experience_date, address, 
-                              latitude, longitude, user_id, create_date, last_updated
-                        ''', (title, description, date, address, latitude, longitude, last_updated, experience_id))
+                            address = %s,
+                            latitude = %s,
+                            longitude = %s,
+                            location = ST_Point(%s, %s)::geography,
+                    last_updated = NOW()
+                        WHERE experience_id = %s
+                            RETURNING experience_id, title, description, experience_date, address,
+                            latitude, longitude, user_id, create_date, last_updated
+                        ''', (title, description, exp_date, address, latitude, longitude, longitude, latitude, experience_id))
             updated_experience = cur.fetchone()
 
-            # Update keywords (junction table)
+            # Update keywords (clear and re-add)
             cur.execute("DELETE FROM experience_keywords WHERE experience_id = %s", (experience_id,))
             for kw in keywords:
                 cur.execute("INSERT INTO keywords (name) VALUES (%s) ON CONFLICT (name) DO NOTHING;", (kw,))
@@ -283,29 +325,79 @@ def update_experience():
                             VALUES (%s, %s) ON CONFLICT DO NOTHING
                             """, (experience_id, keyword_id))
 
-            # Update or insert rating
+            # Update or insert user rating
             if user_rating and 1 <= user_rating <= 5:
                 cur.execute("""
                             INSERT INTO experience_ratings (experience_id, user_id, rating)
-                            VALUES (%s, %s, %s) ON CONFLICT (experience_id, user_id)
-                        DO
-                            UPDATE SET rating = EXCLUDED.rating, updated_at = NOW()
+                            VALUES (%s, %s, %s)
+                                ON CONFLICT (experience_id, user_id)
+                    DO UPDATE SET rating = EXCLUDED.rating, updated_at = NOW()
                             """, (experience_id, user_id, user_rating))
+
+            # Delete specified photos (from Firebase and database)
+            if photos_to_delete:
+                for photo_id in photos_to_delete:
+                    # Get photo URL before deleting
+                    cur.execute("""
+                                SELECT photo_url
+                                FROM experience_photos
+                                WHERE photo_id = %s
+                                """, (photo_id,))
+                    photo = cur.fetchone()
+
+                    if photo:
+                        # Delete from database
+                        cur.execute("""
+                                    DELETE
+                                    FROM experience_photos
+                                    WHERE photo_id = %s
+                                    """, (photo_id,))
+
+                        # Delete from Firebase
+                        try:
+                            delete_from_firebase(photo['photo_url'])
+                        except Exception as error:
+                            print(f"Error deleting photo {photo_id} from Firebase: {error}")
+
+            # Upload new photos to Firebase & insert metadata into database
+            uploaded_photos = []
+            for idx, file in enumerate(files):
+                if file and file.filename and allowed_file(file.filename):
+                    try:
+                        # Upload to Firebase Storage
+                        photo_url = upload_to_firebase(file, experience_id)
+
+                        # Get caption if provided
+                        caption = captions[idx] if idx < len(captions) else ''
+
+                        # Save to database
+                        cur.execute("""
+                                    INSERT INTO experience_photos (experience_id, photo_url, caption)
+                                    VALUES (%s, %s, %s)
+                                        RETURNING photo_id, experience_id, photo_url, caption, upload_date
+                                    """, (experience_id, photo_url, caption))
+
+                        uploaded_photos.append(cur.fetchone())
+
+                    except Exception as error:
+                        print(f"Error uploading {file.filename}: {error}")
+                        continue
 
         conn.commit()
         return jsonify({
             "message": "Experience updated successfully",
-            "experience": updated_experience
+            "experience": updated_experience,
+            "uploaded_photos": uploaded_photos,
+            "deleted_photos": len(photos_to_delete) if photos_to_delete else 0
         }), 200
 
-    except Exception as e:
+    except Exception as error:
         conn.rollback()
-        print(f"Error updating experience: {str(e)}")
+        print(f"Error updating experience: {str(error)}")
         return jsonify({'error': 'Failed to update experience'}), 500
 
     finally:
         conn.close()
-
 
 # ==============================================================================
 # Delete
@@ -349,7 +441,6 @@ def delete_experience(experience_id):
 
     finally:
         conn.close()
-
 
 # ==============================================================================
 # Read
@@ -462,7 +553,7 @@ def get_user_experiences():
     ordered by creation date (newest first).
 
     Args:
-        user_id (STR): The ID of the user whose experiences to retrieve
+        user_id (STR): The ID of the user whose experiences are to retrieve
 
     Returns:
         tuple: JSON array of experience objects and HTTP 200
@@ -510,17 +601,17 @@ def get_user_experience_details(experience_id):
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Fetch experience details with average rating and keywords
             cur.execute("""
-                SELECT e.*, 
-                       COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating, 
-                       COUNT(DISTINCT r.user_id) AS rating_count,
-                       ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
-                FROM experiences e
-                LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
-                LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
-                LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
-                WHERE e.experience_id = %s
-                GROUP BY e.experience_id
-            """, (experience_id,))
+                        SELECT e.*,
+                               COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
+                               COUNT(DISTINCT r.user_id) AS rating_count,
+                               ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords
+                        FROM experiences e
+                                 LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
+                                 LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
+                                 LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
+                        WHERE e.experience_id = %s
+                        GROUP BY e.experience_id
+                        """, (experience_id,))
             experience = cur.fetchone()
 
             if not experience:
@@ -532,23 +623,23 @@ def get_user_experience_details(experience_id):
 
             # Fetch user-specific rating
             cur.execute("""
-                SELECT rating
-                FROM experience_ratings
-                WHERE experience_id = %s AND user_id = %s
-            """, (experience_id, user_id))
+                        SELECT rating
+                        FROM experience_ratings
+                        WHERE experience_id = %s AND user_id = %s
+                        """, (experience_id, user_id))
             user_rating = cur.fetchone()
 
             # Fetch all photos for this experience
             cur.execute("""
-                SELECT photo_id, photo_url, caption, upload_date
-                FROM experience_photos
-                WHERE experience_id = %s
-                ORDER BY upload_date ASC
-            """, (experience_id,))
+                        SELECT photo_id, photo_url, caption, upload_date
+                        FROM experience_photos
+                        WHERE experience_id = %s
+                        ORDER BY upload_date ASC
+                        """, (experience_id,))
             photos = cur.fetchall()
 
             # Add all data to the response object
-            experience["user_rating"] = user_rating["rating"] if user_rating else None
+            experience["owner_rating"] = user_rating["rating"] if user_rating else None
             experience["average_rating"] = float(experience["average_rating"])
             experience["photos"] = photos
 
@@ -572,7 +663,7 @@ def get_batch_experiences():
     ordered by creation date (newest first).
 
     Args:
-        user_id (STR): The ID of the user whose experiences to retrieve
+        user_id (STR): The ID of the user whose experiences are to retrieve
 
     Returns:
         tuple: JSON array of experience objects and HTTP 200
@@ -631,8 +722,8 @@ def get_top_experiences():
             # Convert Row objects to dictionaries for JSON serialization
             return jsonify([dict(exp) for exp in top_experiences]), 200
 
-    except Exception as e:
-        print(f"Error fetching top experiences: {str(e)}")
+    except Exception as error:
+        print(f"Error fetching top experiences: {str(error)}")
         return jsonify({'error': 'Failed to fetch top experiences'}), 500
 
     finally:

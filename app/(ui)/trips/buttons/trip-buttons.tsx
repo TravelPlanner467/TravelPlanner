@@ -38,9 +38,9 @@ export function EditTripButton({trip_id}: { trip_id: string }) {
     )
 }
 
-export function DeleteTripButton({user_id, trip_id}: TripIDProps) {
+export function DeleteTripButton({session_user_id, trip_id}: TripIDProps) {
     const router = useRouter();
-    const formData: TripIDProps = {user_id, trip_id}
+    const formData: TripIDProps = {session_user_id, trip_id}
 
     function onDeleteClick() {
         const result = confirm("Are you sure you want to delete this trip?");

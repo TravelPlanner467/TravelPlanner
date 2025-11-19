@@ -1,17 +1,19 @@
 'use client'
 import { useState } from 'react';
-import TripsListCard from "@/app/(ui)/trips/trips-list-card";
-import {Trip} from "@/lib/types";
+import {ExperienceListCard} from "@/app/(ui)/experience/display/experience-list-card";
+import {Experience} from "@/lib/types";
 import {PaginatedList} from "@/app/(ui)/general/paginated-list";
 
-interface TripDataProps {
-    trips: Trip[]
-    session_user_id: string
+interface ExperienceListProps {
+    experiences: Experience[]
+    session_user_id?: string;
+    keywords?: string;
+    location?: string
 }
 
 const ITEMS_PER_PAGE = 6;
 
-export default function TripsList({ trips, session_user_id }: TripDataProps) {
+export default function ExperiencesList({ keywords, location, experiences, session_user_id }: ExperienceListProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -21,12 +23,12 @@ export default function TripsList({ trips, session_user_id }: TripDataProps) {
             <div className="w-full max-w-5xl">
                 {/*User Experiences List*/}
                 <PaginatedList
-                    items={trips}
+                    items={experiences}
                     itemsPerPage={6}
-                    renderItem={(trip: Trip) => (
-                        <TripsListCard
-                            key={trip.trip_id}
-                            trip={trip}
+                    renderItem={(exp: Experience) => (
+                        <ExperienceListCard
+                            key={exp.experience_id}
+                            experience={exp}
                             session_user_id={session_user_id}
                         />
                     )}

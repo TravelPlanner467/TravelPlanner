@@ -1,599 +1,500 @@
 'use client'
 
-import React, {useState, useEffect, useCallback} from "react";
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
-import {updateExperience} from "@/lib/actions/experience-actions";
-import { LatLng } from "leaflet";
-import 'leaflet/dist/leaflet.css';
+import React, {useEffect, useState} from "react";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import {XMarkIcon} from "@heroicons/react/24/outline";
+
 import {SelectableRating} from "@/app/(ui)/experience/buttons/star-rating";
-import {NominatimResult, MapClickHandlerProps, ChangeMapViewProps, EditExperienceLoadProps} from '@/lib/types'
+import {KeywordsAutocomplete} from "@/app/(ui)/experience/search/keywords-autocomplete";
+import {FreeAddressSearch} from "@/app/(ui)/experience/display/free-address-search";
+import {fetchSuggestedKeywords, updateExperience} from "@/lib/actions/experience-actions";
+import {PhotoUpload} from "@/app/(ui)/experience/create-edit/photo-upload";
+import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
+import {Experience, Photo, UploadedPhoto} from "@/lib/types";
 
 // ============================================================================
-// HELPER COMPONENT: Handles map clicks
+// TYPE
 // ============================================================================
-function MapClickHandler({ onMapClick }: MapClickHandlerProps) {
-    useMapEvents({
-        click(e) {
-            onMapClick(e.latlng);
-        },
+interface ExperienceFormProps {
+    session_user_id: string;
+    experience: Experience
+}
+
+interface ExperienceFormData {
+    title: string;
+    owner_id: string;
+    description: string;
+    experienceDate: string;
+    rating: number;
+    location: Location;
+    uploadedPhotos: UploadedPhoto[];
+    keywords: string[];
+    currentKeywordInput: string;
+}
+
+// ============================================================================
+// MAP CONFIG
+// ============================================================================
+const MAP_CONFIG = {
+    defaultCenter: { lat: 44.5618, lng: -123.2823 },
+    defaultZoom: 13,
+} as const;
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
+export default function EditExperienceForm({ session_user_id, experience }: ExperienceFormProps) {
+    const { register, control, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<ExperienceFormData>({
+        defaultValues: {
+            owner_id: '',
+            title: '',
+            description: '',
+            experienceDate: '',
+            rating: 0,
+            location: {
+                lat: MAP_CONFIG.defaultCenter.lat,
+                lng: MAP_CONFIG.defaultCenter.lng,
+                address: ''
+            },
+            uploadedPhotos: [],
+            keywords: [],
+            currentKeywordInput: ''
+        }
     });
-    return null;
-}
 
-function ChangeMapView({ center }: ChangeMapViewProps) {
-    const map = useMap();
+    // Load experience data into form when it becomes available
     useEffect(() => {
-        map.setView(center, map.getZoom());
-    }, [center, map]);
-    return null;
-}
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-function roundCoordinate(coord: number, decimals: number = 6): number {
-    return Math.round(coord * Math.pow(10, decimals)) / Math.pow(10, decimals);
-}
-
-function parseCoordinate(value: number | string): number {
-    return typeof value === 'number' ? value : parseFloat(String(value));
-}
-
-const isValidLatitude = (lat: number): boolean => lat >= -90 && lat <= 90;
-const isValidLongitude = (lng: number): boolean => lng >= -180 && lng <= 180;
-
-export default function EditExperience({ session_user_id, experience }: EditExperienceLoadProps) {
-    // formData
-    const [title, setTitle] = useState(experience.title);
-    const [description, setDescription] = useState(experience.description);
-    const [experienceDate, setExperienceDate] = useState(experience.experience_date);
-    const [keywords, setKeywords] = useState(experience.keywords);
-    const [rating, setRating] = useState(experience.owner_rating || 0);
-    // const [imageURLS, setImageURLs] = useState(experience.imageURLs);
-
-    // Location State
-    const [latitude, setLatitude] = useState<number | string>(experience.latitude);
-    const [longitude, setLongitude] = useState<number | string>(experience.longitude);
-    const [mapCenter, setMapCenter] = useState<[number, number]>([experience.latitude, experience.longitude]);
-    const [address, setAddress] = useState(experience.address);
-
-    // Search State
-    const [searchResults, setSearchResults] = useState<NominatimResult[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
-    const [isAddressFocused, setIsAddressFocused] = useState(false);
-
-    // Loading States
-    const [isGettingLocation, setIsGettingLocation] = useState(false);
-    const [isLoadingAddress, setIsLoadingAddress] = useState(false);
-
-    // ========================================================================
-    // GEOCODING FUNCTIONS
-    // ========================================================================
-    // Fetch address from coordinates (Reverse Geocoding)
-    const fetchReverseGeocode = async (lat: number, lon: number) => {
-        setIsLoadingAddress(true);
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-            );
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch address');
-            }
-
-            const data = await response.json();
-            setAddress(data.display_name || 'Could not find address');
-            setSearchResults([]); // Clear search results when getting address from coordinates
-        } catch (error) {
-            console.error("Error fetching address:", error);
-            setAddress('Error fetching address');
-        } finally {
-            setIsLoadingAddress(false);
+        if (experience) {
+            reset({
+                owner_id: experience.user_id || '',
+                title: experience.title || '',
+                description: experience.description || '',
+                experienceDate: experience.experience_date || '',
+                rating: experience.owner_rating || 0,
+                location: {
+                    lat: experience.latitude || MAP_CONFIG.defaultCenter.lat,
+                    lng: experience.longitude || MAP_CONFIG.defaultCenter.lng,
+                    address: experience.address || ''
+                },
+                uploadedPhotos: mapApiPhotosToFormPhotos(experience.photos || []),
+                keywords: experience.keywords || [],
+                currentKeywordInput: ''
+            });
         }
-    };
+    }, [experience, reset]);
 
-    // Fetch coordinates/suggestions from address string (Forward Geocoding)
-    const fetchForwardGeocode = useCallback(async (query: string) => {
-        setIsSearching(true);
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`
-            );
+    // Watch values for updating individual form-fields
+    const keywords = watch('keywords');
+    const currentKeywordInput = watch('currentKeywordInput');
+    const [title, description] = watch(['title', 'description']);
 
-            if (!response.ok) throw new Error('Failed to fetch search results');
-
-            const data = await response.json();
-            setSearchResults(data);
-        } catch (error) {
-            console.error("Error fetching search results:", error);
-            setSearchResults([]);
-        } finally {
-            setIsSearching(false);
-        }
-    }, []);
-
-    // ========================================================================
-    // MAP COORDINATES HELPER - get numeric coordinates for map display
-    // ========================================================================
-    const getNumericCoordinates = (): [number, number] => {
-        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
-        const lng = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
-
-        // Return valid coordinates or fallback to center
-        if (!isNaN(lat) && !isNaN(lng)) {
-            return [lat, lng];
-        }
-        return mapCenter;
-    };
-
-    // ========================================================================
-    // useEffects
-    // ========================================================================\
-    // Debounce address search
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            if (address.trim() && !isLoadingAddress && isAddressFocused) {
-                fetchForwardGeocode(address);
-            } else if (!isAddressFocused) {
-                setSearchResults([]);
-            }
-        }, 500);
-
-        return () => {
-            clearTimeout(handler);
-        };
-    }, [address, isLoadingAddress, isAddressFocused, fetchForwardGeocode]);
-
-    // Update address when coordinates change manually
-    useEffect(() => {
-        const lat = typeof latitude === 'number' ? latitude : parseFloat(String(latitude));
-        const lon = typeof longitude === 'number' ? longitude : parseFloat(String(longitude));
-
-        if (address.trim() && !isLoadingAddress && isAddressFocused) {
-            const timeoutId = setTimeout(() => {
-                fetchReverseGeocode(lat, lon);
-            }, 1000); // Debounce address lookup
-
-            return () => clearTimeout(timeoutId);
-        }
-    }, [latitude, longitude]);
-
-    // Load keywords
-    useEffect(() => {
-        if (experience.keywords && Array.isArray(experience.keywords)) {
-            setKeywords(experience.keywords);
-        }
-    }, [experience.keywords]);
-
-    // create and set image URL
-    // useEffect(() => {
-    //     if (images.length < 1) return;
-    //     const newImageUrls: any = [];
-    //     images.forEach((image:any) => newImageUrls.push(URL.createObjectURL(image)));
-    //     setImageURLs(newImageUrls);
-    // }, [images]);
-
+    // State for keyword generation
+    const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false);
+    const canGenerateKeywords = title.trim().length > 0 && description.trim().length > 0;
 
     // ========================================================================
     // EVENT HANDLERS
     // ========================================================================
+    const mapApiPhotosToFormPhotos = (apiPhotos: Photo[]): UploadedPhoto[] => {
+        return apiPhotos.map(photo => ({
+            id: photo.photo_id.toString(),
+            photoId: photo.photo_id,
+            photoUrl: photo.photo_url,
+            preview: photo.photo_url,  // Use existing URL as preview
+            caption: photo.caption,
+            isExisting: true,          // Mark as existing photo
+        }));
+    };
 
-    // User clicked "Use My Current Location"
-    const handleGetCurrentLocation = () => {
-        if (!navigator.geolocation) {
-            alert("Geolocation is not supported by this browser.");
-            return;
+    // Handle location selection from FreeAddressSearch
+    const handleLocationSelect = (selectedLocation: Location) => {
+        setValue('location', selectedLocation);
+    };
+
+    // Split keywords if input is CSVs
+    const parseKeywords = (input: string) => {
+        if (!input.trim()) return;
+
+        const newKeywords = input
+            .split(',')
+            .map(keyword => keyword.trim())
+            .filter(keyword => {
+                const exists = keywords.some(k => k.toLowerCase() === keyword.toLowerCase());
+                return keyword && !exists;
+            });
+
+        if (newKeywords.length > 0) {
+            setValue('keywords', [...keywords, ...newKeywords]);
+            setValue('currentKeywordInput', '');
+        }
+    };
+
+    const handleKeywordKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            parseKeywords(currentKeywordInput);
+        }
+    };
+
+    const handleRemoveKeyword = (indexToRemove: number) => {
+        setValue('keywords', keywords.filter((_, index) => index !== indexToRemove));
+    };
+
+    // Handle keyword generation
+    const handleGenerateKeywords = async () => {
+        setIsGeneratingKeywords(true);
+        try {
+            const suggestedKeywords = await fetchSuggestedKeywords({title, description});
+
+            // Merge suggested keywords with existing ones, avoiding duplicates
+            const newKeywords = suggestedKeywords.filter(
+                keyword => !keywords.some(k => k.toLowerCase() === keyword.toLowerCase())
+            );
+
+            setValue('keywords', [...keywords, ...newKeywords]);
+        } catch (error) {
+            console.error('Failed to generate keywords:', error);
+            alert('Failed to generate keywords. Please try again.');
+        } finally {
+            setIsGeneratingKeywords(false);
+        }
+    };
+
+    // ========================================================================
+    // FORM SUBMISSION
+    // ========================================================================
+    const onSubmit: SubmitHandler<ExperienceFormData> = async (data) => {
+        // Separate existing and new photos
+        const existingPhotos = data.uploadedPhotos.filter(p => p.isExisting && p.photoId);
+        const newPhotos = data.uploadedPhotos.filter(p => !p.isExisting && p.file);
+
+        // Find photos to delete (originally in experience.photos but not in current uploadedPhotos)
+        const currentPhotoIds = existingPhotos.map(p => p.photoId);
+        const originalPhotoIds = experience.photos.map(p => p.photo_id);
+        const photosToDelete = originalPhotoIds.filter(id => !currentPhotoIds.includes(id));
+
+        // Validate coordinates
+        if (!isValidLatitude(data.location.lat) || !isValidLongitude(data.location.lng)) {
+            return alert('Please enter valid coordinates');
         }
 
-        setIsGettingLocation(true);
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const lat = roundCoordinate(position.coords.latitude);
-                const lon = roundCoordinate(position.coords.longitude);
+        // Validate rating
+        if (data.rating <= 0 || data.rating > 5) {
+            return alert('Please select a rating between 1 and 5.');
+        }
 
-                setLatitude(lat);
-                setLongitude(lon);
-                setMapCenter([lat, lon]);
-                fetchReverseGeocode(lat, lon);
-                setIsGettingLocation(false);
-            },
-            (error) => {
-                console.error("Error getting location:", error);
-                alert("Could not get your location. Please enter it manually or check your browser permissions.");
-                setIsGettingLocation(false);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
+        // Validate keywords
+        if (data.keywords.length === 0 && !data.currentKeywordInput.trim()) {
+            return alert('Please add at least one keyword.');
+        }
+
+        const finalKeywords = data.currentKeywordInput.trim()
+            ? [...data.keywords, data.currentKeywordInput.trim()]
+            : data.keywords;
+
+        const formData = new FormData();
+
+        formData.append('experience_id', experience.experience_id);
+        formData.append('session_user_id', session_user_id);
+        formData.append('title', data.title);
+        formData.append('description', data.description);
+        formData.append('experience_date', data.experienceDate);
+        formData.append('address', data.location.address);
+        formData.append('latitude', data.location.lat.toString());
+        formData.append('longitude', data.location.lng.toString());
+        formData.append('user_rating', data.rating.toString());
+        formData.append('keywords', JSON.stringify(finalKeywords));
+
+        // Append new photo files
+        newPhotos.forEach(photo => {
+            if (photo.file) {
+                formData.append('photos', photo.file);
             }
-        );
-    };
+        });
 
-    // User clicked on the map
-    const handleMapClick = (latlng: LatLng) => {
-        const lat = roundCoordinate(latlng.lat);
-        const lng = roundCoordinate(latlng.lng);
+        // Append captions for new photos
+        const captions = newPhotos.map(p => p.caption || '');
+        formData.append('captions', JSON.stringify(captions));
 
-        setLatitude(lat);
-        setLongitude(lng);
-        fetchReverseGeocode(lat, lng);
-    };
+        // Append photos to delete
+        formData.append('photos_to_delete', JSON.stringify(photosToDelete));
 
-    // User clicked on a search suggestion
-    const handleSuggestionClick = (result: NominatimResult) => {
-        const lat = roundCoordinate(parseFloat(result.lat));
-        const lon = roundCoordinate(parseFloat(result.lon));
-
-        setLatitude(lat);
-        setLongitude(lon);
-        setAddress(result.display_name);
-        setMapCenter([lat, lon]);
-
-        // Clear search results and remove focus after selection
-        setSearchResults([]);
-        setIsAddressFocused(false);
-    };
-
-    // Handle latitude change
-    const handleLatitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-
-        // handling for missing Latitude
-        if (value === '' || value === '-') {
-            setLatitude('');
-            return;
-        }
-
-        const parsed = parseFloat(value);
-
-        // validate latitude before setting
-        if (!isNaN(parsed) && parsed >= -90 && parsed <= 90) {
-            const rounded = roundCoordinate(parsed);
-            setLatitude(rounded);
-
-            const currentLng = parseCoordinate(longitude);
-            if (!isNaN(currentLng)) {
-                setMapCenter([rounded, currentLng]);
-            }
-        }
-    };
-
-    // Handle longitude change
-    const handleLongitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value === '' || value === '-') {
-            setLongitude('');
-            return;
-        }
-
-        const parsed = parseFloat(value);
-        if (!isNaN(parsed) && isValidLongitude(parsed)) {
-            const rounded = roundCoordinate(parsed);
-            setLongitude(rounded);
-
-            const currentLat = parseCoordinate(latitude);
-            if (!isNaN(currentLat)) {
-                setMapCenter([currentLat, rounded]);
-            }
-        }
-    };
-
-    // User clicks address bar
-    const handleAddressFocus = () => {
-        setIsAddressFocused(true);
-        // Only trigger search if there is text in the box
-        if (address.trim()) {
-            fetchForwardGeocode(address);
-        }
-    };
-
-    // User clicks away from address bar
-    const handleAddressBlur = () => {
-        // Delay blur
-        setTimeout(() => {
-            setIsAddressFocused(false);
-        }, 200);
-    };
-
-    // User adds keywords
-    const handleKeywordsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value.trim() === '') {
-            setKeywords([]);
-        } else {
-            const keywordsArray = value
-                .split(',')
-                .map(k => k.trim())
-                .filter(k => k !== '');
-            setKeywords(keywordsArray);
-        }
-    };
-
-    // User uploads a photo
-    // function handlePhotoUpload(e: any) {
-    //     setImages([...e.target.files]);
-    // }
-
-    // Form submission
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        // Validate Rating & Keywords
-
-        if (keywords.length === 0) {
-            alert('Please add at least one keyword.');
-            return;
-        }
-        if (rating <= 0) {
-            alert('Please select a rating between 1 and 5.');
-            return;
-        }
-
-        // Validate Coordinates
-        const lat = parseCoordinate(latitude);
-        const lon = parseCoordinate(longitude);
-        if (isNaN(lat) || isNaN(lon) || !isValidLatitude(lat) || !isValidLongitude(lon)) {
-            alert('Please enter valid coordinates');
-            return;
-        }
-
-        // Set Edit Date
-        const editDate = new Date().toISOString();
-
-        const formData = {
-            experience_id: experience.experience_id,
-            session_user_id: session_user_id,
-            user_id: experience.user_id,
-            title: title,
-            description: description,
-            experience_date: experienceDate,
-            latitude: lat,
-            longitude: lon,
-            address: address,
-            last_updated: editDate,
-            keywords: keywords,
-            user_rating: rating,
-            // imageURL: imageURLS,
-        };
         console.log(formData);
+        console.log('New photos:', newPhotos.length);
+        console.log('Photos to delete:', photosToDelete.length);
 
-        // Submit Form Data
-        // TODO: Post Submit Actions
-        updateExperience(formData);
+        try {
+            await updateExperience(formData);
+            // Show success message
+            alert('Experience updated successfully!');
+            // Redirect or refresh
+            // router.push(`/experiences/${experience.experience_id}`);
+        } catch (error) {
+            console.error('Update failed:', error);
+            alert('Failed to update experience. Please try again.');
+        }
     };
 
     return (
         <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-2 max-w-3xl w-full mt-2 p-6
-            border border-gray-300 rounded-lg bg-white shadow-md"
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4 max-w-4xl w-full mx-auto p-10
+                       bg-gradient-to-br from-white to-gray-50
+                       rounded-2xl shadow-2xl border border-gray-200"
         >
-            {/*1ST ROW*/}
-            <div className="flex flex-row w-full gap-2 justify-center items-start">
-                {/*TITLE*/}
-                <div className="flex flex-col w-3/4 gap-2">
-                    <label htmlFor="title" className="text-sm font-medium">
-                        Title <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        id="title"
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                        className="w-full p-3 rounded-lg border border-gray-300
-                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Enter experience title"
-                    />
-                </div>
-
-                {/*RATING*/}
-                <div className="flex flex-col w-1/4 gap-2">
-                    <label className="text-sm font-medium">
-                        Rating <span className="text-red-500">*</span>
-                    </label>
-                    <SelectableRating experience_rating={rating} onRatingChange={setRating} />
-                    {rating === 0 && (
-                        <p className="text-xs text-gray-500">Please select a rating</p>
-                    )}
-                </div>
+            {/* Form Header */}
+            <div className="flex items-center pb-4 gap-3 border-b-2 border-gray-200">
+                <h2 className="text-3xl font-bold text-gray-900">Edit your experience</h2>
             </div>
 
-            {/*2ND ROW*/}
-            <div className="flex flex-row w-full gap-2 justify-center items-center">
-                {/*DESCRIPTION*/}
-                <div className="flex flex-col w-3/4 gap-3">
-                    <label htmlFor="description" className="text-sm font-medium">
-                        Description
-                    </label>
-                    <textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        rows={4}
-                        className="w-full p-3 rounded-lg border border-gray-300
-                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Describe your experience..."
-                    />
-                </div>
-
-                {/*EXPERIENCE DATE*/}
-                <div className="flex flex-col w-1/4 gap-3 justify-center items-center">
-                    <label htmlFor="experienceDate" className="text-sm font-medium">
-                        Experience Date <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        id="experienceDate"
-                        type="date"
-                        value={experienceDate}
-                        onChange={(e) => setExperienceDate(e.target.value)}
-                        required
-                        className="p-2 rounded-lg border border-gray-300
-                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                </div>
-            </div>
-
-            {/*3RD ROW*/}
-            <div className="flex flex-row w-full gap-2 justify-center items-center">
-                {/*LOCATION inputs*/}
-                <div className="p-2 flex flex-col w-3/4 gap-2
-                                border border-gray-300 rounded-lg "
-                >
-                    <div className="px-2 font-medium">Location</div>
-
-                    {/* Combined Address Search with Autocomplete */}
-                    <div className="relative">
-                        <label htmlFor="address" className="flex flex-col gap-2">
-                            <div className="flex gap-2">
-                                <button
-                                    type="button"
-                                    onClick={handleGetCurrentLocation}
-                                    disabled={isGettingLocation}
-                                    className={`px-4 py-2.5 rounded-md font-medium text-white 
-                                                transition-colors ${
-                                        isGettingLocation
-                                            ? 'bg-gray-400 cursor-not-allowed'
-                                            : 'bg-white hover:bg-gray-100'}`}
-                                >
-                                    📍
-                                </button>
-                                <input
-                                    id="address"
-                                    type="text"
-                                    value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    onFocus={handleAddressFocus}
-                                    onBlur={handleAddressBlur}
-                                    placeholder="Search for a location or address"
-                                    className={`flex-1 p-3 rounded-lg border border-gray-300 
-                                                focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-                                                ${isLoadingAddress ? 'bg-gray-50' : ''}`}
-                                />
-
-                            </div>
-                        </label>
-                        {isLoadingAddress && (
-                            <div className="text-sm text-gray-500">Loading address...</div>
-                        )}
-
-                        {/* Search Results Dropdown - Only shown when the field is focused */}
-                        {isAddressFocused && (searchResults.length > 0 || isSearching) && (
-                            <ul className="absolute z-10 w-full bg-white border border-gray-300 border-t-0
-                                           rounded-b-lg shadow-lg max-h-48 overflow-y-auto"
-                            >
-                                {isSearching ? (
-                                    <li className="p-3 text-gray-500 text-center">
-                                        Searching...
-                                    </li>
-                                ) : (
-                                    searchResults.map((result) => (
-                                        <li
-                                            key={result.place_id}
-                                            onClick={() => handleSuggestionClick(result)}
-                                            className="p-3 border-b border-gray-100 text-gray-700
-                                        cursor-pointer hover:bg-gray-50 transition-colors"
-                                        >
-                                            📍 {result.display_name}
-                                        </li>
-                                    ))
-                                )}
-                            </ul>
-                        )}
-                    </div>
-
-                    {/* Map */}
-                    <div className="h-[350px] w-full border border-gray-300 rounded-lg overflow-hidden">
-                        <MapContainer
-                            center={mapCenter}
-                            zoom={13}
-                            className="h-full w-full"
-                        >
-                            <TileLayer
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            />
-                            <Marker position={getNumericCoordinates()} />
-                            <MapClickHandler onMapClick={handleMapClick} />
-                            <ChangeMapView center={mapCenter} />
-                        </MapContainer>
-                    </div>
-                </div>
-
-                {/* COORDINATE inputs */}
-                <div className="flex flex-col w-1/4 h-full gap-4 justify-center items-center">
-                    <div className="flex flex-col gap-2 flex-1">
-                        <label htmlFor="latitude" className="text-sm font-medium">
-                            Latitude <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="latitude"
-                            type="number"
-                            value={latitude}
-                            onChange={handleLatitudeChange}
-                            step="0.000001"
-                            min="-90"
-                            max="90"
-                            required
-                            className="w-full p-3 rounded-lg border border-gray-300
-                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="-90 to 90"
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2 flex-1">
-                        <label htmlFor="longitude" className="text-sm font-medium">
-                            Longitude <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="longitude"
-                            type="number"
-                            value={longitude}
-                            onChange={handleLongitudeChange}
-                            step="0.000001"
-                            min="-180"
-                            max="180"
-                            required
-                            className="w-full p-3 rounded-lg border border-gray-300
-                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="-180 to 180"
-                        />
-                    </div>
-
-
-                    <p className="text-sm text-gray-500 mt-3">
-                        💡 Click on the map, search for a location, use your current location, or enter coordinates
+            {/* ========================================= EXPERIENCE INFO  =============================================== */}
+            <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
+                <div className="flex flex-wrap items-baseline gap-3">
+                    <h3 className="text-lg font-bold text-gray-900">Experience Information</h3>
+                    <div className="hidden sm:block h-5 w-px bg-gray-300"></div>
+                    <p className="text-sm text-gray-600">
+                        Share your experience with others
                     </p>
                 </div>
+
+                {/*Title & Rating*/}
+                <div className="flex flex-col md:flex-row w-full gap-6 items-start">
+                    {/*Title*/}
+                    <div className="flex flex-col flex-1 gap-2 group">
+                        <label htmlFor="title" className="text-sm font-semibold text-gray-700 tracking-wide">
+                            Title <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            id="title"
+                            type="text"
+                            placeholder="Enter your experience title"
+                            {...register('title', { required: 'Title is required' })}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
+                                   bg-white transition-all duration-200
+                                   focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                                   hover:border-gray-400 shadow-sm"
+                        />
+                        {errors.title && (
+                            <span className="text-sm text-red-500">{errors.title.message}</span>
+                        )}
+                    </div>
+
+                    {/*Rating*/}
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-semibold text-gray-700 tracking-wide">
+                            Rating <span className="text-red-500">*</span>
+                        </label>
+                        <div className="px-3 py-2 bg-gray-50 rounded-xl border-2 border-gray-200">
+                            <Controller
+                                name="rating"
+                                control={control}
+                                rules={{ required: 'Rating is required', min: 1, max: 5 }}
+                                render={({ field }) => (
+                                    <SelectableRating
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                    />
+                                )}
+                            />
+                        </div>
+                        {errors.rating && (
+                            <span className="text-sm text-red-500">{errors.rating.message}</span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Description & Date */}
+                <div className="flex flex-col md:flex-row w-full gap-6 items-start">
+                    {/*Description*/}
+                    <div className="flex flex-col flex-1 gap-2">
+                        <label htmlFor="description" className="text-sm font-semibold text-gray-700 tracking-wide">
+                            Description
+                        </label>
+                        <textarea
+                            id="description"
+                            placeholder="Share the details of your experience..."
+                            rows={4}
+                            {...register('description')}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
+                                bg-white transition-all duration-200 resize-y
+                                focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                                hover:border-gray-400 shadow-sm"
+                        />
+                    </div>
+
+                    {/*Date*/}
+                    <div className="flex flex-col gap-2 min-w-[180px]">
+                        <label htmlFor="experienceDate" className="text-sm font-semibold text-gray-700 tracking-wide">
+                            Date <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            id="experienceDate"
+                            type="date"
+                            {...register('experienceDate', { required: 'Date is required' })}
+                            max={new Date().toISOString().split('T')[0]}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
+                                      bg-white transition-all duration-200
+                                      focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                                      hover:border-gray-400 shadow-sm"
+                        />
+                        {errors.experienceDate && (
+                            <span className="text-sm text-red-500">{errors.experienceDate.message}</span>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            {/*KEYWORDS*/}
-            <div className="flex flex-col gap-2">
-                <label htmlFor="keywords" className="text-sm font-medium">
-                    Keywords
-                </label>
-                <input
-                    id="keywords"
-                    type="text"
-                    value={keywords.join(', ')}
-                    onChange={handleKeywordsChange}
-                    className="w-full p-3 rounded-lg border border-gray-300
-                    focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter keywords separated by commas"
-                    required
+            {/* =========================================== LOCATION  ============================================== */}
+            <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
+                {/* Section Header */}
+                <div className="flex flex-wrap items-baseline gap-3">
+                    <h3 className="text-lg font-bold text-gray-900">Location</h3>
+                    <div className="hidden sm:block h-5 w-px bg-gray-300"></div>
+                    <p className="text-sm text-gray-600">
+                        Search, click the map, enter coordinates, or use your current location
+                    </p>
+                </div>
+
+                <Controller
+                    name="location"
+                    control={control}
+                    render={({ field: { value } }) => (
+                        <FreeAddressSearch
+                            onLocationSelect={handleLocationSelect}
+                            location={value}
+                            mapZoom={13}
+                        />
+                    )}
                 />
+
             </div>
 
-            {/*TODO: UPLOAD PHOTOS*/}
+            {/*=========================================== PHOTOS ===================================================*/}
+            <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
+                {/* Section Header */}
+                <div className="flex flex-wrap items-baseline gap-3">
+                    <h3 className="text-lg font-bold text-gray-900">Photos</h3>
+                    <div className="hidden sm:block h-5 w-px bg-gray-300"></div>
+                    <p className="text-sm text-gray-600">
+                        Upload up to 10 photos of your experience (max 5MB each)
+                    </p>
+                </div>
+
+                <Controller
+                    name="uploadedPhotos"
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                        <PhotoUpload
+                            photos={value}
+                            onPhotosChange={onChange}
+                            maxPhotos={10}
+                            maxFileSizeMB={16}
+                        />
+                    )}
+                />
+
+            </div>
+
+            {/*============================================ KEYWORDS ================================================*/}
+            <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
+                {/*Section Header*/}
+                <div className="flex flex-wrap items-baseline gap-3">
+                    <h3 className="text-lg font-bold text-gray-900">Keywords</h3>
+                    <div className="hidden sm:block h-5 w-px bg-gray-300"></div>
+                    <p className="text-sm text-gray-600">
+                        Press Enter to add keywords (comma-separated values supported)
+                    </p>
+                </div>
+
+                <div className="flex w-full gap-2">
+                    {/*Keywords Input Area*/}
+                    <div onKeyDown={handleKeywordKeyDown}
+                         className="flex-1"
+                    >
+                        <Controller
+                            name="currentKeywordInput"
+                            control={control}
+                            render={({ field: { value, onChange } }) => (
+                                <KeywordsAutocomplete
+                                    keywords={value}
+                                    setKeywords={onChange}
+                                />
+                            )}
+                        />
+                    </div>
+
+                    {/*Generate Keywords Button*/}
+                    {canGenerateKeywords && (
+                        <button
+                            type="button"
+                            onClick={handleGenerateKeywords}
+                            disabled={isGeneratingKeywords}
+                            className={`px-6 py-3 font-semibold text-sm rounded-lg 
+                                    transition-all duration-200 shadow-md cursor-pointer
+                                    ${isGeneratingKeywords
+                                ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                                : 'bg-blue-600 text-white hover:shadow-lg active:scale-95'
+                            }`}
+                        >
+                            {isGeneratingKeywords ? (
+                                <span className="flex items-center justify-center gap-2">
+                                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full
+                                                animate-spin"
+                                />
+                                Generating Keywords...
+                            </span>
+                            ) : (
+                                '✨ Generate Keywords'
+                            )}
+                        </button>
+                    )}
+                </div>
 
 
-            {/*SUBMIT BUTTON*/}
+                {/*Entered Keywords Display*/}
+                {keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                        {keywords.map((keyword, index) => (
+                            <span
+                                key={`keyword-${index}`}
+                                className="inline-flex items-center gap-2 px-3 py-1.5
+                                           text-md font-medium text-white bg-blue-600
+                                           rounded-lg shadow-sm"
+                            >
+                                {keyword}
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveKeyword(index)}
+                                    className="hover:bg-white/20 rounded-full p-1
+                                        transition-colors active:scale-90"
+                                    aria-label={`Remove ${keyword}`}
+                                >
+                                    <XMarkIcon className="w-4 h-4"/>
+                                </button>
+                            </span>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* ========================================  SUBMIT BUTTON ============================================ */}
             <button
                 type="submit"
-                className="mt-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white
-                font-medium rounded-lg transition-colors"
+                disabled={isSubmitting}
+                className={`mt-4 px-8 py-4 font-bold text-lg rounded-xl 
+                            transition-all duration-200 shadow-lg ${isSubmitting
+                    ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                    : 'bg-blue-700 hover:to-blue-800 text-white hover:shadow-xl active:scale-95'
+                }`}
             >
-                Submit Changes
+                {isSubmitting ? (
+                    <p className="flex items-center justify-center gap-3">
+                        Saving Changes...
+                    </p>
+                ) : (
+                    'Save Changes'
+                )}
             </button>
         </form>
-    );
+    )
 }
