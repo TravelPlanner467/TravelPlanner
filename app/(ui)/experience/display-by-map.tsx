@@ -1,6 +1,7 @@
 'use client'
 
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState, useMemo} from "react";
+import {useRouter, useSearchParams} from 'next/navigation';
 import {ArrowPathIcon, ChevronLeftIcon, ChevronRightIcon, XMarkIcon} from "@heroicons/react/24/outline";
 
 import {LocationSearch} from "@/app/(ui)/experience/search/location-search";
@@ -12,6 +13,24 @@ import {
     ChevronDoubleLeftIcon,
     ChevronDoubleRightIcon
 } from "@heroicons/react/16/solid";
+
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    wait: number
+): (...args: Parameters<T>) => void {
+    let timeout: NodeJS.Timeout | null = null;
+
+    return function executedFunction(...args: Parameters<T>) {
+        const later = () => {
+            timeout = null;
+            func(...args);
+        };
+
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
 interface DisplayByMapProps {
     experiences: Experience[];
@@ -25,6 +44,11 @@ interface DisplayByMapProps {
         southWest: { lat: number; lng: number };
     } | null;
     onRequestRefresh?: () => void;
+    initialCenter?: {
+        lat: number;
+        lng: number;
+        address: string;
+    } | null;
 }
 
 const MAP_CONFIG = {
@@ -32,16 +56,32 @@ const MAP_CONFIG = {
     defaultZoom: 13,
 } as const;
 
-export default function DisplayByMap({experiences, session_user_id, onBoundsChange, mapBounds, onRequestRefresh}
+export default function DisplayByMap({experiences, onBoundsChange, mapBounds, onRequestRefresh, session_user_id, initialCenter}
 : DisplayByMapProps
 ) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isFullWidth, setIsFullWidth] = useState(false);
 
-    const [location, setLocation] = useState<Location>({
-        lat: MAP_CONFIG.defaultCenter.lat,
-        lng: MAP_CONFIG.defaultCenter.lng,
-        address: ''
+    // State for reverse geocoding errors
+    const [geocodingError, setGeocodingError] = useState<string | null>(null);
+
+    // Initialize location from prop or default
+    const [location, setLocation] = useState<Location>(() => {
+        if (initialCenter) {
+            return {
+                lat: initialCenter.lat,
+                lng: initialCenter.lng,
+                address: initialCenter.address
+            };
+        }
+        return {
+            lat: MAP_CONFIG.defaultCenter.lat,
+            lng: MAP_CONFIG.defaultCenter.lng,
+            address: ''
+        };
     });
 
     // Track if user has manually moved the map
@@ -62,20 +102,102 @@ export default function DisplayByMap({experiences, session_user_id, onBoundsChan
     // Key to reset map after sidebar state change
     const [mapKey, setMapKey] = useState(0);
 
-    // Set Coordinates when user uses LocationSearch
+    // CRITICAL: Watch URL changes for browser back/forward navigation
+    // Without this, back/forward buttons won't update the map location
+    useEffect(() => {
+        const lat = searchParams.get('latitude');
+        const lng = searchParams.get('longitude');
+        const addr = searchParams.get('address');
+
+        if (lat && lng) {
+            const newLat = parseFloat(lat);
+            const newLng = parseFloat(lng);
+
+            // Only update if coordinates actually changed
+            if (newLat !== location.lat || newLng !== location.lng) {
+                setLocation({
+                    lat: newLat,
+                    lng: newLng,
+                    address: addr || `${lat}, ${lng}`
+                });
+            }
+        }
+    }, [searchParams]); // Watches URL changes
+
+    // Update location when initialCenter prop changes (initial load)
+    useEffect(() => {
+        if (initialCenter) {
+            setLocation({
+                lat: initialCenter.lat,
+                lng: initialCenter.lng,
+                address: initialCenter.address
+            });
+        }
+    }, [initialCenter]);
+
+    // Sync location changes back to URL
+    const syncLocationToURL = useCallback((newLocation: Location) => {
+        const params = new URLSearchParams(searchParams.toString());
+
+        params.set('latitude', newLocation.lat.toString());
+        params.set('longitude', newLocation.lng.toString());
+        if (newLocation.address) {
+            params.set('address', newLocation.address);
+        }
+
+        // Use router.replace to update URL without adding to history
+        router.replace(`/experience/search?${params.toString()}`, {
+            scroll: false
+        });
+    }, [router, searchParams]);
+
+    // Debounced sync to prevent excessive URL updates
+    const debouncedSyncToURL = useMemo(
+        () => debounce(syncLocationToURL, 500),
+        [syncLocationToURL]
+    );
+
+    // Set Coordinates when user uses LocationSearch (and sync to URL)
     const handleLocationSelect = useCallback((selectedLocation: Location) => {
         setLocation(selectedLocation);
-    }, []);
+        debouncedSyncToURL(selectedLocation);
+    }, [debouncedSyncToURL]);
 
-    // Set Coordinates when user clicks on the map
-    const handleMapClick = useCallback((lat: number, lng: number) => {
+    // Set Coordinates when user clicks on the map (with reverse geocoding)
+    const handleMapClick = useCallback(async (lat: number, lng: number) => {
         // Validate Coordinates
         if (!isValidLatitude(lat) || !isValidLongitude(lng)) {
-            console.warn('Coordinates out of valid range from map click:', { lat, lng });
+            console.warn('Invalid coordinates from map click:', { lat, lng });
+            setGeocodingError('Invalid coordinates selected');
             return;
         }
-        // Pass coordinates with empty address to LocationSearch
-        handleLocationSelect({lat, lng, address: ''});
+
+        try {
+            // Clear previous errors
+            setGeocodingError(null);
+
+            // Attempt reverse geocoding
+            const address = await reverseGeocodeWithCache(lat, lng);
+
+            const newLocation = {
+                lat,
+                lng,
+                address: address || `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+            };
+
+            handleLocationSelect(newLocation);
+        } catch (error) {
+            console.error('Reverse geocoding error:', error);
+            setGeocodingError('Could not determine address for this location');
+
+            // Still update with coordinates as fallback
+            const newLocation = {
+                lat,
+                lng,
+                address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+            };
+            handleLocationSelect(newLocation);
+        }
     }, [handleLocationSelect]);
 
     // Handle when user moves the map or zooms in/out
@@ -188,6 +310,21 @@ export default function DisplayByMap({experiences, session_user_id, onBoundsChan
 
     return (
         <div className="flex flex-col min-h-0 h-full w-full overflow-hidden">
+            {/* Geocoding Error Banner */}
+            {geocodingError && (
+                <div className="mx-2 mt-2 p-3 bg-yellow-50 border border-yellow-300
+                                rounded-lg text-sm text-yellow-800 flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{geocodingError}</span>
+                    <button
+                        onClick={() => setGeocodingError(null)}
+                        className="ml-auto text-yellow-600 hover:text-yellow-800"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
+
             <div className="flex gap-3 p-2 flex-1 min-h-0">
                 {/*=================================== SIDEBAR (OPEN) ====================================*/}
                 {isSidebarOpen && (

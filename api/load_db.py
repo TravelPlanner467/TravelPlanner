@@ -5,11 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL')
 
-
 def insert_sample_experiences():
     """Insert sample experiences data into the database"""
 
-    # Sample experiences data
     experiences = [
         {
             "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
@@ -76,6 +74,116 @@ def insert_sample_experiences():
             "longitude": -122.3422,
             "keywords": ["food market", "local cuisine", "shopping", "cultural", "seafood", "urban"],
             "user_rating": 4
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "Statue of Liberty Crown Access",
+            "description": "Climbed 354 steps to the crown for panoramic views of NYC harbor. Book tickets months in advance - they sell out quickly. The climb is narrow and can be claustrophobic, but the view is incredible. Security is thorough, similar to airport screening. Only small items allowed. The museum on Liberty Island is also excellent and included with your ticket.",
+            "experience_date": "2025-04-20",
+            "address": "Liberty Island, New York, NY 10004, USA",
+            "latitude": 40.6892,
+            "longitude": -74.0445,
+            "keywords": ["monument", "history", "city view", "museum", "iconic landmark"],
+            "user_rating": 5
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "Antelope Canyon Lower Tour",
+            "description": "Otherworldly slot canyon with stunning light beams (best March-October around noon). Booked guided tour - required for entry. The canyon is narrow and involves climbing some metal stairs. Highly recommend bringing a camera, though phone photos also turn out amazing. Tours are limited to preserve the site. Wear sturdy shoes as the ground can be uneven.",
+            "experience_date": "2025-06-28",
+            "address": "Antelope Canyon, Page, AZ 86040, USA",
+            "latitude": 36.8619,
+            "longitude": -111.3743,
+            "keywords": ["slot canyon", "photography", "guided tour", "natural wonder", "desert"],
+            "user_rating": 5
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "French Quarter Jazz Walk",
+            "description": "Spent an evening strolling through the historic French Quarter. Live jazz music spills from every bar on Bourbon Street. Frenchmen Street has the best authentic jazz clubs. Grabbed beignets at Café Du Monde (open 24/7) - arrive early or late to avoid lines. The architecture with wrought-iron balconies is beautiful. Keep belongings secure in crowded areas.",
+            "experience_date": "2025-03-15",
+            "address": "French Quarter, New Orleans, LA 70116, USA",
+            "latitude": 29.9584,
+            "longitude": -90.0644,
+            "keywords": ["jazz music", "nightlife", "historic district", "food", "culture"],
+            "user_rating": 4
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "Yosemite Valley Hiking Trail",
+            "description": "Hiked the Mist Trail to Vernal Fall - 5.4 miles round trip with stunning views. Trail is well-maintained but steep in sections. The mist from the waterfall soaks you near the top - wear a rain jacket or embrace getting wet! Arrived at the park at 6 AM to secure parking. Bring plenty of water, snacks, and sun protection. Best visited in late spring when waterfall flow is strongest.",
+            "experience_date": "2025-05-25",
+            "address": "Yosemite Valley, CA 95389, USA",
+            "latitude": 37.7456,
+            "longitude": -119.5934,
+            "keywords": ["hiking", "waterfall", "national park", "nature", "scenic view"],
+            "user_rating": 5
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "Space Needle Observation Deck",
+            "description": "360-degree views of Seattle from the iconic 520-foot tower. The rotating glass floor is both thrilling and terrifying. Book tickets online for a discount and skip-the-line access. Sunset timing is popular but crowded. The outdoor observation deck allows for great photos without glare. Staff are knowledgeable and point out landmarks. Plan to spend 45-60 minutes.",
+            "experience_date": "2025-08-05",
+            "address": "400 Broad St, Seattle, WA 98109, USA",
+            "latitude": 47.6205,
+            "longitude": -122.3493,
+            "keywords": ["observation deck", "city view", "iconic landmark", "architecture", "urban"],
+            "user_rating": 4
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "Alcatraz Island Night Tour",
+            "description": "Night tour offers a unique, eerie perspective on the famous former prison. Less crowded than daytime tours. The audio guide with prisoner and guard testimonials is incredibly immersive. Dress warmly - island winds can be cold even in summer. The ferry ride provides beautiful views of San Francisco's skyline at night. Book well in advance - tours sell out weeks ahead.",
+            "experience_date": "2025-07-18",
+            "address": "Alcatraz Island, San Francisco, CA 94133, USA",
+            "latitude": 37.8267,
+            "longitude": -122.4233,
+            "keywords": ["historic site", "prison tour", "museum", "night tour", "boat ride"],
+            "user_rating": 5
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "Zion National Park Angels Landing",
+            "description": "Challenging 5.4-mile hike with 1,500 feet elevation gain to one of the most famous viewpoints in America. The final half-mile involves chain-assisted scrambling with sheer drop-offs - not for those afraid of heights. Started at sunrise to beat the heat and crowds. Permit required (lottery system). The views from the top are absolutely breathtaking and worth the effort.",
+            "experience_date": "2025-09-22",
+            "address": "Zion National Park, Springdale, UT 84767, USA",
+            "latitude": 37.2690,
+            "longitude": -112.9473,
+            "keywords": ["hiking", "extreme trail", "national park", "scenic view", "adventure"],
+            "user_rating": 5
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "Bourbon Street Late Night Experience",
+            "description": "The party atmosphere on Bourbon Street is unlike anywhere else. Street performers, live bands, and neon lights create electric energy. Tried a Hurricane cocktail at Pat O'Brien's - strong and sweet. Open container laws mean you can walk the street with drinks. Gets very crowded and rowdy after 10 PM. Not ideal for families with young children.",
+            "experience_date": "2025-03-16",
+            "address": "Bourbon St, New Orleans, LA 70130, USA",
+            "latitude": 29.9546,
+            "longitude": -90.0678,
+            "keywords": ["nightlife", "party", "bars", "live music", "street performance"],
+            "user_rating": 3
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "Redwood National Park Drive",
+            "description": "Drove the Avenue of the Giants - 31-mile scenic route through ancient redwood forests. Stopped at several groves to walk among trees over 1,000 years old. The scale is hard to comprehend until you're standing next to them. Founder's Grove and Rockefeller Forest are must-see stops. Peaceful and humbling experience. Free to drive and explore. Allow 2-3 hours minimum.",
+            "experience_date": "2025-08-30",
+            "address": "Avenue of the Giants, Humboldt County, CA 95571, USA",
+            "latitude": 40.3520,
+            "longitude": -123.9279,
+            "keywords": ["scenic drive", "old-growth forest", "nature", "hiking", "redwoods"],
+            "user_rating": 5
+        },
+        {
+            "user_id": "xJTNqVqSrdy675MwCupDbEjjFMrC4AuV",
+            "title": "Savannah Historic District Walking Tour",
+            "description": "Self-guided walk through 22 beautiful park squares filled with Spanish moss-draped oak trees. The architecture is stunning - antebellum mansions and historic churches on every block. Stopped at several museums and the famous Forsyth Park fountain. Very walkable city with plenty of restaurants and cafes. Free to explore, though some historic homes charge admission. Best in spring or fall when weather is mild.",
+            "experience_date": "2025-04-10",
+            "address": "Historic District, Savannah, GA 31401, USA",
+            "latitude": 32.0809,
+            "longitude": -81.0912,
+            "keywords": ["historic district", "architecture", "walking tour", "southern charm", "parks"],
+            "user_rating": 4
         }
     ]
 
@@ -83,60 +191,65 @@ def insert_sample_experiences():
     try:
         with conn.cursor() as cur:
             for exp in experiences:
-                # Insert experience
+                # Insert experience with postGIS data
                 cur.execute("""
-                            INSERT INTO experiences
-                            (user_id, title, description, experience_date, address, latitude, longitude)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING experience_id
-                            """, (
-                                exp["user_id"],
-                                exp["title"],
-                                exp["description"],
-                                exp["experience_date"],
-                                exp["address"],
-                                exp["latitude"],
-                                exp["longitude"]
-                            ))
+                    INSERT INTO experiences
+                    (user_id, title, description, experience_date, address, latitude, longitude, location)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, ST_Point(%s, %s)::geography)
+                    RETURNING experience_id
+                """, (
+                    exp["user_id"],
+                    exp["title"],
+                    exp["description"],
+                    exp["experience_date"],
+                    exp["address"],
+                    exp["latitude"],
+                    exp["longitude"],
+                    exp["longitude"],
+                    exp["latitude"]
+                ))
 
                 experience_id = cur.fetchone()[0]
-                print(f"Inserted experience: {exp['title']} (ID: {experience_id})")
+                print(f"✓ Inserted: {exp['title']} (ID: {experience_id})")
 
-                # Insert keywords and link them to experience
+                # Insert keywords
                 for keyword_name in exp["keywords"]:
                     # Insert or get keyword
                     cur.execute("""
-                                INSERT INTO keywords (name)
-                                VALUES (%s) ON CONFLICT (name) DO
-                                UPDATE SET name = EXCLUDED.name
-                                    RETURNING keyword_id
-                                """, (keyword_name,))
+                        INSERT INTO keywords (name)
+                        VALUES (%s) 
+                        ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
+                        RETURNING keyword_id
+                    """, (keyword_name,))
 
                     keyword_id = cur.fetchone()[0]
 
                     # Link keyword to experience
                     cur.execute("""
-                                INSERT INTO experience_keywords (experience_id, keyword_id)
-                                VALUES (%s, %s) ON CONFLICT DO NOTHING
-                                """, (experience_id, keyword_id))
+                        INSERT INTO experience_keywords (experience_id, keyword_id)
+                        VALUES (%s, %s) ON CONFLICT DO NOTHING
+                    """, (experience_id, keyword_id))
 
-                print(f"  Added {len(exp['keywords'])} keywords")
+                print(f"  → Added {len(exp['keywords'])} keywords")
 
-                # Insert rating for this experience
+                # Insert rating
                 if "user_rating" in exp:
                     cur.execute("""
-                                INSERT INTO experience_ratings (experience_id, user_id, rating)
-                                VALUES (%s, %s, %s)
-                                ON CONFLICT (experience_id, user_id) 
-                                DO UPDATE SET rating = EXCLUDED.rating, updated_at = NOW()
-                                """, (experience_id, exp["user_id"], exp["user_rating"]))
-                    print(f"  Added rating: {exp['user_rating']}/5")
+                        INSERT INTO experience_ratings (experience_id, user_id, rating)
+                        VALUES (%s, %s, %s)
+                        ON CONFLICT (experience_id, user_id) 
+                        DO UPDATE SET rating = EXCLUDED.rating, updated_at = NOW()
+                    """, (experience_id, exp["user_id"], exp["user_rating"]))
+                    print(f"  → Added rating: {exp['user_rating']}/5")
 
         conn.commit()
-        print(f"\nSuccessfully inserted {len(experiences)} experiences!")
+        print(f"\n{'='*60}")
+        print(f"✓ Successfully inserted {len(experiences)} experiences!")
+        print(f"{'='*60}")
 
     except Exception as e:
         conn.rollback()
-        print(f"Error inserting  {e}")
+        print(f"✗ Error inserting experiences: {e}")
         raise
     finally:
         conn.close()

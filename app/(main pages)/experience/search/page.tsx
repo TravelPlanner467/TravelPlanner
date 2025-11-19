@@ -1,52 +1,86 @@
 import ComboSearchBar from "@/app/(ui)/experience/search/combo-search-bar";
-import {getAllExperiences} from "@/lib/actions/experience-actions";
-import {ErrorResponse, Experience} from "@/lib/types";
+import {searchCombined, searchByKeyword, searchByLocation} from "@/lib/actions/search-actions";
+import {Experience} from "@/lib/types";
 import ExperiencesDisplay from "@/app/(ui)/experience/experiences-display";
 
 export default async function SearchResultsPage(
-    props: { searchParams?: Promise<{ keywords?: string; location?: string }> }
+    props: { searchParams?: Promise<{ keywords?: string; latitude?: string; longitude?: string; address?: string }> }
 ) {
     const searchParams = await props.searchParams;
     const keywords = searchParams?.keywords || '';
-    const location = searchParams?.location || '';
+    const latitude = searchParams?.latitude;
+    const longitude = searchParams?.longitude;
+    const address = searchParams?.address || '';
 
-    // If there's no query, show empty results
-    // if (!keywords.trim() || !location.trim()) {
-    //     return (
-    //         <main className="flex flex-col min-w-fit min-h-fit">
-    //             <div className="flex w-full justify-center pt-6">
-    //                 <ComboSearchBar />
-    //             </div>
-    //             <div className="min-h-screen mx-auto p-10">
-    //                 <p className="text-lg text-gray-600">
-    //                     Enter a search to find experiences
-    //                 </p>
-    //             </div>
-    //         </main>
-    //     );
-    // }
+    let experiences: Experience[] = [];
+    let location = '';
 
-    const searchQuery = {
-        keywords: keywords.trim(),
-        location: location.trim(),
+    // Case 1: Both keywords and location provided - use combined search
+    if (keywords.trim() && latitude && longitude) {
+        const searchResult = await searchCombined({
+            query: keywords.trim(),
+            lat: parseFloat(latitude),
+            lon: parseFloat(longitude),
+            radius: 50 // 50km radius, configurable if needed
+        });
+
+        if ('results' in searchResult) {
+            experiences = searchResult.results;
+            location = `${latitude}, ${longitude}`;
+        } else {
+            console.error('Combined search error:', searchResult);
+        }
     }
-    // TODO: USE searchQuery for combo search
+    // Case 2: Only keywords - use keyword search
+    else if (keywords.trim()) {
+        const searchResult = await searchByKeyword({
+            query: keywords.trim()
+        });
 
-    // // Use the search API to get filtered results
-    // const searchResult = await searchByKeyword({ query: query.trim() });
-    // const experiences: Experience[] = searchResult.results;
+        if ('results' in searchResult) {
+            experiences = searchResult.results;
+            location = 'Everywhere';
+        } else {
+            console.error('Keyword search error:', searchResult);
+        }
+    }
+    // Case 3: Only location - use location search
+    else if (latitude && longitude) {
+        const searchResult = await searchByLocation({
+            lat: parseFloat(latitude),
+            lon: parseFloat(longitude),
+            radius: 50
+        });
 
-    // Show All Experiences (temporary solution)
-    const experiences: Experience[] | ErrorResponse = await getAllExperiences();
-    if ("error" in experiences) {
+        if ('results' in searchResult) {
+            experiences = searchResult.results;
+            location = `${latitude}, ${longitude}`;
+        } else {
+            console.error('Location search error:', searchResult);
+        }
+    }
+    // Case 4: No search params - show empty state
+    else {
         return (
-            <div className="min-h-screen mx-auto p-10">
-                <p className="text-lg font-bold text-red-500">
-                    Error fetching experiences
-                </p>
+            <div className="flex flex-col w-full h-full">
+                <div className="w-screen">
+                    <ComboSearchBar />
+                </div>
+                <div className="min-h-screen mx-auto p-10">
+                    <p className="text-lg text-gray-600">
+                        Enter keywords or a location to find experiences
+                    </p>
+                </div>
             </div>
-        )
+        );
     }
+
+    // Parse coordinates once and create structured object for map center
+    const initialCenter = latitude && longitude ? {
+        lat: parseFloat(latitude),
+        lng: parseFloat(longitude),
+        address: address || `${latitude}, ${longitude}`
+    } : null;
 
     return (
         <div className="flex flex-col w-full h-full">
@@ -57,6 +91,7 @@ export default async function SearchResultsPage(
                 <ExperiencesDisplay
                     keywords={keywords}
                     location={location}
+                    initialCenter={initialCenter}
                     experiences={experiences}
                 />
             </div>

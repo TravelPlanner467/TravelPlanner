@@ -243,6 +243,25 @@ export async function getUserByID(user_id: string): Promise<string> {
 }
 
 export async function fetchSuggestedKeywords({title, description}: {title: string, description: string}): Promise<string[]> {
-    console.log("Fetching suggested keywords for: ", {title, description});
-    return ["Test"]
+    try {
+        const result = await handleApiRequest<{ keywords?: string[]; count?: number; source?: string }>(
+            `${API_BASE_URL}/keywords/suggest`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ title, description }),
+            },
+            'Failed to fetch suggested keywords'
+        );
+
+        if ((result as any)?.error) {
+            return [];
+        }
+
+        return (result as any)?.keywords ?? [];
+    } catch (error) {
+        return [];
+    }
 }
