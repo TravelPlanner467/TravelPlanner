@@ -31,10 +31,19 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Initialize Firebase
 try:
-    cred = credentials.Certificate('firebase-credentials.json')
-    firebase_admin.initialize_app(cred, {
-        'storageBucket': FIREBASE_BUCKET
-    })
+    if os.environ.get("VERCEL_ENV") == "production":
+        # In Vercel, use FIREBASE_CREDENTIALS
+        cred_json = os.environ["FIREBASE_CREDENTIALS"]
+        cred = credentials.Certificate(json.loads(cred_json))
+    else:
+        # Local environment
+        cred = credentials.Certificate("firebase-credentials.json")
+    firebase_admin.initialize_app(
+        cred,
+        {
+            "storageBucket": os.environ["FIREBASE_BUCKET"]
+        }
+    )
     print("Firebase initialized successfully!")
 except Exception as e:
     print(f"Warning: Firebase not initialized: {e}")
