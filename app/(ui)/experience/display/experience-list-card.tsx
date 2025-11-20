@@ -10,6 +10,7 @@ import {
     EditExperienceButton,
     ViewExperienceButton
 } from "@/app/(ui)/account/buttons/experience-buttons";
+import { KeywordsButtons } from "@/app/(ui)/components/keywords-buttons";
 
 interface ExperienceListCardProps {
     experience: Experience;
@@ -115,14 +116,7 @@ export function ExperienceListCard({ experience, session_user_id, compact = fals
 
                         {/* Keywords */}
                         <div className="hidden md:flex flex-wrap gap-2 justify-end max-w-xs">
-                            {experience.keywords.map((keyword, index) => (
-                                <p
-                                    key={index}
-                                    className="px-2 py-1 text-xs font-medium border rounded-md"
-                                >
-                                    {keyword}
-                                </p>
-                            ))}
+                            <KeywordsButtons keywords={experience.keywords} buttonClassName="px-2 py-1 text-xs font-medium border rounded-md bg-white hover:bg-gray-50" />
                         </div>
                     </div>
 
@@ -201,20 +195,10 @@ export function ExperienceListCard({ experience, session_user_id, compact = fals
                 {/* ======Keywords Row ==============================================================================*/}
                 {!compact && (
                     <div className="hidden xl:flex flex-wrap gap-2 mb-4">
-                        {experience.keywords.slice(0, 4).map((keyword, index) => (
-                            <span
-                                key={index}
-                                className="px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-700
-                                           rounded-full border border-blue-200 hover:bg-blue-100 transition-colors"
-                            >
-                                {keyword}
-                            </span>
-                        ))}
-                        {experience.keywords.length > 4 && (
-                            <span className="px-3 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-full">
-                                +{experience.keywords.length - 4} more
-                            </span>
-                        )}
+                        <KeywordsButtons
+                            keywords={experience.keywords}
+                            buttonClassName="px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-700 rounded-full border border-blue-200 hover:bg-blue-100 transition-colors"
+                        />
                     </div>
                 )}
 

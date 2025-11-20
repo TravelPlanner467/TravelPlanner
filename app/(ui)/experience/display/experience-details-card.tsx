@@ -12,6 +12,7 @@ import {RatingDisplay} from "@/app/(ui)/experience/buttons/star-rating";
 import {RateExperienceButton} from "@/app/(ui)/experience/buttons/rate-experience-button";
 import {Experience, ErrorResponse, Trip, UserTripsProps} from "@/lib/types";
 import {Inline, Thumbnails} from "yet-another-react-lightbox/plugins";
+import { KeywordsButtons } from "@/app/(ui)/components/keywords-buttons";
 
 interface ExperienceDetailsProps {
     experience: Experience;
@@ -89,16 +90,10 @@ export function ExperienceDetailsContent({ experience, trips, user_id, experienc
 
                         {/*Keywords*/}
                         <div className="flex flex-col justify-start lg:items-end lg:w-2/5">
-                            <div className="flex flex-wrap gap-2">
-                                {experience.keywords.map((keyword, index) => (
-                                    <span key={index}
-                                          className="px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full
-                                                     border border-blue-200 hover:bg-blue-100 transition-colors"
-                                    >
-                                    {keyword}
-                                </span>
-                                ))}
-                            </div>
+                            <KeywordsButtons
+                                keywords={experience.keywords}
+                                buttonClassName="px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-200 hover:bg-blue-100 transition-colors"
+                            />
                         </div>
                     </div>
 
