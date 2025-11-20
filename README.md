@@ -62,10 +62,10 @@ pnpm run dev
 | **Frontend**       | Next.js, TypeScript, React         |
 | **Backend**        | Python (Flask), Next.js API Routes |
 | **Database**       | PostgreSQL (NeonDB)                |
+| **File Store**     | Firebase                           |
 | **Authentication** | BetterAuth                         |
 | **Maps**           | Leaflet                            |
 | **Location**       | Nomatim & Google Places API        |
-
 
 ---
 
