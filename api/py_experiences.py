@@ -31,19 +31,20 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Initialize Firebase
 try:
-    if os.environ.get("VERCEL_ENV") == "production":
-        # In Vercel, use FIREBASE_CREDENTIALS
-        cred_json = os.environ["FIREBASE_CREDENTIALS"]
-        cred = credentials.Certificate(json.loads(cred_json))
+    # Try Vercel environment variable first
+    service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
+    if service_account_json:
+        service_account_info = json.loads(service_account_json)
+        cred = credentials.Certificate(service_account_info)
+        print("Firebase: Using Vercel environment variable")
     else:
-        # Local environment
+        # Fallback to local file
         cred = credentials.Certificate("firebase-credentials.json")
-    firebase_admin.initialize_app(
-        cred,
-        {
-            "storageBucket": os.environ["FIREBASE_BUCKET"]
-        }
-    )
+        print("Firebase: Using local firebase-credentials.json")
+
+    firebase_admin.initialize_app(cred, {
+        "storageBucket": FIREBASE_BUCKET
+    })
     print("Firebase initialized successfully!")
 except Exception as e:
     print(f"Warning: Firebase not initialized: {e}")
@@ -89,8 +90,13 @@ def upload_to_firebase(file, experience_id):
         bucket = storage.bucket()
         blob = bucket.blob(unique_filename)
 
-        # Upload file
-        blob.upload_from_file(file, content_type=file.content_type)
+        # Reset the file pointer before upload
+        if hasattr(file, "stream"):
+            file.stream.seek(0)
+            blob.upload_from_file(file.stream, content_type=file.content_type)
+        else:
+            file.seek(0)
+            blob.upload_from_file(file, content_type=file.content_type)
 
         # Make the blob publicly accessible
         blob.make_public()

@@ -11,6 +11,7 @@ import {fetchSuggestedKeywords, updateExperience} from "@/lib/actions/experience
 import {PhotoUpload} from "@/app/(ui)/experience/create-edit/photo-upload";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {Experience, Photo, UploadedPhoto} from "@/lib/types";
+import {useRouter} from "next/navigation";
 
 // ============================================================================
 // TYPE
@@ -44,6 +45,7 @@ const MAP_CONFIG = {
 // MAIN COMPONENT
 // ============================================================================
 export default function EditExperienceForm({ session_user_id, experience }: ExperienceFormProps) {
+    const router = useRouter();
     const { register, control, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<ExperienceFormData>({
         defaultValues: {
             owner_id: '',
@@ -226,9 +228,8 @@ export default function EditExperienceForm({ session_user_id, experience }: Expe
         try {
             await updateExperience(formData);
             // Show success message
-            alert('Experience updated successfully!');
-            // Redirect or refresh
-            // router.push(`/experiences/${experience.experience_id}`);
+            // Refresh
+            router.refresh()
         } catch (error) {
             console.error('Update failed:', error);
             alert('Failed to update experience. Please try again.');
