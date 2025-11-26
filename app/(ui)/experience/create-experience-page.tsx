@@ -11,6 +11,7 @@ import {createExperience, fetchSuggestedKeywords} from "@/lib/actions/experience
 import {PhotoUpload} from "@/app/(ui)/experience/create-edit/photo-upload";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {PhotoFile} from "@/lib/utils/photo-utils";
+import {useRouter} from "next/navigation";
 
 // ============================================================================
 // TYPE
@@ -38,6 +39,7 @@ const MAP_CONFIG = {
 // MAIN COMPONENT
 // ============================================================================
 export default function CreateExperiencePage({ user_id }: { user_id: string }) {
+    const router = useRouter();
     const {register, control, handleSubmit, watch, setValue, formState: { errors, isSubmitting }
     } = useForm<ExperienceFormData>({
         defaultValues: {
@@ -165,7 +167,8 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
 
         try {
             await createExperience(formData);
-            // Reset form or redirect
+            // Redirect to "my experiences"
+            router.push('/account/experiences');
         } catch (error) {
             console.error(error);
         }

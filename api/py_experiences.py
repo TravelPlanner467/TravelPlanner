@@ -90,8 +90,13 @@ def upload_to_firebase(file, experience_id):
         bucket = storage.bucket()
         blob = bucket.blob(unique_filename)
 
-        # Upload file
-        blob.upload_from_file(file, content_type=file.content_type)
+        # Reset the file pointer before upload
+        if hasattr(file, "stream"):
+            file.stream.seek(0)
+            blob.upload_from_file(file.stream, content_type=file.content_type)
+        else:
+            file.seek(0)
+            blob.upload_from_file(file, content_type=file.content_type)
 
         # Make the blob publicly accessible
         blob.make_public()
