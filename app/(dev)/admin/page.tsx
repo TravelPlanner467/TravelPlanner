@@ -42,7 +42,15 @@ export default async function Page() {
                         border border-gray-900 shadow-md rounded-lg
                         hover:shadow-lg hover:bg-gray-100"
           >
-              All Experiences
+              All Experiences (Table)
+          </Link>
+          <Link href="/admin/experiences-map"
+                className="w-72 h-20 flex justify-center items-center
+                        text-lg font-medium text-blue-900 underline
+                        border border-gray-900 shadow-md rounded-lg
+                        hover:shadow-lg hover:bg-gray-100"
+          >
+              All Experiences (Map)
           </Link>
       </div>
   )
