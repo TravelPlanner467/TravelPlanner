@@ -49,6 +49,8 @@ interface DisplayByMapProps {
         lng: number;
         address: string;
     } | null;
+    enableSelectMarker?: boolean;
+    showSelectedMarker?: boolean;
 }
 
 const MAP_CONFIG = {
@@ -56,17 +58,41 @@ const MAP_CONFIG = {
     defaultZoom: 13,
 } as const;
 
-export default function DisplayByMap({experiences, onBoundsChange, mapBounds, onRequestRefresh, session_user_id, initialCenter}
+export default function DisplayByMap({
+                                         experiences,
+                                         onBoundsChange,
+                                         mapBounds,
+                                         onRequestRefresh,
+                                         session_user_id,
+                                         initialCenter,
+                                         enableSelectMarker = true,
+                                         showSelectedMarker = true,
+}
 : DisplayByMapProps
 ) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
+    // Sidebar control states
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isFullWidth, setIsFullWidth] = useState(false);
 
+    // Controls visibility of the search overlay on the map
+    const [showLocationSearchOverlay, setShowLocationSearchOverlay] = useState(false);
+
     // State for reverse geocoding errors
     const [geocodingError, setGeocodingError] = useState<string | null>(null);
+
+    // Track hovered/selected experience
+    const [hoveredExperienceId, setHoveredExperienceId] = useState<string | null>(null);
+    const [selectedExperienceId, setSelectedExperienceId] = useState<string | null>(null);
+
+    // Refs for sidebar items to enable auto scrolling
+    const sidebarItemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+    const sidebarContainerRef = useRef<HTMLDivElement>(null);
+
+    // Key to reset map after sidebar state change
+    const [mapKey, setMapKey] = useState(0);
 
     // Initialize location from prop or default
     const [location, setLocation] = useState<Location>(() => {
@@ -91,18 +117,7 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
         southWest: { lat: number; lng: number };
     } | null>(null);
 
-    // Track hovered/selected experience
-    const [hoveredExperienceId, setHoveredExperienceId] = useState<string | null>(null);
-    const [selectedExperienceId, setSelectedExperienceId] = useState<string | null>(null);
-
-    // Refs for sidebar items to enable auto scrolling
-    const sidebarItemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-    const sidebarContainerRef = useRef<HTMLDivElement>(null);
-
-    // Key to reset map after sidebar state change
-    const [mapKey, setMapKey] = useState(0);
-
-    // CRITICAL: Watch URL changes for browser back/forward navigation
+    // Watches URL changes for browser back/forward navigation
     // Without this, back/forward buttons won't update the map location
     useEffect(() => {
         const lat = searchParams.get('latitude');
@@ -122,7 +137,7 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                 });
             }
         }
-    }, [searchParams]); // Watches URL changes
+    }, [searchParams]);
 
     // Update location when initialCenter prop changes (initial load)
     useEffect(() => {
@@ -161,6 +176,11 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
     const handleLocationSelect = useCallback((selectedLocation: Location) => {
         setLocation(selectedLocation);
         debouncedSyncToURL(selectedLocation);
+    }, [debouncedSyncToURL]);
+
+    // Map-only movement (does not reset search results)
+    const handleViewLocationChange = useCallback((loc: Location) => {
+        setLocation(loc);               // move map center
     }, [debouncedSyncToURL]);
 
     // Set Coordinates when user clicks on the map (with reverse geocoding)
@@ -424,14 +444,6 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                 {/* =================================== SEARCH & MAP  ======================================= */}
                 {!isFullWidth && (
                     <div className="flex flex-col w-full h-full gap-2 ">
-                        {/* ========== Search ==========*/}
-                        <div className="shrink-0">
-                            <LocationSearch
-                                onLocationSelect={handleLocationSelect}
-                                location={location}
-                                isRow={true}
-                            />
-                        </div>
 
                         {/* ========== MAP ========== */}
                         <div className="relative flex-1 min-h-o overflow-hidden border-2 border-gray-300 rounded-xl shadow-md">
@@ -452,6 +464,58 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                                     <ArrowPathIcon className="w-5 h-5" />
                                     Search this area
                                 </button>
+                            )}
+
+                            {/* NEW: Button to open location search overlay */}
+                            {!showLocationSearchOverlay && (
+                                <button
+                                    type="button"
+                                    onClick={() => setShowLocationSearchOverlay(true)}
+                                    className="absolute top-4 left-14 px-4 py-2.5 bg-blue-600 text-white rounded-lg shadow-lg
+                                               hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                                               transition-all duration-200 flex items-center gap-2 font-medium pointer-events-auto"
+                                    style={{
+                                        zIndex: 9999,
+                                    }}
+                                >
+                                    Change location
+                                </button>
+                            )}
+
+                            {/* NEW: LocationSearch overlay on top of the map */}
+                            {showLocationSearchOverlay && (
+                                <div
+                                    className="absolute left-1/2 -translate-x-1/2 top-4 z-[10000] w-[min(48rem,calc(100%-2rem))]
+                                               bg-gray-100/90 rounded-xl shadow-xl border border-gray-300 p-3"
+                                >
+                                    <div className="flex">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowLocationSearchOverlay(false)}
+                                            className="p-1 rounded-md text-gray-500 hover:text-gray-800 hover:bg-gray-100
+                                                       focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            aria-label="Close location search"
+                                        >
+                                            <XMarkIcon className="w-5 h-5" />
+                                        </button>
+                                        <h3 className="text-sm font-semibold text-gray-900">
+                                            Change search location
+                                        </h3>
+                                    </div>
+
+
+                                    <LocationSearch
+                                        // in this mode, treat selections as "move map only"
+                                        onLocationSelect={() => {}}
+                                        location={location}
+                                        viewOnly={true}
+                                        onViewLocationChange={(loc) => {
+                                            handleViewLocationChange(loc);
+                                        }}
+                                        isRow={true}
+                                    />
+
+                                </div>
                             )}
 
                             {/* Map */}
@@ -477,6 +541,8 @@ export default function DisplayByMap({experiences, onBoundsChange, mapBounds, on
                                     onMarkerClick={handleMarkerClick}
                                     onMapClick={handleMapClick}
                                     onBoundsChange={handleMapBoundsChange}
+                                    enableSelectMarker={enableSelectMarker}
+                                    showSelectedMarker={showSelectedMarker}
                                     height="100%"
                                 />
                             </div>

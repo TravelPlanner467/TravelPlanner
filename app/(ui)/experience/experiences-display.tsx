@@ -94,7 +94,8 @@ export default function ExperiencesDisplay({
                                                location,
                                                session_user_id,
                                                default_view_mode = "map",
-                                               initialCenter}
+                                               initialCenter,
+}
 : ExperienceViewProps)
 {
     const [viewMode, setViewMode] = useState<ViewMode>(default_view_mode);
@@ -168,6 +169,8 @@ export default function ExperiencesDisplay({
                         onBoundsChange={handleBoundsChange}
                         onRequestRefresh={handleRequestRefresh}
                         initialCenter={initialCenter}
+                        enableSelectMarker={false}
+                        showSelectedMarker={false}
                     />
                 )}
             </div>

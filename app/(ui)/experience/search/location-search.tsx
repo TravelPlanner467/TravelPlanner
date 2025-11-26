@@ -18,6 +18,8 @@ interface LocationSearchProps {
     onMapClick?: (lat: number, lng: number) => void;
     mapButton?: React.ReactNode;
     isRow?: boolean;
+    viewOnly?: boolean;
+    onViewLocationChange?: (location: Location) => void; // view-only callback
 }
 
 // ============================================================================
@@ -90,7 +92,15 @@ const searchAddress = async (query: string): Promise<Array<Location>> => {
 // =====================================================================================================================
 // MAIN COMPONENT
 // =====================================================================================================================
-export function LocationSearch({onLocationSelect, location, onMapClick, mapButton, isRow = false}: LocationSearchProps) {
+export function LocationSearch({
+                                   onLocationSelect,
+                                   location,
+                                   onMapClick,
+                                   mapButton,
+                                   isRow = false,
+                                   viewOnly = false,
+                                   onViewLocationChange = undefined,
+}: LocationSearchProps) {
     const [searchQuery, setSearchQuery] = useState(location.address || '');
     const [results, setResults] = useState<Location[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -166,7 +176,11 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
                     address,
                 };
 
-                onLocationSelect(newLocation);
+                if (viewOnly && onViewLocationChange) {
+                    onViewLocationChange(newLocation);
+                } else {
+                    onLocationSelect(newLocation);
+                }
             } else {
                 // Update ref even if we don't geocode
                 prevLocationRef.current = { ...curr };
@@ -269,7 +283,13 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
 
             lastSearchedQueryRef.current = address;
             setSearchQuery(address);
-            onLocationSelect(newLocation);
+
+            if (viewOnly && onViewLocationChange) {
+                onViewLocationChange(newLocation);
+            } else {
+                onLocationSelect(newLocation);
+            }
+
         } catch (error) {
             console.error('Error getting location:', error);
             alert('Unable to retrieve your location. Please check your browser permissions.');
@@ -302,7 +322,12 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
         setSearchQuery(result.address);
         setShowResults(false);
         setIsInputFocused(false);
-        onLocationSelect(result);
+
+        if (viewOnly && onViewLocationChange) {
+            onViewLocationChange(result);
+        } else {
+            onLocationSelect(result);
+        }
     };
 
     const handleManualSearch = async () => {
@@ -335,7 +360,12 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
             setSearchQuery(address);
             setShowResults(false);
             setIsInputFocused(false);
-            onLocationSelect(newLocation);
+
+            if (viewOnly && onViewLocationChange) {
+                onViewLocationChange(newLocation);
+            } else {
+                onLocationSelect(newLocation);
+            }
 
         } else if (type === 'lng' && isValidLongitude(parsed)) {
             const rounded = roundCoordinate(parsed);
@@ -346,7 +376,12 @@ export function LocationSearch({onLocationSelect, location, onMapClick, mapButto
             setSearchQuery(address);
             setShowResults(false);
             setIsInputFocused(false);
-            onLocationSelect(newLocation);
+
+            if (viewOnly && onViewLocationChange) {
+                onViewLocationChange(newLocation);
+            } else {
+                onLocationSelect(newLocation);
+            }
         }
     };
 
