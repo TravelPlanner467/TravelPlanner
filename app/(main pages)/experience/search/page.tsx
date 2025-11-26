@@ -2,6 +2,7 @@ import ComboSearchBar from "@/app/(ui)/experience/search/combo-search-bar";
 import {searchCombined, searchByKeyword, searchByLocation} from "@/lib/actions/search-actions";
 import {Experience} from "@/lib/types";
 import ExperiencesDisplay from "@/app/(ui)/experience/experiences-display";
+import { Providers } from "@/app/(ui)/general/provider-wrapper";
 
 export default async function SearchResultsPage(
     props: { searchParams?: Promise<{ keywords?: string; latitude?: string; longitude?: string; address?: string }> }
@@ -64,7 +65,9 @@ export default async function SearchResultsPage(
         return (
             <div className="flex flex-col w-full h-full">
                 <div className="w-screen">
-                    <ComboSearchBar />
+                    <Providers>
+                        <ComboSearchBar />
+                    </Providers>
                 </div>
                 <div className="min-h-screen mx-auto p-10">
                     <p className="text-lg text-gray-600">
@@ -85,7 +88,9 @@ export default async function SearchResultsPage(
     return (
         <div className="flex flex-col w-full h-full">
             <div className="w-screen">
-                <ComboSearchBar />
+                <Providers>
+                    <ComboSearchBar />
+                </Providers>
             </div>
             <div className="flex-1 min-h-0">
                 <ExperiencesDisplay

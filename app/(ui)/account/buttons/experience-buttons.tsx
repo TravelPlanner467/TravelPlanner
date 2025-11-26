@@ -56,8 +56,8 @@ export function DeleteExperienceButton({user_id, experience_id}: DeleteExperienc
     function onDeleteClick() {
         const result = confirm("Are you sure you want to delete this experiences?");
         if (result) {
-            console.log(formData);
             deleteExperience(formData)
+            window.location.reload();
         }
     }
 

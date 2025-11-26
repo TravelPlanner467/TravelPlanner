@@ -34,6 +34,8 @@ interface InteractiveMapProps {
     }) => void;
     onMarkerHover?: (experienceId: string | null) => void;
     onMarkerClick?: (experienceId: string) => void;
+    enableSelectMarker?: boolean;
+    showSelectedMarker?: boolean;
 }
 
 interface OnMapClickProps {
@@ -113,10 +115,17 @@ function RecenterMap({ center }: { center: { lat: number; lng: number } }) {
     return null;
 }
 
-export function InteractiveMap({center, zoom, height = '400px', selectedMarker,
-                                   markers = [], onMapClick, onBoundsChange
-                                , onMarkerHover, onMarkerClick = () => { }}
-                               : InteractiveMapProps) {
+export function InteractiveMap({center, zoom, height = '400px',
+                                   selectedMarker,
+                                   markers = [],
+                                   onMapClick,
+                                   onBoundsChange,
+                                   onMarkerHover,
+                                   onMarkerClick = () => { },
+                                   enableSelectMarker = true,
+                                   showSelectedMarker = true,
+}
+: InteractiveMapProps) {
     return (
         <MapContainer
             center={[center.lat, center.lng]}
@@ -129,11 +138,14 @@ export function InteractiveMap({center, zoom, height = '400px', selectedMarker,
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            <MapClickHandler onClick={onMapClick} onBoundsChange={onBoundsChange} />
+            <MapClickHandler
+                onClick={enableSelectMarker ? onMapClick : undefined}
+                onBoundsChange={onBoundsChange}
+            />
             <RecenterMap center={center} />
 
             {/* Selected location marker */}
-            {selectedMarker && (
+            {showSelectedMarker && selectedMarker && (
                 <Marker
                     position={[selectedMarker.lat, selectedMarker.lng]}
                     icon={selectedIcon} zIndexOffset={-1000}

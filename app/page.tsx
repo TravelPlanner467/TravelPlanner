@@ -1,4 +1,5 @@
 import ComboSearchBar from "@/app/(ui)/experience/search/combo-search-bar";
+import {Providers} from "@/app/(ui)/general/provider-wrapper";
 
 export default async function Page() {
     return (
@@ -20,7 +21,9 @@ export default async function Page() {
 
             {/*Experiences Search Bar*/}
             <div className="flex w-3/4 max-w-5xl justify-center items-center">
-                <ComboSearchBar />
+                <Providers>
+                    <ComboSearchBar />
+                </Providers>
             </div>
         </div>
     );
