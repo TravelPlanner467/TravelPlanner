@@ -35,6 +35,9 @@ try:
     service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
     if service_account_json:
         service_account_info = json.loads(service_account_json)
+        print(f"Project: {service_account_info.get('project_id', 'NOT FOUND')}")
+        print(f"Has private_key: {'private_key' in service_account_info}")
+
         cred = credentials.Certificate(service_account_info)
         print("Firebase: Using Vercel environment variable")
     else:
@@ -46,8 +49,16 @@ try:
         "storageBucket": FIREBASE_BUCKET
     })
     print("Firebase initialized successfully!")
+
+except json.JSONDecodeError as e:
+    print(f"❌ JSON Error: {e}")
+    traceback.print_exc()
+    raise
+
 except Exception as e:
-    print(f"Warning: Firebase not initialized: {e}")
+    print(f"❌ Firebase init failed: {e}")
+    traceback.print_exc()
+    raise
 
 
 # ==============================================================================
