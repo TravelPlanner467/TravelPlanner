@@ -1,6 +1,7 @@
 'use server'
 
 import {
+    CreateExperienceResponse,
     DeleteExperienceProps, EditExperienceSendProps,
     ErrorResponse,
     Experience, getExperienceByLocationProps, getUserExperienceProps, RateExperienceProps
@@ -69,7 +70,7 @@ async function handleApiRequest<T>(url: string, options: RequestInit, errorConte
 }
 
 // CREATE ====================================================================
-export async function createExperience(formData: FormData): Promise<ErrorResponse | undefined> {
+export async function createExperience(formData: FormData): Promise<CreateExperienceResponse> {
     const userId = formData.get('user_id') as string;
 
     const result = await handleApiRequest<void>(
@@ -83,8 +84,13 @@ export async function createExperience(formData: FormData): Promise<ErrorRespons
         'Failed to create experience'
     );
 
-    if (result) return result;
+    // Handle the case where result might be undefined or an error
+    if (!result || 'error' in result) {
+        throw new Error(result?.error || 'Failed to create experience');
+    }
+
     console.log('Experience created successfully');
+    return result;
 }
 
 // UPDATE ========================================================================

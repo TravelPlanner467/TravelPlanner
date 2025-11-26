@@ -166,11 +166,12 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
         console.log(formData);
 
         try {
-            await createExperience(formData);
-            // Redirect to "my experiences"
-            router.push('/account/experiences');
+            const response = await createExperience(formData);
+            // Push to "experience details" page"
+            router.push(`/experience/details?q=${response.experience_id}&created=true`);
         } catch (error) {
             console.error(error);
+            alert('Failed to create experience. Please try again.');
         }
     };
 

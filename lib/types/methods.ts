@@ -77,6 +77,11 @@ export interface getExperienceByLocationProps {
     southWest: { lat: number; lng: number };
 }
 
+export interface CreateExperienceResponse {
+    experience_id: string;
+    message: string;
+};
+
 
 //---------------------------------------------------------------------------------------------------------------------
 // TRIP TYPE INTERFACES------------------------------------------------------------------------------------------------
