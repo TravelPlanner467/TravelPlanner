@@ -166,6 +166,7 @@ export default function CreateExperiencePage({ user_id }: { user_id: string }) {
         console.log(formData);
 
         try {
+            // Send data to server
             const response = await createExperience(formData);
             // Push to "experience details" page"
             router.push(`/experience/details?q=${response.experience_id}&created=true`);

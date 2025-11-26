@@ -1,7 +1,7 @@
 'use client'
 
 import {MapPinIcon, StarIcon} from "@heroicons/react/16/solid";
-import {RemoveExperienceButton, ViewExperienceTripButton} from "@/app/(ui)/trips/buttons/trip-buttons";
+import {RemoveExperienceButton, ViewExperienceButton} from "@/app/(ui)/trips/buttons/trip-buttons";
 import {TripExperience} from "@/lib/types";
 
 interface ExperienceCardProps {
@@ -40,7 +40,7 @@ export default function TripExperiencesCard({ experience, session_user_id, trip_
 
             {/* Buttons */}
             <div className="flex flex-row gap-2 mt-auto">
-                <ViewExperienceTripButton trip_id={trip_id}/>
+                <ViewExperienceButton experience_id={experience.experience_id}/>
                 <RemoveExperienceButton
                     user_id={session_user_id}
                     experience_id={experience.experience_id}

@@ -24,17 +24,17 @@ export default async function Page(
         trip_id: trip_id,
         session_user_id: session_user_id,
     }
-    // const trip: TripDetails | ErrorResponse = await getTripDetails(tripFormData);
+    const trip: Trip | ErrorResponse = await getTripDetails(tripFormData);
     // ERROR PAGE IF TRIP IS NOT FOUND
-    // if ("error" in trip) {
-    //     return (
-    //         <div className="min-h-screen flex items-center justify-center">
-    //             <p className="text-red-500">
-    //                 Error loading trip details.
-    //             </p>
-    //         </div>
-    //     );
-    // }
+    if ("error" in trip) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-red-500">
+                    Error loading trip details.
+                </p>
+            </div>
+        );
+    }
 
     const tempTrips = [
         {
@@ -109,15 +109,12 @@ export default async function Page(
         }
     ]
 
-
-
-
     return (
         <main className="">
             <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
                 <div className="flex flex-col gap-4 items-center justify-center">
                     <TripDetailsCard
-                        trip={tempTrips[0]}
+                        trip={trip}
                         session_user_id={session_user_id}
                     />
                 </div>

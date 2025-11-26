@@ -1,11 +1,11 @@
 'use client'
 import { useState } from 'react';
 import TripsListCard from "@/app/(ui)/trips/trips-list-card";
-import {Trip} from "@/lib/types";
+import {Trip, UserTripsProps} from "@/lib/types";
 import {PaginatedList} from "@/app/(ui)/general/paginated-list";
 
 interface TripDataProps {
-    trips: Trip[]
+    trips: UserTripsProps[]
     session_user_id: string
 }
 
@@ -23,7 +23,7 @@ export default function TripsList({ trips, session_user_id }: TripDataProps) {
                 <PaginatedList
                     items={trips}
                     itemsPerPage={6}
-                    renderItem={(trip: Trip) => (
+                    renderItem={(trip: UserTripsProps) => (
                         <TripsListCard
                             key={trip.trip_id}
                             trip={trip}

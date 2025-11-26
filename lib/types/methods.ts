@@ -96,6 +96,17 @@ export interface Trip {
     experiences: TripExperience[]
 }
 
+export interface UserTripsProps {
+    user_id: string;
+    trip_id: string;
+    title: string;
+    description?: string;
+    start_date?: string;
+    end_date?: string;
+    experience_count: number;
+    experiences: Experience[];
+}
+
 export interface TripExperience {
     experience_id: string;
     order: number;
@@ -107,16 +118,6 @@ export interface TripExperience {
         address: string;
     };
     average_rating: number;
-}
-
-export interface UserTripsProps {
-    user_id: string;
-    trip_id: string;
-    title: string;
-    description?: string;
-    start_date?: string;
-    end_date?: string;
-    experience_count: number;
 }
 
 export interface CreateTripProps {

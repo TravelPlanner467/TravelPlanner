@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import {CalendarDaysIcon, MapPinIcon} from "@heroicons/react/24/outline";
-import {Trip,} from "@/lib/types";
+import {Trip, UserTripsProps,} from "@/lib/types";
 
 interface TripCardProps {
-    trip: Trip
+    trip: UserTripsProps
     session_user_id: string
 }
 
@@ -26,7 +26,7 @@ export default function TripsListCard({ trip, session_user_id }: TripCardProps) 
     const startDate = formatDate(trip.start_date);
     const endDate = formatDate(trip.end_date);
 
-    const experience_count = trip.experiences.length;
+    const experience_count = trip.experience_count
 
     const handleClick = () => {
         router.push(`/trips/details?q=${trip.trip_id}`);

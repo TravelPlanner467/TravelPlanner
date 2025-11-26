@@ -59,10 +59,7 @@ export default async function EditTripPage(
     }
 
     return (
-        <div className="flex flex-col w-full gap-2 items-center">
-            <div className='text-4xl font-bold'>
-                Edit Trip
-            </div>
+        <div className="flex flex-col w-full items-center justify-center p-4">
             <EditTripForm trip={trip} session_user_id={session_user_id}/>
         </div>
     )

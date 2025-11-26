@@ -108,10 +108,10 @@ export function RemoveExperienceButton({user_id, experience_id, trip_id}: Experi
     );
 }
 
-export function ViewExperienceTripButton({trip_id}: { trip_id: string }) {
+export function ViewExperienceButton({experience_id}: { experience_id: string }) {
     return (
         <Link
-            href={`/trips/details?q=${trip_id}`}
+            href={`/experience/details?q=${experience_id}`}
             className={`w-48 h-8 flex justify-center items-center
                 border-2 border-blue-800 rounded-lg
                 hover:bg-blue-50 hover:shadow-lg hover:scale-[1.1]`}

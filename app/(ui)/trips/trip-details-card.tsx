@@ -5,6 +5,7 @@ import {CalendarDaysIcon} from "@heroicons/react/16/solid";
 import TripExperiencesCard from "@/app/(ui)/trips/trip-experiences-card";
 import {DeleteTripButton, EditTripButton} from "@/app/(ui)/trips/buttons/trip-buttons";
 import {useLayoutEffect, useRef, useState} from "react";
+import DraggableExperiences from "@/app/(ui)/trips/draggable-experiences";
 import TripExperiencesList from "@/app/(ui)/trips/trip-experiences-list";
 
 interface TripDetailsProps {
@@ -92,7 +93,8 @@ export function TripDetailsCard({trip, session_user_id}: TripDetailsProps) {
                 {/* ========================================== */}
                 <div>
                     <h2 className="text-xl font-semibold text-gray-900 mb-4">Experiences</h2>
-                    <TripExperiencesList trip={trip} session_user_id={session_user_id} />
+                    {/*<DraggableExperiences trip={trip} session_user_id={session_user_id} />*/}
+                    <TripExperiencesList trip_id={trip.trip_id} experiences={trip.experiences} session_user_id={session_user_id} />
                 </div>
             </div>
         </div>
