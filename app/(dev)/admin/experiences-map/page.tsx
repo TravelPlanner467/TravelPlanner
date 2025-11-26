@@ -4,16 +4,27 @@ import {redirect} from "next/navigation";
 import {CodeBracketIcon} from "@heroicons/react/16/solid";
 
 import {getAllExperiences} from "@/lib/actions/experience-actions";
+import ExperiencesDisplay from "@/app/(ui)/experience/experiences-display";
 
-export default async function DevPage() {
+export default async function Page() {
     const session = await auth.api.getSession({headers: await headers()});
     if ( !session ) {redirect('/account/login');}
     const session_user_id = session.user.id;
 
+    // Check if user has admin role from database
+    if (session.user.role !== 'admin') {
+        return (
+            <div>
+                Unauthorized Access. Please login with an admin account.
+            </div>
+        )
+    }
+
+    // Fetch all experiences
     const experiences = await getAllExperiences()
     if ( "error" in experiences ) {
         return (
-            <div>ERROR</div>
+            <div>ERROR FETCHING ALL EXPERIENCES</div>
         )
     }
 
@@ -23,8 +34,12 @@ export default async function DevPage() {
                 <CodeBracketIcon className="w-8 h-8"/>
                 <h1 className="text-xl font-bold">Dev Page</h1>
             </div>
-            <div className="flex flex-1 justify-center w-full min-h-0 overflow-hidden">
-                <h2 className="text-xl mt-12">No Features In Development</h2>
+            <div className="flex-1 min-h-0">
+                <ExperiencesDisplay
+                    experiences={experiences}
+                    session_user_id={session_user_id}
+                    default_view_mode={'map'}
+                />
             </div>
         </div>
     )

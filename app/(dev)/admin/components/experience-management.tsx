@@ -144,7 +144,17 @@ export default function ExperienceManagement({ experiences }: ExperienceManageme
             size: 200,
             enableResizing: false,
             cell: ({ getValue }) => {
-                const keywords = getValue() as string[];
+                const raw = getValue() as string[] | null | undefined;
+                const keywords = Array.isArray(raw) ? raw : [];  // handle null/undefined
+
+                if (!keywords.length) {
+                    return (
+                        <span className="text-xs text-gray-400 italic">
+                    No keywords
+                </span>
+                    );
+                }
+
                 return (
                     <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
                         {keywords.map((keyword, idx) => (
@@ -152,8 +162,8 @@ export default function ExperienceManagement({ experiences }: ExperienceManageme
                                 key={idx}
                                 className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-800 rounded whitespace-nowrap"
                             >
-                                {keyword}
-                            </span>
+                        {keyword}
+                    </span>
                         ))}
                     </div>
                 );
@@ -175,11 +185,14 @@ export default function ExperienceManagement({ experiences }: ExperienceManageme
         globalFilterFn: (row, columnId, filterValue) => {
             const searchValue = filterValue.toLowerCase();
             const exp = row.original;
+
+            const keywords = Array.isArray(exp.keywords) ? exp.keywords : []; // null-safe
+
             return (
                 exp.title.toLowerCase().includes(searchValue) ||
                 exp.description.toLowerCase().includes(searchValue) ||
                 exp.address.toLowerCase().includes(searchValue) ||
-                exp.keywords.some(k => k.toLowerCase().includes(searchValue)) ||
+                keywords.some(k => k.toLowerCase().includes(searchValue)) ||
                 exp.experience_id.toString().includes(searchValue) ||
                 exp.user_id.toLowerCase().includes(searchValue)
             );

@@ -6,7 +6,6 @@ import { MapPinIcon, CalendarDaysIcon, PencilSquareIcon } from "@heroicons/react
 
 import { createTrip } from "@/lib/actions/trips-actions";
 import {CreateTripProps} from "@/lib/types";
-import AddExperiencesSearch from "@/app/(dev)/dev/components/add-experiences-search";
 
 interface NewTripFormProps {
     session_user_id: string

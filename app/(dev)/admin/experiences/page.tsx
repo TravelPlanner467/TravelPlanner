@@ -19,6 +19,14 @@ export default async function ManageUsersPage() {
         )
     }
 
+    // Fetch all experiences
+    const experiences = await getAllExperiences()
+    if ( "error" in experiences ) {
+        return (
+            <div>ERROR</div>
+        )
+    }
+
     // Dynamically import UserManagement if user is general
     const ExperienceManagement = dynamic(
         () => import("@/app/(dev)/admin/components/experience-management"),
@@ -32,15 +40,6 @@ export default async function ManageUsersPage() {
         }
     );
 
-    // Load user data
-    const experiences = await getAllExperiences();
-    if ("error" in experiences) {
-        return (
-            <div>
-                Error loading Experiences.
-            </div>
-        )
-    }
 
     return (
         <div className="p-8">
