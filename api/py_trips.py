@@ -141,44 +141,83 @@ def delete_trip(trip_id):
 @trips_bp.route('/get-trip-details/<int:trip_id>', methods=['GET'])
 @require_auth
 def get_trip_details(trip_id):
-    """Get a single trip by ID with its experiences"""
+    """Get a single trip by ID with its experiences and metadata."""
     conn = psycopg2.connect(DATABASE_URL)
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Get trip details
-            cur.execute("""
-                        SELECT *
-                        FROM trips
-                        WHERE trip_id = %s
-                        """, (trip_id,))
-
+            # Fetch trip
+            cur.execute(
+                """
+                SELECT *
+                FROM trips
+                WHERE trip_id = %s
+                """,
+                (trip_id,),
+            )
             trip = cur.fetchone()
             if not trip:
                 return jsonify({"error": "Trip not found"}), 404
 
-            # Convert datetime fields to ISO 8601
-            if trip.get('start_date'):
-                trip['start_date'] = trip['start_date'].isoformat()
-            if trip.get('end_date'):
-                trip['end_date'] = trip['end_date'].isoformat()
-
             trip = dict(trip)
 
-            # Get associated experiences
-            cur.execute("""
-                        SELECT experience_id
-                        FROM trip_experiences
-                        WHERE trip_id = %s
-                        """, (trip_id,))
+            # Convert date/datetime fields to ISO 8601 strings[web:126][web:131]
+            for field in ("start_date", "end_date", "create_date"):
+                if trip.get(field):
+                    trip[field] = trip[field].isoformat()
 
-            experiences = [row['experience_id'] for row in cur.fetchall()]
+            trip["trip_id"] = str(trip["trip_id"])
+            trip["user_id"] = str(trip["user_id"])
 
-            trip['experiences'] = experiences
+            # Fetch experiences for this trip
+            cur.execute(
+                """
+                SELECT
+                    e.experience_id,
+                    e.title,
+                    e.latitude,
+                    e.longitude,
+                    e.address,
+                    e.description,
+                    COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0.0) AS average_rating
+                FROM trip_experiences te
+                JOIN experiences e
+                    ON te.experience_id = e.experience_id
+                LEFT JOIN experience_ratings r
+                    ON e.experience_id = r.experience_id
+                WHERE te.trip_id = %s
+                GROUP BY
+                    e.experience_id,
+                    e.title,
+                    e.latitude,
+                    e.longitude,
+                    e.address,
+                    e.description
+                ORDER BY
+                    e.create_date
+                """,
+                (trip_id,),
+            )
+            rows = cur.fetchall()
 
-            # # Convert dates to ISO format
-            # trip['start_date'] = trip['start_date'].isoformat()
-            # trip['end_date'] = trip['end_date'].isoformat()
-            # trip['create_date'] = trip['create_date'].isoformat()
+            experiences = []
+            for row in rows:
+                experiences.append(
+                    {
+                        "experience_id": str(row["experience_id"]),
+                        "title": row["title"],
+                        "location": {
+                            "lat": float(row["latitude"]) if row["latitude"] is not None else None,
+                            "lng": float(row["longitude"]) if row["longitude"] is not None else None,
+                            "address": row["address"],
+                        },
+                        "description": row["description"],
+                        "average_rating": float(row["average_rating"])
+                        if row["average_rating"] is not None
+                        else None,
+                    }
+                )
+
+            trip["experiences"] = experiences
 
             return jsonify(trip), 200
 
@@ -186,6 +225,7 @@ def get_trip_details(trip_id):
         return jsonify({"error": f"Database error: {str(e)}"}), 500
     finally:
         conn.close()
+
 
 @trips_bp.route('/add-experience', methods=['PUT'])
 @require_auth

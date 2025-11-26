@@ -12,6 +12,7 @@ import {PhotoUpload} from "@/app/(ui)/experience/create-edit/photo-upload";
 import {isValidLatitude, isValidLongitude, Location} from "@/lib/utils/nomatim-utils";
 import {Experience, Photo, UploadedPhoto} from "@/lib/types";
 import {useRouter} from "next/navigation";
+import {CheckCircleIcon} from "@heroicons/react/16/solid";
 
 // ============================================================================
 // TYPE
@@ -46,6 +47,11 @@ const MAP_CONFIG = {
 // ============================================================================
 export default function EditExperienceForm({ session_user_id, experience }: ExperienceFormProps) {
     const router = useRouter();
+
+    // Success notification state
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    // Form controls and data
     const { register, control, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<ExperienceFormData>({
         defaultValues: {
             owner_id: '',
@@ -227,9 +233,18 @@ export default function EditExperienceForm({ session_user_id, experience }: Expe
 
         try {
             await updateExperience(formData);
-            // Show success message
-            // Refresh
-            router.refresh()
+
+            // Show success message on current page
+            setShowSuccess(true);
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                setShowSuccess(false);
+            }, 5000);
+
+            // Refresh the page data to show updates
+            router.refresh();
+
         } catch (error) {
             console.error('Update failed:', error);
             alert('Failed to update experience. Please try again.');
@@ -479,23 +494,48 @@ export default function EditExperienceForm({ session_user_id, experience }: Expe
             </div>
 
             {/* ========================================  SUBMIT BUTTON ============================================ */}
-            <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`mt-4 px-8 py-4 font-bold text-lg rounded-xl 
-                            transition-all duration-200 shadow-lg ${isSubmitting
-                    ? 'bg-gray-400 cursor-not-allowed text-gray-200'
-                    : 'bg-blue-700 hover:to-blue-800 text-white hover:shadow-xl active:scale-95'
-                }`}
-            >
-                {isSubmitting ? (
-                    <p className="flex items-center justify-center gap-3">
-                        Saving Changes...
-                    </p>
-                ) : (
-                    'Save Changes'
+            <div className="relative mt-4">
+                {/* Success Notification */}
+                {showSuccess && (
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4
+                        animate-in slide-in-from-bottom duration-300">
+                        <div className="flex items-center gap-3 px-6 py-4 bg-green-50 border-2 border-green-500
+                            rounded-xl shadow-lg whitespace-nowrap">
+                            <CheckCircleIcon className="w-6 h-6 text-green-600" />
+                            <div>
+                                <p className="font-semibold text-green-900">Success!</p>
+                                <p className="text-sm text-green-700">Experience updated successfully</p>
+                            </div>
+                            <button
+                                onClick={() => setShowSuccess(false)}
+                                className="ml-4 p-1 hover:bg-green-100 rounded-full transition-colors"
+                            >
+                                <XMarkIcon className="w-5 h-5 text-green-600" />
+                            </button>
+                        </div>
+                    </div>
                 )}
-            </button>
+
+                {/* Submit Button */}
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`w-full px-8 py-4 font-bold text-lg rounded-xl 
+                    transition-all duration-200 shadow-lg ${isSubmitting
+                        ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                        : 'bg-blue-700 hover:to-blue-800 text-white hover:shadow-xl active:scale-95'
+                    }`}
+                >
+                    {isSubmitting ? (
+                        <p className="flex items-center justify-center gap-3">
+                            Saving Changes...
+                        </p>
+                    ) : (
+                        'Save Changes'
+                    )}
+                </button>
+            </div>
         </form>
     )
 }
+

@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useState } from "react";
+import {useRouter} from "next/navigation";
+import { MapPinIcon, CalendarDaysIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+
 import { createTrip } from "@/lib/actions/trips-actions";
 import {CreateTripProps} from "@/lib/types";
-import {useRouter} from "next/navigation";
 import AddExperiencesSearch from "@/app/(dev)/dev/components/add-experiences-search";
 
 interface NewTripFormProps {
@@ -59,107 +61,146 @@ export function NewTripForm( {session_user_id}: NewTripFormProps) {
             </div>
 
             <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
-                {/*Section Header*/}
-                <div className="flex flex-wrap items-baseline gap-3">
+                {/* Section Header */}
+                <div className="flex flex-wrap items-baseline gap-3 border-b border-gray-200 pb-3">
                     <h3 className="text-lg font-bold text-gray-900">Trip Information</h3>
-                    <div className="hidden sm:block h-5 w-px bg-gray-300"></div>
+                    <div className="hidden sm:block h-5 w-px bg-gray-300" />
                     <p className="text-sm text-gray-600">
-                        Start planning your trip now!
+                        Give your trip a clear name, timeframe, and overview.
                     </p>
                 </div>
 
-                {/*Title, Dates, & Description*/}
-                <div className="flex flex-col w-full gap-6 items-start">
-                    <div className="flex flex-col flex-1 gap-2 group">
-                        <label htmlFor="title" className="text-sm font-semibold text-gray-700 tracking-wide">
-                            Title <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            value={tripData.title}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="Trip Title"
-                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
-                                       bg-white transition-all duration-200
-                                       focus:ring-4 focus:ring-blue-100 focus:border-blue-500
-                                       hover:border-gray-400 shadow-sm"
-                        />
-                    </div>
-
-                    {/*Dates*/}
-                    <div className="flex flex-row gap-3 w-full">
-                        <div className="flex flex-col">
-                            <label htmlFor="start_date" className="text-sm font-medium text-gray-700 mb-1">
-                                Start Date
+                <div className="flex flex-col w-full gap-6">
+                    {/* Title + Dates row */}
+                    <div className="flex flex-col items-start md:flex-row md:items-center gap-6">
+                        {/* Title */}
+                        <div className="flex-1 flex flex-col gap-5">
+                            <label
+                                htmlFor="title"
+                                className="text-md font-semibold text-gray-800 tracking-wide -mt-5"
+                            >
+                                Trip title <span className="text-red-500">*</span>
                             </label>
-                            <input
-                                type="date"
-                                id="start_date"
-                                name="start_date"
-                                value={tripData.start_date}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
-                                           bg-white transition-all duration-200
-                                           focus:ring-4 focus:ring-blue-100 focus:border-blue-500
-                                           hover:border-gray-400 shadow-sm"
-                            />
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    id="title"
+                                    name="title"
+                                    value={tripData.title}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="e.g. Summer road trip through the Pacific Northwest"
+                                    className="w-full p-3 rounded-xl border-2 border-gray-300
+                                             bg-white text-gray-900 placeholder:text-gray-400
+                                             transition-all duration-200
+                                             focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                                             hover:border-gray-400 shadow-sm"
+                                />
+                            </div>
                         </div>
 
-                        <div className="flex flex-col">
-                            <label htmlFor="start_date" className="text-sm font-medium text-gray-700 mb-1">
-                                End Date
-                            </label>
-                            <input
-                                type="date"
-                                id="end_date"
-                                name="end_date"
-                                value={tripData.end_date}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
-                                           bg-white transition-all duration-200
-                                           focus:ring-4 focus:ring-blue-100 focus:border-blue-500
-                                           hover:border-gray-400 shadow-sm"
-                            />
+                        {/* Dates */}
+                        <div className="w-full md:w-[320px] flex flex-col gap-2 md:self-end">
+                            <div className="flex items-center gap-2">
+                                <CalendarDaysIcon className="h-5 w-5 text-gray-500" aria-hidden="true" />
+                                <span className="text-sm font-semibold text-gray-800 tracking-wide">
+                                    Dates
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="flex flex-col gap-1">
+                                    <label
+                                        htmlFor="start_date"
+                                        className="text-xs font-medium text-gray-600 uppercase tracking-wide"
+                                    >
+                                        Start
+                                    </label>
+                                    <input
+                                        type="date"
+                                        id="start_date"
+                                        name="start_date"
+                                        value={tripData.start_date}
+                                        onChange={handleInputChange}
+                                        className="w-full px-3 py-2 rounded-lg border-2 border-gray-300
+                                                   bg-white text-gray-900 text-sm
+                                                   focus:ring-2 focus:ring-blue-100 focus:border-blue-500
+                                                   hover:border-gray-400 shadow-sm"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label
+                                        htmlFor="end_date"
+                                        className="text-xs font-medium text-gray-600 uppercase tracking-wide"
+                                    >
+                                        End
+                                    </label>
+                                    <input
+                                        type="date"
+                                        id="end_date"
+                                        name="end_date"
+                                        value={tripData.end_date}
+                                        onChange={handleInputChange}
+                                        className="w-full px-3 py-2 rounded-lg border-2 border-gray-300
+                                                   bg-white text-gray-900 text-sm
+                                                   focus:ring-2 focus:ring-blue-100 focus:border-blue-500
+                                                   hover:border-gray-400 shadow-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            <p className="text-xs text-gray-500">
+                                You can leave dates blank if your trip is still flexible.
+                            </p>
                         </div>
                     </div>
 
-                    <div className="w-full">
-                        <label htmlFor="description" className="text-sm font-medium text-gray-700 mb-1">
-                            Trip Description
+                    {/* Description row */}
+                    <div className="flex flex-col gap-2">
+                        <label
+                            htmlFor="description"
+                            className="flex items-center gap-2 text-sm font-semibold text-gray-800 tracking-wide"
+                        >
+                            <PencilSquareIcon className="h-5 w-5 text-gray-500" aria-hidden="true" />
+                            Trip description
                         </label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            rows={8}
-                            value={tripData.description}
-                            onChange={handleInputChange}
-                            placeholder="Describe your trip plans..."
-                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
-                                       bg-white transition-all duration-200 resize-y
-                                       focus:ring-4 focus:ring-blue-100 focus:border-blue-500
-                                       hover:border-gray-400 shadow-sm"
-                        />
+                        <div className="relative">
+                              <textarea
+                                  id="description"
+                                  name="description"
+                                  rows={5}
+                                  value={tripData.description}
+                                  onChange={handleInputChange}
+                                  placeholder="Describe your itinerary, goals, or anything your future self should remember about this trip..."
+                                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300
+                                           bg-white text-gray-900 placeholder:text-gray-400
+                                           transition-all duration-200 resize-y
+                                           focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+                                           hover:border-gray-400 shadow-sm"
+                              />
+                                <span className="pointer-events-none absolute bottom-3 right-4 text-xs text-gray-400">
+                                    Optional
+                                </span>
+                        </div>
                     </div>
-
                 </div>
             </div>
 
-            <div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">
-                {/*Section Header*/}
-                <div className="flex flex-wrap items-baseline gap-3">
-                    <h3 className="text-lg font-bold text-gray-900">Trip Experiences</h3>
-                    <div className="hidden sm:block h-5 w-px bg-gray-300"></div>
-                    <p className="text-sm text-gray-600">
-                        Search for some experiences to add to your trip.
-                    </p>
-                </div>
 
-                {/*Search Bar*/}
-                <AddExperiencesSearch />
-            </div>
+            {/*<div className="flex flex-col w-full gap-4 p-6 bg-blue-50/50 rounded-xl border-2 border-blue-100">*/}
+            {/*    /!*Section Header*!/*/}
+            {/*    <div className="flex flex-wrap items-baseline gap-3">*/}
+            {/*        <h3 className="text-lg font-bold text-gray-900">Trip Experiences</h3>*/}
+            {/*        <div className="hidden sm:block h-5 w-px bg-gray-300"></div>*/}
+            {/*        <p className="text-sm text-gray-600">*/}
+            {/*            Search for some experiences to add to your trip.*/}
+            {/*        </p>*/}
+            {/*    </div>*/}
+
+            {/*    /!*Search Bar*!/*/}
+            {/*    <AddExperiencesSearch />*/}
+            {/*</div>*/}
 
 
             {/* Upload Status */}
@@ -185,10 +226,10 @@ export function NewTripForm( {session_user_id}: NewTripFormProps) {
             >
                 {isUploading ? (
                     <p className="flex items-center justify-center gap-3">
-                        Creating Experience...
+                        Creating Trip...
                     </p>
                 ) : (
-                    'Create Experience'
+                    'Create Trip'
                 )}
             </button>
 

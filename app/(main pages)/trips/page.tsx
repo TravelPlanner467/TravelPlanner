@@ -18,59 +18,58 @@ export default async function Page() {
     const session_user_id = session.user.id;
 
     //Get User Trips
-    const user_id = session.user.id;
-    // const trips: UserTripsProps[] | ErrorResponse = await getUserTrips(user_id);
-    // // Early return for error in fetching trips
-    // if ("error" in trips) {
-    //     return (
-    //         <div className="p-10">
-    //             <h1 className="text-lg font-bold text-red-500">
-    //                 {trips.error}
-    //             </h1>
-    //             <p className="text-gray-600 mb-6">
-    //                 {trips.message}
-    //             </p>
-    //             <GoBackButton text={"Return Home"} />
-    //         </div>
-    //     );
-    // }
+    const trips: UserTripsProps[] | ErrorResponse = await getUserTrips(session_user_id);
+    // Early return for error in fetching trips
+    if ("error" in trips) {
+        return (
+            <div className="p-10">
+                <h1 className="text-lg font-bold text-red-500">
+                    {trips.error}
+                </h1>
+                <p className="text-gray-600 mb-6">
+                    {trips.message}
+                </p>
+                <GoBackButton text={"Return Home"} />
+            </div>
+        );
+    }
 
-    const trips = [
-        {
-            "user_id": "A1B2XYZ",
-            "trip_id": "1",
-            "title": "California Coast Adventure",
-            "description": "A scenic road trip along Highway 1 visiting Big Sur, Monterey, Santa Barbara, and area landmarks.",
-            "start_date": "2025-08-14T10:00:00Z",
-            "end_date": "2025-08-22T17:00:00Z",
-            "experiences": [
-                {
-                    "experience_id": "101",
-                    "title": "Golden Gate Bridge Walk",
-                    "order": 1,
-                    "location": {
-                        "lat": 37.8199,
-                        "lng": -122.4783,
-                        "address": "Golden Gate Bridge, San Francisco, CA"
-                    },
-                    "description": "A scenic stroll across the iconic bridge with panoramic city and bay views.",
-                    "average_rating": 4.9
-                },
-                {
-                    "experience_id": "102",
-                    "title": "Monterey Bay Aquarium",
-                    "order": 2,
-                    "location": {
-                        "lat": 36.6181,
-                        "lng": -121.9012,
-                        "address": "886 Cannery Row, Monterey, CA 93940"
-                    },
-                    "description": "Exploring marine exhibits and interactive displays.",
-                    "average_rating": 4.8
-                },
-            ]
-        }
-    ]
+    // const trips = [
+    //     {
+    //         "user_id": "A1B2XYZ",
+    //         "trip_id": "1",
+    //         "title": "California Coast Adventure",
+    //         "description": "A scenic road trip along Highway 1 visiting Big Sur, Monterey, Santa Barbara, and area landmarks.",
+    //         "start_date": "2025-08-14T10:00:00Z",
+    //         "end_date": "2025-08-22T17:00:00Z",
+    //         "experiences": [
+    //             {
+    //                 "experience_id": "101",
+    //                 "title": "Golden Gate Bridge Walk",
+    //                 "order": 1,
+    //                 "location": {
+    //                     "lat": 37.8199,
+    //                     "lng": -122.4783,
+    //                     "address": "Golden Gate Bridge, San Francisco, CA"
+    //                 },
+    //                 "description": "A scenic stroll across the iconic bridge with panoramic city and bay views.",
+    //                 "average_rating": 4.9
+    //             },
+    //             {
+    //                 "experience_id": "102",
+    //                 "title": "Monterey Bay Aquarium",
+    //                 "order": 2,
+    //                 "location": {
+    //                     "lat": 36.6181,
+    //                     "lng": -121.9012,
+    //                     "address": "886 Cannery Row, Monterey, CA 93940"
+    //                 },
+    //                 "description": "Exploring marine exhibits and interactive displays.",
+    //                 "average_rating": 4.8
+    //             },
+    //         ]
+    //     }
+    // ]
 
 
     return (
