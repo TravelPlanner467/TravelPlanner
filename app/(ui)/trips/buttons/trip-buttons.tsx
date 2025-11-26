@@ -54,7 +54,7 @@ export function DeleteTripButton({session_user_id, trip_id}: TripIDProps) {
         <button
             onClick={onDeleteClick}
             className={`w-12 h-10 flex justify-center items-center
-                border-2 border-red-800 rounded-lg
+                border-2 border-red-800 rounded-lg cursor-pointer
                 hover:bg-red-50 hover:shadow-lg hover:scale-[1.1]`}
         >
             <TrashIcon className="w-5 h-5 text-red-800"/>
@@ -90,7 +90,7 @@ export function RemoveExperienceButton({user_id, experience_id, trip_id}: Experi
             <button
                 onClick={onRemoveClick}
                 className={`w-12 h-8 flex justify-center items-center
-                border-2 border-red-800 rounded-lg
+                border-2 border-red-800 rounded-lg cursor-pointer
                 hover:bg-red-50 hover:shadow-lg hover:scale-[1.1]`}
             >
                 <MinusIcon className="w-5 h-5 text-red-800"/>
