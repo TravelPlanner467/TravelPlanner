@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic';
-import {startTransition, useCallback, useState} from "react";
+import {startTransition, useCallback, useState, useEffect} from "react";
 import { ListBulletIcon, MapIcon } from "@heroicons/react/24/outline";
 
 import {getExperiencesByLocation} from "@/lib/actions/experience-actions";
@@ -100,11 +100,21 @@ export default function ExperiencesDisplay({
 {
     const [viewMode, setViewMode] = useState<ViewMode>(default_view_mode);
 
+    // State for displayed experiences (can be filtered by map bounds)
+    const [displayedExperiences, setDisplayedExperiences] = useState<Experience[]>(experiences);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
     // Map boundaries for searching experiences by location
     const [mapBounds, setMapBounds] = useState<{
         northEast: { lat: number; lng: number };
         southWest: { lat: number; lng: number };
     } | null>(null);
+
+    // Sync experiences prop with displayedExperiences when new search results arrive
+    useEffect(() => {
+        setDisplayedExperiences(experiences);
+    }, [experiences]);
 
     // Handle bounds change from map
     const handleBoundsChange = useCallback((bounds: {
@@ -115,31 +125,41 @@ export default function ExperiencesDisplay({
     }, []);
 
     // Handle refresh request from map
-    const handleRequestRefresh = useCallback(() => {
+    const handleRequestRefresh = useCallback(async () => {
         if (!mapBounds) {
             console.warn('Cannot refresh: map bounds not available');
             return;
         }
 
-        startTransition(async () => {
-            const formData = {
+        // ⭐ PHASE 1: Simple duplicate prevention
+        if (isLoading) {
+            console.log('Search already in progress, ignoring click');
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const result = await getExperiencesByLocation({
                 northEast: mapBounds.northEast,
                 southWest: mapBounds.southWest,
+            });
+
+            if ('error' in result) {
+                setError(result.message || result.error || 'Failed to load experiences');
+            } else {
+                setDisplayedExperiences(result);
+                // Clear error on success
+                setError(null);
             }
-            try {
-                const newData = await getExperiencesByLocation(formData);
-                // if ("error" in newData) {
-                //     console.error('Error refreshing experiences:', newData.error);
-                //     alert('Failed to refresh data. Please try again.');
-                // } else {
-                //     setExperiences(newData);
-                // }
-            } catch (error) {
-                console.error('Error refreshing experiences:', error);
-                alert('Failed to refresh data. Please try again.');
-            }
-        });
-    }, [mapBounds]);
+        } catch (error) {
+            console.error('Error refreshing experiences:', error);
+            setError('Failed to refresh data. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [mapBounds, isLoading]);
 
     return (
         <div className="relative flex flex-col w-full h-full">
@@ -157,13 +177,13 @@ export default function ExperiencesDisplay({
                 {viewMode === 'list' && (
                     <ExperiencesList
                         session_user_id={session_user_id || undefined}
-                        experiences={experiences}
+                        experiences={displayedExperiences}
                     />
                 )}
 
                 {viewMode === 'map' && (
                     <DisplayByMap
-                        experiences={experiences}
+                        experiences={displayedExperiences}
                         session_user_id={session_user_id || undefined}
                         mapBounds={mapBounds || null}
                         onBoundsChange={handleBoundsChange}
@@ -171,6 +191,8 @@ export default function ExperiencesDisplay({
                         initialCenter={initialCenter}
                         enableSelectMarker={false}
                         showSelectedMarker={false}
+                        isLoading={isLoading}
+                        error={error}
                     />
                 )}
             </div>

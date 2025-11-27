@@ -191,8 +191,16 @@ export async function getAllExperiences(): Promise<Experience[] | ErrorResponse>
     return result;
 }
 
-export async function getExperiencesByLocation(formData: getExperienceByLocationProps) {
-    console.log("Getting experiences by location: ", formData);
+export async function getExperiencesByLocation(formData: getExperienceByLocationProps): Promise<Experience[] | ErrorResponse> {
+    return handleApiRequest<Experience[]>(
+        `${API_BASE_URL}/experiences/location`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        },
+        'Failed to fetch experiences by location'
+    );
 }
 
 export async function getTopExperiences(): Promise<Experience[] | ErrorResponse> {
