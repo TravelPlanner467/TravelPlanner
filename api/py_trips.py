@@ -160,7 +160,7 @@ def get_trip_details(trip_id):
 
             trip = dict(trip)
 
-            # Convert date/datetime fields to ISO 8601 strings[web:126][web:131]
+            # Convert date/datetime fields to ISO 8601 strings
             for field in ("start_date", "end_date", "create_date"):
                 if trip.get(field):
                     trip[field] = trip[field].isoformat()
@@ -168,7 +168,7 @@ def get_trip_details(trip_id):
             trip["trip_id"] = str(trip["trip_id"])
             trip["user_id"] = str(trip["user_id"])
 
-            # Fetch experiences for this trip
+            # Fetch experiences for this trip - UPDATED to include display_order
             cur.execute(
                 """
                 SELECT
@@ -178,6 +178,7 @@ def get_trip_details(trip_id):
                     e.longitude,
                     e.address,
                     e.description,
+                    te.display_order,
                     COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0.0) AS average_rating
                 FROM trip_experiences te
                 JOIN experiences e
@@ -191,9 +192,10 @@ def get_trip_details(trip_id):
                     e.latitude,
                     e.longitude,
                     e.address,
-                    e.description
+                    e.description,
+                    te.display_order
                 ORDER BY
-                    e.create_date
+                    te.display_order, e.create_date
                 """,
                 (trip_id,),
             )
@@ -205,6 +207,7 @@ def get_trip_details(trip_id):
                     {
                         "experience_id": str(row["experience_id"]),
                         "title": row["title"],
+                        "order": row["display_order"] if row["display_order"] is not None else 0,  # NEW: Add order field
                         "location": {
                             "lat": float(row["latitude"]) if row["latitude"] is not None else None,
                             "lng": float(row["longitude"]) if row["longitude"] is not None else None,
@@ -235,15 +238,18 @@ def add_experience_to_trip():
     print(data)
     trip_id = data['trip_id']
     experience_id = data['experience_id']
+    display_order = data.get('order', 0)  # NEW: Get order from request, default to 0
 
     conn = psycopg2.connect(DATABASE_URL)
     try:
         with conn.cursor() as cur:
+            # UPDATED: Include display_order and handle conflicts
             cur.execute("""
-                INSERT INTO trip_experiences (trip_id, experience_id)
-                VALUES (%s, %s)
-                ON CONFLICT DO NOTHING
-            """, (trip_id, experience_id))
+                INSERT INTO trip_experiences (trip_id, experience_id, display_order)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (trip_id, experience_id) 
+                DO UPDATE SET display_order = EXCLUDED.display_order
+            """, (trip_id, experience_id, display_order))
         conn.commit()
         return {'message': 'Experience added successfully'}, 200
 
@@ -355,5 +361,58 @@ def edit_trip():
         print(f"Database error: {e}")
         return jsonify({'error': 'Database Error'}), 500
 
+    finally:
+        conn.close()
+
+@trips_bp.route('/update-experience-order', methods=['PUT'])
+@require_auth
+def update_experience_order():
+    """
+    Update the order of multiple experiences within a trip
+    Expected JSON format:
+    {
+        "trip_id": "1",
+        "updates": [
+            {"experience_id": "101", "order": 1},
+            {"experience_id": "102", "order": 2},
+            ...
+        ]
+    }
+    """
+    data = request.get_json()
+
+    if not data or 'updates' not in data or 'trip_id' not in data:
+        return jsonify({'error': 'trip_id and updates array are required'}), 400
+
+    trip_id = data['trip_id']
+    updates = data['updates']
+
+    if not isinstance(updates, list) or len(updates) == 0:
+        return jsonify({'error': 'updates must be a non-empty array'}), 400
+
+    conn = psycopg2.connect(DATABASE_URL)
+    try:
+        with conn.cursor() as cur:
+            # Update each experience's order within the trip
+            for update in updates:
+                experience_id = update.get('experience_id')
+                order = update.get('order')
+
+                if experience_id is None or order is None:
+                    conn.rollback()
+                    return jsonify({'error': 'Each update must have experience_id and order'}), 400
+
+                cur.execute("""
+                    UPDATE trip_experiences 
+                    SET display_order = %s
+                    WHERE trip_id = %s AND experience_id = %s
+                """, (order, trip_id, experience_id))
+
+        conn.commit()
+        return jsonify({'message': 'Experience orders updated successfully'}), 200
+
+    except psycopg2.Error as e:
+        conn.rollback()
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
     finally:
         conn.close()
