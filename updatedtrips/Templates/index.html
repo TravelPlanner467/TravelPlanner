@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Planner - Trips & Experiences</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input, select {
+            padding: 10px;
+            margin: 5px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="date"] {
+            width: 180px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .trip {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+        .trip-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .trip-details {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        .experiences-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+        }
+        .experience-item {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            cursor: move;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .experience-item:hover {
+            border-color: #007bff;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.2);
+        }
+        .experience-item.dragging {
+            opacity: 0.5;
+            border-color: #007bff;
+        }
+        .experience-item.drag-over {
+            border-top: 3px solid #007bff;
+        }
+        .experience-order {
+            background: #007bff;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .experience-content {
+            flex-grow: 1;
+        }
+        .experience-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .experience-location {
+            font-size: 12px;
+            color: #666;
+        }
+        .experience-rating {
+            color: #ff9800;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        .drag-handle {
+            color: #999;
+            margin-right: 10px;
+            cursor: move;
+            font-size: 20px;
+        }
+        .btn-view {
+            background: #28a745;
+        }
+        .btn-view:hover {
+            background: #218838;
+        }
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌍 Travel Planner</h1>
+
+    <div class="section">
+        <h2>Add New Trip</h2>
+        <div>
+            <select id="user_id">
+                <option value="">Select User</option>
+            </select>
+            <input type="text" id="title" placeholder="Trip Title">
+        </div>
+        <div>
+            <input type="text" id="keywords" placeholder="Keywords (comma separated)">
+            <input type="text" id="description" placeholder="Description">
+        </div>
+        <div>
+            <input type="date" id="start_date">
+            <input type="date" id="end_date">
+        </div>
+        <button onclick="addTrip()">Add Trip</button>
+        <div id="add-status"></div>
+    </div>
+
+    <div class="section">
+        <h2>My Trips</h2>
+        <div id="trips">Loading...</div>
+    </div>
+
+    <!-- Trip Details Modal -->
+    <div id="tripModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modal-trip-title"></h2>
+            <div id="modal-trip-details"></div>
+
+            <div class="experiences-section">
+                <h3>Experiences (Drag to Reorder) 🔄</h3>
+                <div id="modal-experiences"></div>
+                <button onclick="saveExperienceOrder()" style="margin-top: 15px;">💾 Save Order</button>
+                <div id="order-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTripId = null;
+        let currentExperiences = [];
+        let draggedElement = null;
+
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('add-status');
+            statusDiv.className = isError ? 'error' : 'success';
+            statusDiv.innerHTML = message;
+            setTimeout(() => statusDiv.innerHTML = '', 3000);
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                const users = await response.json();
+                const select = document.getElementById('user_id');
+                select.innerHTML = '<option value="">Select User</option>' +
+                    users.map(user => `<option value="${user.id}">${user.username}</option>`).join('');
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        async function loadTrips() {
+            try {
+                const response = await fetch('/api/trips');
+                const trips = await response.json();
+                const tripsDiv = document.getElementById('trips');
+
+                if (trips.length === 0) {
+                    tripsDiv.innerHTML = '<p class="empty-state">📭 No trips yet. Add your first trip!</p>';
+                    return;
+                }
+
+                tripsDiv.innerHTML = trips.map(trip => `
+                    <div class="trip">
+                        <div class="trip-title">✈️ ${trip.title}</div>
+                        <div class="trip-details">👤 ${trip.username}</div>
+                        ${trip.description ? `<div class="trip-details">📝 ${trip.description}</div>` : ''}
+                        ${trip.keywords ? `<div class="trip-details">🏷️ ${trip.keywords}</div>` : ''}
+                        ${trip.start_date ? `<div class="trip-details">📅 ${trip.start_date}${trip.end_date ? ' → ' + trip.end_date : ''}</div>` : ''}
+                        <button class="btn-view" onclick="viewTripDetails(${trip.id})">View & Manage Experiences</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading trips:', error);
+            }
+        }
+
+        async function addTrip() {
+            const user_id = document.getElementById('user_id').value;
+            const title = document.getElementById('title').value;
+            const keywords = document.getElementById('keywords').value;
+            const description = document.getElementById('description').value;
+            const start_date = document.getElementById('start_date').value;
+            const end_date = document.getElementById('end_date').value;
+
+            if (!user_id || !title) {
+                showStatus('Please select a user and enter a title', true);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/trips', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: parseInt(user_id),
+                        title,
+                        keywords: keywords || null,
+                        description: description || null,
+                        start_date: start_date || null,
+                        end_date: end_date || null
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to add trip');
+
+                showStatus('✅ Trip added successfully!');
+
+                document.getElementById('title').value = '';
+                document.getElementById('keywords').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('start_date').value = '';
+                document.getElementById('end_date').value = '';
+
+                loadTrips();
+            } catch (error) {
+                showStatus('Error: ' + error.message, true);
+            }
+        }
+
+        async function viewTripDetails(tripId) {
+            currentTripId = tripId;
+
+            try {
+                const response = await fetch(`/api/trips/${tripId}`);
+                const trip = await response.json();
+
+                document.getElementById('modal-trip-title').textContent = trip.title;
+                document.getElementById('modal-trip-details').innerHTML = `
+                    <p><strong>Description:</strong> ${trip.description || 'N/A'}</p>
+                    <p><strong>Dates:</strong> ${trip.start_date || 'N/A'} to ${trip.end_date || 'N/A'}</p>
+                `;
+
+                currentExperiences = trip.experiences || [];
+                renderExperiences();
+
+                document.getElementById('tripModal').style.display = 'block';
+            } catch (error) {
+                alert('Error loading trip details: ' + error.message);
+            }
+        }
+
+        function renderExperiences() {
+            const container = document.getElementById('modal-experiences');
+
+            if (currentExperiences.length === 0) {
+                container.innerHTML = '<p class="empty-state">No experiences added yet</p>';
+                return;
+            }
+
+            // Sort by order
+            currentExperiences.sort((a, b) => a.order - b.order);
+
+            container.innerHTML = currentExperiences.map((exp, index) => `
+                <div class="experience-item"
+                     draggable="true"
+                     data-exp-id="${exp.experience_id}"
+                     ondragstart="handleDragStart(event)"
+                     ondragover="handleDragOver(event)"
+                     ondrop="handleDrop(event)"
+                     ondragend="handleDragEnd(event)">
+                    <div class="drag-handle">⋮⋮</div>
+                    <div class="experience-order">${index + 1}</div>
+                    <div class="experience-content">
+                        <div class="experience-title">${exp.title}</div>
+                        <div class="experience-location">📍 ${exp.location.address}</div>
+                        ${exp.description ? `<div style="font-size: 12px; color: #666; margin-top: 4px;">${exp.description}</div>` : ''}
+                    </div>
+                    ${exp.average_rating > 0 ? `<div class="experience-rating">⭐ ${exp.average_rating}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+
+            const target = e.target.closest('.experience-item');
+            if (target && target !== draggedElement) {
+                target.classList.add('drag-over');
+            }
+            return false;
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+
+            const target = e.target.closest('.experience-item');
+            if (target && target !== draggedElement) {
+                const container = target.parentNode;
+                const allItems = [...container.querySelectorAll('.experience-item')];
+                const draggedIndex = allItems.indexOf(draggedElement);
+                const targetIndex = allItems.indexOf(target);
+
+                if (draggedIndex < targetIndex) {
+                    target.parentNode.insertBefore(draggedElement, target.nextSibling);
+                } else {
+                    target.parentNode.insertBefore(draggedElement, target);
+                }
+
+                // Update order in data
+                updateExperienceOrder();
+            }
+
+            target.classList.remove('drag-over');
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.drag-over').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+        }
+
+        function updateExperienceOrder() {
+            const items = document.querySelectorAll('.experience-item');
+            items.forEach((item, index) => {
+                const expId = item.dataset.expId;
+                const exp = currentExperiences.find(e => e.experience_id === expId);
+                if (exp) {
+                    exp.order = index + 1;
+                }
+            });
+            renderExperiences();
+        }
+
+        async function saveExperienceOrder() {
+            const statusDiv = document.getElementById('order-status');
+
+            try {
+                const updates = currentExperiences.map(exp => ({
+                    experience_id: exp.experience_id,
+                    order: exp.order
+                }));
+
+                const response = await fetch('/api/experiences/update_order', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        trip_id: currentTripId.toString(),
+                        updates: updates
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to save order');
+
+                statusDiv.className = 'success';
+                statusDiv.innerHTML = '✅ Order saved successfully!';
+                setTimeout(() => statusDiv.innerHTML = '', 3000);
+
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.innerHTML = '❌ Error: ' + error.message;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('tripModal').style.display = 'none';
+            loadTrips(); // Refresh trips list
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('tripModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize
+        loadUsers();
+        loadTrips();
+    </script>
+</body>
+</html>
