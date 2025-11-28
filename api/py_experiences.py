@@ -29,6 +29,10 @@ FIREBASE_BUCKET = os.getenv('FIREBASE_BUCKET')
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
+# Phase 1 safeguards for location-based search
+RESULTS_LIMIT = 200  # Max experiences returned
+MAX_BOX_SIZE = 10.0  # Max degrees (prevents scanning entire planet)
+
 # Initialize Firebase
 try:
     # Try Vercel environment variable first
@@ -752,6 +756,124 @@ def get_top_experiences():
         print(f"Error fetching top experiences: {str(error)}")
         return jsonify({'error': 'Failed to fetch top experiences'}), 500
 
+    finally:
+        conn.close()
+
+# ==============================================================================
+# Location-based Search
+# ==============================================================================
+@experiences_bp.route('/location', methods=['POST'])
+def get_experiences_by_location():
+    """
+    Query experiences within map bounds.
+
+    Expected JSON body:
+    {
+        "northEast": {"lat": float, "lng": float},
+        "southWest": {"lat": float, "lng": float}
+    }
+
+    Returns: Array of Experience objects within bounds (max 200)
+    """
+    data = request.get_json()
+
+    # Validate request structure
+    if not data:
+        return jsonify({'error': 'Request body required'}), 400
+
+    ne = data.get('northEast', {})
+    sw = data.get('southWest', {})
+
+    # Extract and validate coordinates
+    ne_lat, ne_lng = ne.get('lat'), ne.get('lng')
+    sw_lat, sw_lng = sw.get('lat'), sw.get('lng')
+
+    # Check all coordinates present
+    if not all([ne_lat is not None, ne_lng is not None,
+                sw_lat is not None, sw_lng is not None]):
+        return jsonify({'error': 'Missing coordinates'}), 400
+
+    # Validate coordinate ranges (basic validation)
+    try:
+        ne_lat, ne_lng = float(ne_lat), float(ne_lng)
+        sw_lat, sw_lng = float(sw_lat), float(sw_lng)
+
+        if not (-90 <= ne_lat <= 90 and -90 <= sw_lat <= 90):
+            return jsonify({'error': 'Latitude must be between -90 and 90'}), 400
+        if not (-180 <= ne_lng <= 180 and -180 <= sw_lng <= 180):
+            return jsonify({'error': 'Longitude must be between -180 and 180'}), 400
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Coordinates must be numeric'}), 400
+
+    # ⭐ PHASE 1 SAFEGUARD: Prevent massive area searches
+    lat_span = abs(ne_lat - sw_lat)
+    lng_span = abs(ne_lng - sw_lng)
+    if lat_span > MAX_BOX_SIZE or lng_span > MAX_BOX_SIZE:
+        return jsonify({
+            'error': 'Search area too large',
+            'message': f'Please zoom in. Maximum area: {MAX_BOX_SIZE}° x {MAX_BOX_SIZE}°'
+        }), 400
+
+    # Database query
+    conn = get_db_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT
+                    e.*,
+                    ARRAY_AGG(DISTINCT k.name) FILTER (WHERE k.name IS NOT NULL) AS keywords,
+                    COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.0) AS average_rating,
+                    COUNT(DISTINCT r.user_id) AS rating_count,
+                    owner_rating.rating AS owner_rating
+                FROM experiences e
+                    LEFT JOIN experience_keywords ek ON e.experience_id = ek.experience_id
+                    LEFT JOIN keywords k ON ek.keyword_id = k.keyword_id
+                    LEFT JOIN experience_ratings r ON e.experience_id = r.experience_id
+                    LEFT JOIN experience_ratings owner_rating
+                        ON e.experience_id = owner_rating.experience_id
+                        AND e.user_id = owner_rating.user_id
+                WHERE
+                    e.latitude BETWEEN %s AND %s
+                    AND e.longitude BETWEEN %s AND %s
+                GROUP BY e.experience_id, owner_rating.rating
+                ORDER BY average_rating DESC, e.create_date DESC
+                LIMIT %s
+            """, (sw_lat, ne_lat, sw_lng, ne_lng, RESULTS_LIMIT))
+
+            experiences = cur.fetchall()
+
+            # Fetch photos for each experience (Phase 1: simple loop)
+            # TODO Phase 2: Optimize with bulk fetch
+            for exp in experiences:
+                cur.execute("""
+                    SELECT photo_id, photo_url, caption, upload_date
+                    FROM experience_photos
+                    WHERE experience_id = %s
+                    ORDER BY upload_date
+                """, (exp['experience_id'],))
+                photos = cur.fetchall()
+                exp['photos'] = photos if photos else []
+
+            # Convert to proper JSON format
+            result_experiences = []
+            for exp in experiences:
+                exp_dict = dict(exp)
+                # Ensure proper types
+                exp_dict["average_rating"] = float(exp_dict["average_rating"])
+                exp_dict["rating_count"] = int(exp_dict["rating_count"])
+                # Format dates
+                exp_dict["experience_date"] = exp_dict["experience_date"].strftime("%Y-%m-%d")
+                exp_dict["create_date"] = exp_dict["create_date"].isoformat()
+                if exp_dict.get("last_updated"):
+                    exp_dict["last_updated"] = exp_dict["last_updated"].isoformat()
+                result_experiences.append(exp_dict)
+
+            return jsonify(result_experiences), 200
+
+    except Exception as e:
+        print(f"Location search error: {e}")
+        traceback.print_exc()
+        return jsonify({'error': 'Database error', 'message': str(e)}), 500
     finally:
         conn.close()
 

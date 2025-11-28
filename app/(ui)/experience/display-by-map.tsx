@@ -51,6 +51,8 @@ interface DisplayByMapProps {
     } | null;
     enableSelectMarker?: boolean;
     showSelectedMarker?: boolean;
+    isLoading?: boolean;
+    error?: string | null;
 }
 
 const MAP_CONFIG = {
@@ -67,6 +69,8 @@ export default function DisplayByMap({
                                          initialCenter,
                                          enableSelectMarker = true,
                                          showSelectedMarker = true,
+                                         isLoading = false,
+                                         error = null,
 }
 : DisplayByMapProps
 ) {
@@ -345,6 +349,21 @@ export default function DisplayByMap({
                 </div>
             )}
 
+            {/* Search Error Banner */}
+            {error && (
+                <div className="mx-2 mt-2 p-3 bg-red-50 border border-red-300
+                                rounded-lg text-sm text-red-800 flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{error}</span>
+                    <button
+                        onClick={() => {/* Error is managed by parent, we can't clear it here */}}
+                        className="ml-auto text-red-600 hover:text-red-800"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
+
             <div className="flex gap-3 p-2 flex-1 min-h-0">
                 {/*=================================== SIDEBAR (OPEN) ====================================*/}
                 {isSidebarOpen && (
@@ -398,32 +417,40 @@ export default function DisplayByMap({
                         <div className="flex flex-col overflow-y-auto min-h-0 pt-2 px-2 gap-1"
                              ref={sidebarContainerRef}
                         >
-                            {experiences.map((exp: Experience) => (
-                                <div key={exp.experience_id}
-                                     onMouseEnter={() => handleSidebarItemHover(exp.experience_id)}
-                                     onMouseLeave={() => handleSidebarItemHover(null)}
-                                     onClick={() => handleSidebarItemClick(exp)}
-                                     ref={(selected) => {
-                                         if (selected) {
-                                             sidebarItemRefs.current.set(exp.experience_id, selected);
-                                         } else {
-                                             sidebarItemRefs.current.delete(exp.experience_id);
-                                         }
-                                     }}
-                                     className={`transition-all duration-200 cursor-pointer
-                                        ${hoveredExperienceId === exp.experience_id ? 'bg-blue-50' : ''}
-                                        ${selectedExperienceId === exp.experience_id ? 'ring-2 ring-blue-500 rounded-xl' : ''}
-                                    `}
-                                >
-                                    <ExperienceListCard
-                                        experience={exp}
-                                        session_user_id={session_user_id || undefined}
-                                        isHovered={hoveredExperienceId === exp.experience_id}
-                                        isSelected={selectedExperienceId === exp.experience_id}
-                                        compact={!isFullWidth}
-                                    />
+                            {experiences.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-full
+                                                text-gray-500 p-8 text-center">
+                                    <p className="text-lg font-medium mb-2">No experiences found</p>
+                                    <p className="text-sm">Try searching a different area or zooming out</p>
                                 </div>
-                            ))}
+                            ) : (
+                                experiences.map((exp: Experience) => (
+                                    <div key={exp.experience_id}
+                                         onMouseEnter={() => handleSidebarItemHover(exp.experience_id)}
+                                         onMouseLeave={() => handleSidebarItemHover(null)}
+                                         onClick={() => handleSidebarItemClick(exp)}
+                                         ref={(selected) => {
+                                             if (selected) {
+                                                 sidebarItemRefs.current.set(exp.experience_id, selected);
+                                             } else {
+                                                 sidebarItemRefs.current.delete(exp.experience_id);
+                                             }
+                                         }}
+                                         className={`transition-all duration-200 cursor-pointer
+                                            ${hoveredExperienceId === exp.experience_id ? 'bg-blue-50' : ''}
+                                            ${selectedExperienceId === exp.experience_id ? 'ring-2 ring-blue-500 rounded-xl' : ''}
+                                        `}
+                                    >
+                                        <ExperienceListCard
+                                            experience={exp}
+                                            session_user_id={session_user_id || undefined}
+                                            isHovered={hoveredExperienceId === exp.experience_id}
+                                            isSelected={selectedExperienceId === exp.experience_id}
+                                            compact={!isFullWidth}
+                                        />
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 )}
@@ -451,9 +478,13 @@ export default function DisplayByMap({
                             {showRefreshButton && (
                                 <button
                                     onClick={handleRefreshClick}
-                                    className="absolute top-4 right-4 px-4 py-2.5 bg-blue-600 text-white rounded-lg shadow-lg
-                                           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                                           transition-all duration-200 flex items-center gap-2 font-medium pointer-events-auto"
+                                    disabled={isLoading}
+                                    className={`absolute top-4 right-4 px-4 py-2.5 rounded-lg shadow-lg
+                                           transition-all duration-200 flex items-center gap-2 font-medium pointer-events-auto
+                                           ${isLoading
+                                               ? 'bg-gray-400 cursor-not-allowed'
+                                               : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'}
+                                           text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                                     style={{
                                         position: 'absolute',
                                         top: '1rem',
@@ -461,8 +492,18 @@ export default function DisplayByMap({
                                         zIndex: 9999
                                     }}
                                 >
-                                    <ArrowPathIcon className="w-5 h-5" />
-                                    Search this area
+                                    {isLoading ? (
+                                        <>
+                                            <div className="w-5 h-5 border-2 border-white border-t-transparent
+                                                           rounded-full animate-spin" />
+                                            Searching...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ArrowPathIcon className="w-5 h-5" />
+                                            Search this area
+                                        </>
+                                    )}
                                 </button>
                             )}
 
