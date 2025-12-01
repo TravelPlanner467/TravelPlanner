@@ -160,7 +160,7 @@ def get_trip_details(trip_id):
 
             trip = dict(trip)
 
-            # Convert date/datetime fields to ISO 8601 strings
+            # Convert date/datetime fields to ISO 8601 strings[web:126][web:131]
             for field in ("start_date", "end_date", "create_date"):
                 if trip.get(field):
                     trip[field] = trip[field].isoformat()
@@ -168,7 +168,7 @@ def get_trip_details(trip_id):
             trip["trip_id"] = str(trip["trip_id"])
             trip["user_id"] = str(trip["user_id"])
 
-            # Fetch experiences for this trip - UPDATED to include display_order
+            # Fetch experiences for this trip
             cur.execute(
                 """
                 SELECT
@@ -178,7 +178,6 @@ def get_trip_details(trip_id):
                     e.longitude,
                     e.address,
                     e.description,
-                    te.display_order,
                     COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0.0) AS average_rating
                 FROM trip_experiences te
                 JOIN experiences e
@@ -192,10 +191,9 @@ def get_trip_details(trip_id):
                     e.latitude,
                     e.longitude,
                     e.address,
-                    e.description,
-                    te.display_order
+                    e.description
                 ORDER BY
-                    te.display_order, e.create_date
+                    e.create_date
                 """,
                 (trip_id,),
             )
@@ -207,7 +205,6 @@ def get_trip_details(trip_id):
                     {
                         "experience_id": str(row["experience_id"]),
                         "title": row["title"],
-                        "order": row["display_order"] if row["display_order"] is not None else 0,  # NEW: Add order field
                         "location": {
                             "lat": float(row["latitude"]) if row["latitude"] is not None else None,
                             "lng": float(row["longitude"]) if row["longitude"] is not None else None,
@@ -238,7 +235,6 @@ def add_experience_to_trip():
     print(data)
     trip_id = data['trip_id']
     experience_id = data['experience_id']
-    display_order = data.get('order', 0)  # NEW: Get order from request, default to 0
 
     conn = psycopg2.connect(DATABASE_URL)
     try:

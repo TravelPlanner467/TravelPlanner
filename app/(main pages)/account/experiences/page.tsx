@@ -2,7 +2,7 @@ import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
 import {redirect} from "next/navigation";
 import {getUserExperiences} from "@/lib/actions/experience-actions";
-import {NewExperienceButton} from "@/app/(ui)/account/buttons/experience-buttons";
+import {NewExperienceButton} from "@/app/(ui)/experience/buttons/experience-buttons";
 import ErrorCard from "@/app/(ui)/general/error-display";
 import ExperiencesDisplay from "@/app/(ui)/experience/experiences-display";
 import {ErrorResponse, Experience} from "@/lib/types";

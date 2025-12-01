@@ -155,6 +155,17 @@ export interface GetBatchExperiencesProps {
     user_id: string;
 }
 
+export interface ExperiencesOrderProps {
+    trip_id: string;
+    session_user_id: string;
+    updates: ExperienceOrder[];
+}
+
+export interface ExperienceOrder {
+    experience_id: string;
+    order: number;
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 // STANDARD COMPONENT PROPS -------------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------------------------------------

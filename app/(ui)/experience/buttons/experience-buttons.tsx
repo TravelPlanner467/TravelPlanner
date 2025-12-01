@@ -57,7 +57,9 @@ export function DeleteExperienceButton({user_id, experience_id}: DeleteExperienc
         const result = confirm("Are you sure you want to delete this experiences?");
         if (result) {
             deleteExperience(formData)
-            window.location.reload();
+            setTimeout(function(){
+                window.location.reload();
+            }, 500);
         }
     }
 

@@ -16,13 +16,10 @@ export default function TripExperiencesCard({ experience, session_user_id, trip_
             {/* Top Row - Title, Order/Rating Row  */}
             <div className="flex justify-between items-start mb-2">
                 <h3 className="text-lg font-semibold line-clamp-1 flex-1">{experience.title}</h3>
-                {/*<span className="ml-2 px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800 shrink-0">*/}
-                {/*    {experience.order > 0 ? `#${experience.order}` : "Unordered"}*/}
-                {/*</span>*/}
-                <div className="flex items-center text-yellow-600 ml-2 shrink-0">
-                    <StarIcon className="w-4 h-4 mr-1" />
-                    <span className="font-medium">{experience.average_rating ?? 'N/A'}</span>
-                </div>
+                <span className="ml-2 px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800 shrink-0">
+                    {experience.order > 0 ? `#${experience.order}` : "Unordered"}
+                </span>
+
             </div>
 
             {/* Location */}
@@ -31,7 +28,10 @@ export default function TripExperiencesCard({ experience, session_user_id, trip_
                     <MapPinIcon className="w-4 h-4 mr-1 shrink-0" />
                     <span className="truncate">{experience.location.address}</span>
                 </div>
-
+                <div className="flex items-center text-yellow-600 ml-2 shrink-0">
+                    <StarIcon className="w-4 h-4 mr-1" />
+                    <span className="font-medium">{experience.average_rating ?? 'N/A'}</span>
+                </div>
             </div>
 
             {/* Description */}

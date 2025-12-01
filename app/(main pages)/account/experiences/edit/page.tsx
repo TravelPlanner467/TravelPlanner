@@ -4,7 +4,7 @@ import {headers} from "next/headers";
 import {redirect} from "next/navigation";
 import {getUserExperiencesDetails} from "@/lib/actions/experience-actions";
 import {GoBackButton} from "@/app/(ui)/general/buttons/nav-buttons";
-import EditExperienceForm from "@/app/(ui)/account/experiences/edit-experience";
+import EditExperienceForm from "@/app/(ui)/experience/edit-experience";
 
 export default async function EditExperiencePage(
     props: { searchParams?: Promise<{ q?: string }> }
