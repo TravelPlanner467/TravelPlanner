@@ -160,15 +160,17 @@ def get_trip_details(trip_id):
 
             trip = dict(trip)
 
-            # Convert date/datetime fields to ISO 8601 strings[web:126][web:131]
+            # Convert date/datetime fields to ISO 8601 strings
             for field in ("start_date", "end_date", "create_date"):
                 if trip.get(field):
                     trip[field] = trip[field].isoformat()
 
-            trip["trip_id"] = str(trip["trip_id"])
+            # If your frontend expects numbers, you can skip these casts;
+            # otherwise keep them as strings.
+            trip["trip_id"] = int(trip["trip_id"])
             trip["user_id"] = str(trip["user_id"])
 
-            # Fetch experiences for this trip
+            # Fetch experiences for this trip, including display_order
             cur.execute(
                 """
                 SELECT
@@ -178,6 +180,8 @@ def get_trip_details(trip_id):
                     e.longitude,
                     e.address,
                     e.description,
+                    te.display_order,
+                    e.create_date,
                     COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0.0) AS average_rating
                 FROM trip_experiences te
                 JOIN experiences e
@@ -191,9 +195,12 @@ def get_trip_details(trip_id):
                     e.latitude,
                     e.longitude,
                     e.address,
-                    e.description
-                ORDER BY
+                    e.description,
+                    te.display_order,
                     e.create_date
+                ORDER BY
+                    te.display_order NULLS LAST,
+                    e.create_date DESC
                 """,
                 (trip_id,),
             )
@@ -203,7 +210,7 @@ def get_trip_details(trip_id):
             for row in rows:
                 experiences.append(
                     {
-                        "experience_id": str(row["experience_id"]),
+                        "experience_id": int(row["experience_id"]),
                         "title": row["title"],
                         "location": {
                             "lat": float(row["latitude"]) if row["latitude"] is not None else None,
@@ -213,7 +220,8 @@ def get_trip_details(trip_id):
                         "description": row["description"],
                         "average_rating": float(row["average_rating"])
                         if row["average_rating"] is not None
-                        else None,
+                        else 0.0,
+                        "order": int(row["display_order"]) if row["display_order"] is not None else 0,
                     }
                 )
 
@@ -239,17 +247,17 @@ def add_experience_to_trip():
     conn = psycopg2.connect(DATABASE_URL)
     try:
         with conn.cursor() as cur:
-            # UPDATED: Include display_order and handle conflicts
             cur.execute("""
                 INSERT INTO trip_experiences (trip_id, experience_id)
-                VALUES (%s, %s, %s)
-                ON CONFLICT (trip_id, experience_id) 
+                VALUES (%s, %s)
+                ON CONFLICT (trip_id, experience_id) DO NOTHING
             """, (trip_id, experience_id))
         conn.commit()
         return {'message': 'Experience added successfully'}, 200
 
     except Exception as e:
         conn.rollback()
+        print("add_experience_to_trip error:", e)
         return {'error': str(e)}, 500
 
     finally:
