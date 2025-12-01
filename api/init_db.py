@@ -140,6 +140,7 @@ def init_trip_experiences_table():
                     "trip_id" integer NOT NULL REFERENCES trips(trip_id) ON DELETE CASCADE,
                     "experience_id" integer NOT NULL REFERENCES experiences(experience_id) ON DELETE CASCADE,
                     "added_date" timestamptz NOT NULL DEFAULT NOW(),
+                    "display_order" integer,
                     PRIMARY KEY (trip_id, experience_id)
                 )
             """)
@@ -199,4 +200,4 @@ def init_all_tables():
 
 # Initialize in order
 if __name__ == "__main__":
-    init_all_tables()
+    init_trip_experiences_table()
