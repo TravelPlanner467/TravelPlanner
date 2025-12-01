@@ -241,11 +241,10 @@ def add_experience_to_trip():
         with conn.cursor() as cur:
             # UPDATED: Include display_order and handle conflicts
             cur.execute("""
-                INSERT INTO trip_experiences (trip_id, experience_id, display_order)
+                INSERT INTO trip_experiences (trip_id, experience_id)
                 VALUES (%s, %s, %s)
                 ON CONFLICT (trip_id, experience_id) 
-                DO UPDATE SET display_order = EXCLUDED.display_order
-            """, (trip_id, experience_id, display_order))
+            """, (trip_id, experience_id))
         conn.commit()
         return {'message': 'Experience added successfully'}, 200
 

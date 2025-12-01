@@ -1,12 +1,10 @@
 'use client'
 
-import {Trip, TripExperience} from "@/lib/types";
+import {Trip} from "@/lib/types";
 import {CalendarDaysIcon} from "@heroicons/react/16/solid";
-import TripExperiencesCard from "@/app/(ui)/trips/trip-experiences-card";
 import {DeleteTripButton, EditTripButton} from "@/app/(ui)/trips/buttons/trip-buttons";
 import {useLayoutEffect, useRef, useState} from "react";
 import DraggableExperiences from "@/app/(ui)/trips/draggable-experiences";
-import TripExperiencesList from "@/app/(ui)/trips/trip-experiences-list";
 import {updateExperiencesOrder} from "@/lib/actions/trips-actions";
 
 interface TripDetailsProps {
@@ -215,7 +213,6 @@ export function TripDetailsCard({trip, session_user_id}: TripDetailsProps) {
                         isEditMode={isEditMode}
                         onEditAction={handleExperiencesEditAction}
                     />
-                    {/*<TripExperiencesList trip_id={trip.trip_id} experiences={trip.experiences} session_user_id={session_user_id} />*/}
                 </div>
             </div>
         </div>
