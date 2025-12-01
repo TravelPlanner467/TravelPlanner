@@ -3,9 +3,8 @@ import { Suspense } from 'react';
 import {headers} from "next/headers";
 import {ExperienceDetailsContent} from "@/app/(ui)/experience/display/experience-details-card";
 import {getExperienceDetails, getUserByID} from "@/lib/actions/experience-actions";
-import {getUserTrips} from "@/lib/actions/trips-actions";
 import {GoBackButton} from "@/app/(ui)/general/buttons/nav-buttons";
-import {ErrorResponse, UserTripsProps} from "@/lib/types";
+import {ErrorResponse} from "@/lib/types";
 
 export default async function ExperienceDetailsPage(
     props: { searchParams?: Promise<{ q?: string }> }
@@ -16,6 +15,7 @@ export default async function ExperienceDetailsPage(
 
     // Fetch Experience Details
     const experience = await getExperienceDetails(experience_id);
+
     // Early return for experience fetch error
     if ("error" in experience) {
         return (
@@ -34,16 +34,9 @@ export default async function ExperienceDetailsPage(
     // Get the username of the experience author
     const experienceAuthor = await getUserByID(experience.user_id);
 
-    // Authentication Check for "Add Trips" button
+    // Authentication Check - just get user_id
     const session = await auth.api.getSession({ headers: await headers() });
-    let trips: UserTripsProps[] | ErrorResponse | undefined;
-    let session_user_id: string | undefined;
-
-    // If session exists, fetch user trips and load user_id
-    if (session) {
-        session_user_id = session.user.id;
-        trips = await getUserTrips(session_user_id);
-    }
+    const session_user_id = session?.user?.id;
 
     return (
         <main className="">
@@ -51,13 +44,11 @@ export default async function ExperienceDetailsPage(
                 <div className="flex flex-col gap-4 items-center justify-center">
                     <ExperienceDetailsContent
                         experience={experience}
-                        trips={trips}
                         user_id={session_user_id}
                         experienceAuthor={experienceAuthor}
                     />
                 </div>
             </Suspense>
         </main>
-
     );
 }

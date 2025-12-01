@@ -1,6 +1,6 @@
 'use client'
 
-import {useLayoutEffect, useMemo, useRef, useState} from "react";
+import {useLayoutEffect, useMemo, useRef, useState, useEffect} from "react";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
@@ -10,22 +10,41 @@ import LightboxImage from "@/app/(ui)/experience/display/lightbox-image";
 import {AddToTripButton} from "@/app/(ui)/experience/buttons/add-to-trip-button";
 import {RatingDisplay} from "@/app/(ui)/experience/buttons/star-rating";
 import {RateExperienceButton} from "@/app/(ui)/experience/buttons/rate-experience-button";
-import {Experience, ErrorResponse, Trip, UserTripsProps} from "@/lib/types";
+import {Experience, ErrorResponse, UserTripsProps} from "@/lib/types";
 import {Inline, Thumbnails} from "yet-another-react-lightbox/plugins";
 import { KeywordsButtons } from "@/app/(ui)/components/keywords-buttons";
+import {getUserTrips} from "@/lib/actions/trips-actions";  // ADD THIS IMPORT
 
 interface ExperienceDetailsProps {
     experience: Experience;
     user_id?: string;
-    trips?: UserTripsProps[] | ErrorResponse;
+    // REMOVED: trips prop - we'll fetch it here instead
     experienceAuthor: string;
 }
 
-export function ExperienceDetailsContent({ experience, trips, user_id, experienceAuthor }: ExperienceDetailsProps) {
+export function ExperienceDetailsContent({ experience, user_id, experienceAuthor }: ExperienceDetailsProps) {
     // States for Expanding/Collapsing Description
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTruncated, setIsTruncated] = useState(false);
     const textRef = useRef<HTMLParagraphElement>(null);
+
+    // NEW: Fetch trips client-side
+    const [trips, setTrips] = useState<UserTripsProps[] | ErrorResponse | undefined>(undefined);
+    const [isLoadingTrips, setIsLoadingTrips] = useState(false);
+
+    // NEW: Fetch trips when user_id is available
+    useEffect(() => {
+        if (user_id) {
+            setIsLoadingTrips(true);
+            getUserTrips(user_id)
+                .then(setTrips)
+                .catch((error) => {
+                    console.error('Error fetching trips:', error);
+                    setTrips(undefined);
+                })
+                .finally(() => setIsLoadingTrips(false));
+        }
+    }, [user_id]);
 
     // Load photos from server data
     const slides = useMemo(() => {
@@ -111,12 +130,24 @@ export function ExperienceDetailsContent({ experience, trips, user_id, experienc
                             )}
                         </div>
 
-                        {/*Add to Trip Button*/}
+                        {/*Add to Trip Button - UPDATED with loading state*/}
                         {isLoggedIn && (
-                            <AddToTripButton
-                                user_id={user_id}
-                                experience_id={experience.experience_id}
-                                trips={trips}/>
+                            <>
+                                {isLoadingTrips ? (
+                                    <button
+                                        disabled
+                                        className="w-36 px-4 py-2 bg-gray-400 text-white rounded-md cursor-not-allowed"
+                                    >
+                                        Loading...
+                                    </button>
+                                ) : (
+                                    <AddToTripButton
+                                        user_id={user_id}
+                                        experience_id={experience.experience_id}
+                                        trips={trips}
+                                    />
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
