@@ -279,3 +279,43 @@ export async function removeExperienceFromTrip(formData: ExperienceToTripsProps)
         };
     }
 }
+
+export async function updateExperiencesOrder(formData: {
+    trip_id: string;
+    session_user_id: string;
+    updates: { experience_id: string; order: number }[];
+}) {
+    console.log("Updating experiences order: ", formData);
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/trips/update-experience-order`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-User-Id": formData.session_user_id,
+            },
+            body: JSON.stringify({
+                trip_id: formData.trip_id,
+                updates: formData.updates
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`OK: ${response.status}`);
+            console.log('Experience order updated:', result);
+            return result;
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `Microservice Error: ${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Update failed: ', error);
+        return {
+            error: "Error in: updateExperiencesOrder",
+            message: `${error}`,
+        };
+    }
+}
