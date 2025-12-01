@@ -47,7 +47,10 @@ export function DeleteTripButton({session_user_id, trip_id}: TripIDProps) {
         if (result) {
             deleteTrip(formData)
         }
-        router.push("/trips");
+        setTimeout(function(){
+            router.push("/trips");
+        }, 500);
+
     }
 
     return (

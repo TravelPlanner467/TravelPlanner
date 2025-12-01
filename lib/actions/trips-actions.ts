@@ -5,7 +5,7 @@ import {
     TripIDProps,
     Experience,
     GetBatchExperiencesProps,
-    ExperienceToTripsProps, UserTripsProps, ErrorResponse, EditTripProps,
+    ExperienceToTripsProps, UserTripsProps, ErrorResponse, EditTripProps, ExperiencesOrderProps,
 } from "@/lib/types";
 
 // CREATE ====================================================================
@@ -212,7 +212,6 @@ export async function getTripExperienceDetails(formData: GetBatchExperiencesProp
     }
 }
 
-
 export async function addExperienceToTrip(formData: ExperienceToTripsProps) {
     console.log(formData);
     try {
@@ -276,6 +275,43 @@ export async function removeExperienceFromTrip(formData: ExperienceToTripsProps)
         return {
             error: "Error in: removeExperienceFromTrip",
             message: `${error}`,
+        };
+    }
+}
+
+export async function updateExperiencesOrder(formData: ExperiencesOrderProps) {
+    try {
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/trips/update-experience-order`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': formData.session_user_id,
+                },
+                body: JSON.stringify({
+                    trip_id: formData.trip_id,
+                    updates: formData.updates,
+                }),
+            }
+        );
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log(`OK: ${response.status}`);
+            return result;
+        } else {
+            console.error(`HTTP error: ${response.status}`);
+            return {
+                error: `Microservice Error: ${response.status}`,
+                message: `${response.statusText}`,
+            };
+        }
+    } catch (error) {
+        console.error('Fetch failed: ', error);
+        return {
+            error: 'Error in: updateExperiencesOrder',
+            message: String(error),
         };
     }
 }

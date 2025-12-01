@@ -9,7 +9,7 @@ import {
     DeleteExperienceButton,
     EditExperienceButton,
     ViewExperienceButton
-} from "@/app/(ui)/account/buttons/experience-buttons";
+} from "@/app/(ui)/experience/buttons/experience-buttons";
 import { KeywordsButtons } from "@/app/(ui)/components/keywords-buttons";
 
 interface ExperienceListCardProps {

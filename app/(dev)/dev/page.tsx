@@ -3,19 +3,10 @@ import {headers} from "next/headers";
 import {redirect} from "next/navigation";
 import {CodeBracketIcon} from "@heroicons/react/16/solid";
 
-import {getAllExperiences} from "@/lib/actions/experience-actions";
 
 export default async function DevPage() {
     const session = await auth.api.getSession({headers: await headers()});
     if ( !session ) {redirect('/account/login');}
-    const session_user_id = session.user.id;
-
-    const experiences = await getAllExperiences()
-    if ( "error" in experiences ) {
-        return (
-            <div>ERROR</div>
-        )
-    }
 
     return (
         <div className="flex flex-col w-full h-screen">
